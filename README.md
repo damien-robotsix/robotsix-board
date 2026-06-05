@@ -22,21 +22,14 @@ dependencies = [
 
 ## Usage
 
-The library owns the board HTML/CSS/JS chrome, parameterized by a small data adapter and a render mode.
+The library owns the board HTML/CSS/JS chrome and is parameterized by two things:
 
-> **Note:** The public API is under active development; the shape below illustrates the planned usage. API reference docs will follow once exported modules are in place.
+- **A data adapter** that describes the board's shape — the column order, which card fields to display, and the endpoint used to move a card between columns.
+- **A render mode** that selects how the board is produced — server-rendered HTML fragments, or a JSON payload hydrated by the bundled JavaScript.
 
-```python
-# Intended parameterisation (conceptual — not yet importable)
-from robotsix_board import BoardConfig, RenderMode
+This lets it be consumed by both robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib `BaseHTTPRequestHandler` + inline Jinja).
 
-config = BoardConfig(
-    columns=["Backlog", "To Do", "In Progress", "Done"],
-    card_fields=["title", "assignee", "due_date"],
-    move_endpoint="/api/cards/{card_id}/move",
-    render_mode=RenderMode.SERVER_FRAGMENTS,
-)
-```
+> **Note:** The public API is under active development and is not yet importable from the current package. The data-adapter and render-mode parameterization described above illustrates the planned usage; concrete imports, class names, and API reference docs will follow once the exported modules are in place.
 
 ## Development
 
