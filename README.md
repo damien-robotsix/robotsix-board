@@ -29,7 +29,7 @@ The library owns the board HTML/CSS/JS chrome and is parameterized by two things
 
 This lets it be consumed by both robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib `BaseHTTPRequestHandler` + inline Jinja).
 
-> **Note:** The public API is under active development and is not yet importable from the current package. The data-adapter and render-mode parameterization described above illustrates the planned usage; concrete imports, class names, and API reference docs will follow once the exported modules are in place.
+> **Note:** The public API is now available. Import the adapter contract and render-mode selector via `robotsix_board.BoardAdapter` and `robotsix_board.RenderMode`. The packaged static assets are accessed via `robotsix_board.static_dir()`. See the Design contract section below for full documentation.
 
 ## Development
 
