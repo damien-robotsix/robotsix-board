@@ -17,6 +17,7 @@ dev = [
     "pytest",
     "deptry",
     "mypy",
+    "pip-audit",
 ]
 
 [tool.hatch.build.targets.wheel]

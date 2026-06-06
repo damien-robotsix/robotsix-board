@@ -18,6 +18,8 @@ jobs:
         run: uv lock
       - name: Sync dependencies
         run: uv sync --frozen --extra dev
+      - name: Scan dependencies for vulnerabilities
+        run: uv run pip-audit --strict --vulnerability-service osv
       - name: Check dependencies
         run: uv run deptry .
       - name: Lint
