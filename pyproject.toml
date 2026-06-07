@@ -18,10 +18,14 @@ dev = [
     "deptry",
     "mypy",
     "pip-audit",
+    "pytest-cov",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotsix_board"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=robotsix_board --cov-branch --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 88
