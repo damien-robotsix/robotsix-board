@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 
+from robotsix_board import RenderMode
 from robotsix_board._render import esc, render_board, render_config_script
 
 # ── mock adapter ──────────────────────────────────────────────────────
@@ -22,26 +23,26 @@ class MockAdapter:
 
     def card_id(self, c: object) -> str:
         assert isinstance(c, dict)
-        return c["id"]
+        return c["id"]  # type: ignore[no-any-return]
 
     def card_title(self, c: object) -> str:
         assert isinstance(c, dict)
-        return c["title"]
+        return c["title"]  # type: ignore[no-any-return]
 
     def card_badges(self, c: object) -> list[str]:
         assert isinstance(c, dict)
-        return c.get("badges", [])
+        return c.get("badges", [])  # type: ignore[no-any-return]
 
     def card_timestamps(self, c: object) -> dict[str, str]:
         assert isinstance(c, dict)
-        return c.get("timestamps", {})
+        return c.get("timestamps", {})  # type: ignore[no-any-return]
 
     def move_endpoint(self, c: object) -> tuple[str, str]:
         assert isinstance(c, dict)
         return (f"/move/{c['id']}", "POST")
 
-    def render_mode(self) -> str:
-        return "server_fragments"
+    def render_mode(self) -> RenderMode:
+        return RenderMode.SERVER_FRAGMENTS
 
 
 # ── helpers ───────────────────────────────────────────────────────────

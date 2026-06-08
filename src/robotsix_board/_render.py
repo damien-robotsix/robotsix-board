@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import html as _html
 import json as _json
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ def esc(s: str) -> str:
     return _html.escape(s, quote=True)
 
 
-def render_board(adapter: BoardAdapter, cards: dict[str, list[object]]) -> str:
+def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -> str:
     """Render the full board HTML for SERVER_FRAGMENTS mode.
 
     Produces the complete ``#board`` container with one ``.board-column``
