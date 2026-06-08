@@ -29,7 +29,12 @@ __all__ = [
     "static_dir",
     "RenderMode",
     "BoardAdapter",
+    "esc",
+    "render_board",
+    "render_config_script",
 ]
+
+from ._render import esc, render_board, render_config_script  # noqa: E402
 
 
 def static_dir() -> pathlib.Path:
