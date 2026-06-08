@@ -19,6 +19,8 @@ dev = [
     "mypy",
     "pip-audit",
     "pytest-cov",
+    "bandit",
+    "detect-secrets",
 ]
 
 [tool.hatch.build.targets.wheel]
