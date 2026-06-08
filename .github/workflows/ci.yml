@@ -26,6 +26,10 @@ jobs:
         run: uv run ruff check .
       - name: Format check
         run: uv run ruff format --check .
+      - name: SAST scan (bandit)
+        run: uv run bandit -r src -ll
+      - name: Secret scan (detect-secrets)
+        run: uv run detect-secrets scan --baseline .secrets.baseline
       - name: Type check
         run: uv run mypy src tests
       - name: Run tests with coverage
