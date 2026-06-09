@@ -1,0 +1,7 @@
+site_name: robotsix-board
+site_description: Shared kanban-board frontend library — integration docs
+repo_url: https://github.com/damien-robotsix/robotsix-board
+theme:
+  name: material
+nav:
+  - Home: index.md
