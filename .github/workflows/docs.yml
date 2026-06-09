@@ -30,29 +30,18 @@ jobs:
       - name: Build MkDocs site
         run: uv run mkdocs build
       # ── Setup Pages ────────────────────────────────────────────────
-      # The `enablement` parameter attempts to create the Pages site when
-      # it doesn't already exist.  This requires a PAT with elevated
-      # permissions — the stock `GITHUB_TOKEN` is insufficient.
+      # One-time manual step: a repo admin must enable GitHub Pages via
+      # Settings → Pages → Source: "GitHub Actions". No PAT or secret is
+      # needed for this — it's a lightweight one-time repo setting.
       #
-      # **One-time manual step for a repo admin** (not automatable here):
-      # 1. Create a fine-grained personal access token (or classic PAT
-      #    with `repo` scope) with these permissions on
-      #    `damien-robotsix/robotsix-board`:
-      #      • administration: write
-      #      • pages: write
-      # 2. Store it as a repository secret:
-      #      Settings → Secrets and variables → Actions →
-      #      New repository secret
-      #      Name:  PAGES_ENABLEMENT_PAT
-      #      Value: <the token>
-      #
-      # Once the secret exists, re-run this workflow and Pages will be
-      # enabled on the first successful deploy.
+      # Do NOT add `enablement: true` or a `token:` PAT here. `enablement`
+      # would auto-create the Pages site, but that requires a token with
+      # `administration: write`, which the stock `GITHUB_TOKEN` cannot
+      # hold — forcing a separate PAT secret we deliberately avoid. This
+      # file has thrashed between the bare and PAT forms (see PRs
+      # #30/#31/#33/#35); keep it as the bare step below.
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        with:
-          enablement: 'true'
-          token: ${{ secrets.PAGES_ENABLEMENT_PAT }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
