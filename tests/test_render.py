@@ -41,6 +41,9 @@ class MockAdapter:
         assert isinstance(c, dict)
         return (f"/move/{c['id']}", "POST")
 
+    def move_endpoint_template(self) -> str:
+        return "/move/{card_id}/{target_status}"
+
     def render_mode(self) -> RenderMode:
         return RenderMode.SERVER_FRAGMENTS
 
@@ -241,6 +244,7 @@ class TestRenderBoard:
             ["done", "Done"],
         ]
         assert "move_endpoint_template" in parsed
+        assert parsed["move_endpoint_template"] == "/move/{card_id}/{target_status}"
         assert "move_method" in parsed
         assert parsed["move_method"] == "POST"
         assert "render_mode" in parsed
@@ -268,3 +272,15 @@ class TestRenderBoard:
         parsed = json.loads(match.group(1))
 
         assert "refresh_url" not in parsed
+
+    def test_render_config_script_uses_adapter_move_endpoint_template(self) -> None:
+        """A custom template from the adapter must appear in the emitted config."""
+        adapter = MockAdapter()
+        adapter.move_endpoint_template = lambda: "/api/board/{card_id}/transition"  # type: ignore[method-assign]
+
+        result = render_config_script(adapter)
+        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
+        assert match is not None
+        parsed = json.loads(match.group(1))
+
+        assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"

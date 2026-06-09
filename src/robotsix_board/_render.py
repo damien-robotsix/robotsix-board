@@ -138,19 +138,8 @@ def render_config_script(
     """
     columns = adapter.columns()
 
-    # Derive the move-endpoint template from a representative card.
-    # We use a sentinel approach: call move_endpoint with a placeholder-like
-    # object whose card_id() returns "{card_id}".  Since we can't construct
-    # such an object without knowing the adapter's card shape, we iterate
-    # and use the first card if available, falling back to a sensible default.
     move_method = "POST"
-
-    # Try to sample from any column's cards, but the config script doesn't
-    # receive cards.  We construct a template from the adapter's column
-    # layout: the template is /move/{card_id}/{target_status} with method
-    # derived from a sentinel card.  Since we don't have cards here, we
-    # emit a canonical template that board.js uses.
-    move_endpoint_template = "/move/{card_id}/{target_status}"
+    move_endpoint_template = adapter.move_endpoint_template()
 
     config: dict[str, object] = {
         "columns": [[k, lbl] for k, lbl in columns],
