@@ -261,6 +261,42 @@
   color: #e0e0e0;
 }
 
+.drawer-card-title {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.drawer-card-id {
+  font-size: 0.85rem;
+  color: #8080a0;
+  margin-bottom: 16px;
+}
+
+.drawer-section h3 {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  margin: 12px 0 4px;
+}
+
+.drawer-section ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #c0c0e0;
+}
+
+.drawer-close {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 6px 16px;
+  border: 1px solid #2a2a4a;
+  border-radius: 4px;
+  background: #0f3460;
+  color: #e0e0e0;
+  cursor: pointer;
+}
+
 /* ── responsive ──────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
