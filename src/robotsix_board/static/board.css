@@ -50,6 +50,10 @@
   overflow: hidden;
 }
 
+.board-column.hidden {
+  display: none;
+}
+
 /* ── column header ───────────────────────────────────────────────── */
 
 .board-column-header {
