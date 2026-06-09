@@ -51,3 +51,6 @@ files = ["src", "tests"]
 [tool.deptry]
 known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["mkdocs", "mkdocs-material"]  # CLI tools used via the docs workflow, not imported
