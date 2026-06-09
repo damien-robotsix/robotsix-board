@@ -27,7 +27,7 @@ dev = [
 packages = ["src/robotsix_board"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=robotsix_board --cov-branch --cov-report=term-missing"
+addopts = "--cov=robotsix_board --cov-branch --cov-report=term-missing --cov-fail-under=100"
 
 [tool.ruff]
 line-length = 88

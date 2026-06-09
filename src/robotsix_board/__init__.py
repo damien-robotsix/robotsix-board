@@ -73,27 +73,27 @@ class BoardAdapter(Protocol):
 
     def columns(self) -> list[tuple[str, str]]:
         """Return the ordered ``(status_key, label)`` pairs for the board columns."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def card_id(self, card: object) -> str:
         """Return the stable identifier for ``card``."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def card_title(self, card: object) -> str:
         """Return the display title for ``card``."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def card_badges(self, card: object) -> list[str]:
         """Return the badge labels to render on ``card``."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def card_timestamps(self, card: object) -> dict[str, str]:
         """Return the timestamp fields (e.g. created/updated) for ``card``."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def move_endpoint(self, card: object) -> tuple[str, str]:
         """Return the ``(url, http_method)`` used to move ``card`` between columns."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def move_endpoint_template(self) -> str:
         """Return the URL template used by the board config in JSON_HYDRATION mode.
@@ -101,8 +101,8 @@ class BoardAdapter(Protocol):
         The template should contain the placeholders ``{card_id}`` and
         ``{target_status}``, e.g. ``"/move/{card_id}/{target_status}"``.
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def render_mode(self) -> RenderMode:
         """Return the render mode this consumer uses."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
