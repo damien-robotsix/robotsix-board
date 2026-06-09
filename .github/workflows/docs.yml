@@ -29,8 +29,30 @@ jobs:
         run: uv sync --frozen --extra docs
       - name: Build MkDocs site
         run: uv run mkdocs build
+      # ── Setup Pages ────────────────────────────────────────────────
+      # The `enablement` parameter attempts to create the Pages site when
+      # it doesn't already exist.  This requires a PAT with elevated
+      # permissions — the stock `GITHUB_TOKEN` is insufficient.
+      #
+      # **One-time manual step for a repo admin** (not automatable here):
+      # 1. Create a fine-grained personal access token (or classic PAT
+      #    with `repo` scope) with these permissions on
+      #    `damien-robotsix/robotsix-board`:
+      #      • administration: write
+      #      • pages: write
+      # 2. Store it as a repository secret:
+      #      Settings → Secrets and variables → Actions →
+      #      New repository secret
+      #      Name:  PAGES_ENABLEMENT_PAT
+      #      Value: <the token>
+      #
+      # Once the secret exists, re-run this workflow and Pages will be
+      # enabled on the first successful deploy.
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: 'true'
+          token: ${{ secrets.PAGES_ENABLEMENT_PAT }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
