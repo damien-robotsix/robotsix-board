@@ -229,6 +229,35 @@
   }
 
   /**
+   * Populate a <select> element with column options for moving a card.
+   *
+   * @param {HTMLSelectElement} select  — the select to populate
+   * @param {string} currentStatus      — status to skip (the card's current column)
+   * @param {Array<string>} gateBlocked — columns blocked by gate checks
+   * @returns {HTMLSelectElement}       — the same select element (for chaining)
+   */
+  function buildSelectOptions(select, currentStatus, gateBlocked) {
+    var defaultOpt = document.createElement("option");
+    defaultOpt.value = "";
+    defaultOpt.textContent = "Move to\u2026";
+    select.appendChild(defaultOpt);
+
+    var cols = CFG.columns || [];
+    for (var i = 0; i < cols.length; i++) {
+      var key = cols[i][0];
+      if (key === currentStatus) continue;
+      var opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = cols[i][1];
+      if (gateBlocked.indexOf(key) !== -1) {
+        opt.disabled = true;
+      }
+      select.appendChild(opt);
+    }
+    return select;
+  }
+
+  /**
    * Build the .board-card-move <form> for a card.
    *
    * @param {object} card
@@ -249,28 +278,7 @@
     var select = document.createElement("select");
     select.name = "target_status";
     select.className = "board-move-select";
-
-    var defaultOpt = document.createElement("option");
-    defaultOpt.value = "";
-    defaultOpt.textContent = "Move to\u2026";
-    select.appendChild(defaultOpt);
-
-    var gateBlocked = getGateBlockedColumns();
-    var cols = CFG.columns || [];
-    for (var i = 0; i < cols.length; i++) {
-      var key = cols[i][0];
-      if (key === card.status) {
-        continue; // skip current column
-      }
-      var opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = cols[i][1];
-      if (gateBlocked.indexOf(key) !== -1) {
-        opt.disabled = true;
-      }
-      select.appendChild(opt);
-    }
-
+    buildSelectOptions(select, card.status, getGateBlockedColumns());
     form.appendChild(select);
 
     // ── Submit button ──
@@ -303,30 +311,10 @@
     var oldSelect = form.querySelector("select[name='target_status']");
     if (!oldSelect) return;
 
-    var gateBlocked = getGateBlockedColumns();
-    var cols = CFG.columns || [];
-
     var select = document.createElement("select");
     select.name = "target_status";
     select.className = "board-move-select";
-
-    var defaultOpt = document.createElement("option");
-    defaultOpt.value = "";
-    defaultOpt.textContent = "Move to\u2026";
-    select.appendChild(defaultOpt);
-
-    for (var i = 0; i < cols.length; i++) {
-      var key = cols[i][0];
-      if (key === card.status) continue;
-      var opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = cols[i][1];
-      if (gateBlocked.indexOf(key) !== -1) {
-        opt.disabled = true;
-      }
-      select.appendChild(opt);
-    }
-
+    buildSelectOptions(select, card.status, getGateBlockedColumns());
     oldSelect.replaceWith(select);
   }
 
