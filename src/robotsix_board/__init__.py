@@ -95,6 +95,14 @@ class BoardAdapter(Protocol):
         """Return the ``(url, http_method)`` used to move ``card`` between columns."""
         raise NotImplementedError
 
+    def move_endpoint_template(self) -> str:
+        """Return the URL template used by the board config in JSON_HYDRATION mode.
+
+        The template should contain the placeholders ``{card_id}`` and
+        ``{target_status}``, e.g. ``"/move/{card_id}/{target_status}"``.
+        """
+        raise NotImplementedError
+
     def render_mode(self) -> RenderMode:
         """Return the render mode this consumer uses."""
         raise NotImplementedError
