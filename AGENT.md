@@ -1,11 +1,14 @@
 ## Pre-commit
 
-`.pre-commit-config.yaml` must contain only `ruff` hooks from `astral-sh/ruff-pre-commit`:
+`.pre-commit-config.yaml` must contain these hooks:
 
-- `ruff` (with `--fix`)
-- `ruff-format`
+- `pre-commit/pre-commit-hooks`: `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-toml`, `check-merge-conflict`, `check-added-large-files` (`--maxkb=500`), `detect-private-key`, `check-json`
+- `astral-sh/ruff-pre-commit`: `ruff` (`--fix`), `ruff-format`
+- `local` (`mypy`): `uv run mypy src tests`
+- `PyCQA/bandit`: `bandit` (`-ll`)
+- `Yelp/detect-secrets`: `detect-secrets` (`--baseline .secrets.baseline`)
 
-No other linters (`mypy`, `detect-secrets`, etc.) belong in the pre-commit config. Deeper checks run in CI.
+These are the expected hooks. Deeper checks run in CI.
 
 ## Tooling
 
