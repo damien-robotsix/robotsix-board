@@ -23,6 +23,11 @@ dev = [
     "detect-secrets",
 ]
 
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotsix_board"]
 
