@@ -919,6 +919,22 @@
     doRefresh();
   }
 
+  /**
+   * Change, at runtime, the URL the board polls for card data.  Sets
+   * ``CFG.refresh_url`` — replacing the refresh source used by both
+   * ``doRefresh()`` and the polling loop — then triggers an immediate
+   * refresh so the change takes effect without waiting for the next
+   * poll tick.  No-op if the board is not initialised (no config).
+   * Exposed as ``window.robotsixBoardSetRefreshUrl()``.
+   *
+   * @param {string} url
+   */
+  function robotsixBoardSetRefreshUrl(url) {
+    if (!CFG) return;
+    CFG.refresh_url = url;
+    doRefresh();
+  }
+
   /* ==================================================================
    * 10.  Bootstrap
    * ================================================================ */
@@ -949,4 +965,5 @@
   window.robotsixBoardRefresh = robotsixBoardRefresh;
   window.robotsixBoardSetGate = robotsixBoardSetGate;
   window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
+  window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
 })();
