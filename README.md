@@ -86,6 +86,17 @@ A consumer drives the board by supplying an adapter (see
 * **Move endpoint** — the `(url, http_method)` used to move a card from one
   column to another. The move control posts the target `status_key` to this
   endpoint.
+* **Structural HTML hooks (optional)** — two optional adapter methods inject
+  trusted raw HTML into the server-rendered markup (`SERVER_FRAGMENTS` only):
+  * `card_extra_html(card) -> str` — output is injected inside `.board-card`,
+    immediately after the per-card move form.
+  * `column_extra_html(status_key) -> str` — output is injected inside
+    `.board-column`, after the `.board-column-cards` list.
+
+  **Trust boundary:** hook output is emitted VERBATIM, bypassing `esc()`. The
+  consumer owns escaping of any dynamic text it embeds. Both default to `""`,
+  so existing consumers that do not implement them are unaffected and render
+  byte-for-byte identical markup.
 
 ### Render-mode switch
 

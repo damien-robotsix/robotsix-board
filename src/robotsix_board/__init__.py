@@ -95,6 +95,26 @@ class BoardAdapter(Protocol):
         """Return the ``(url, http_method)`` used to move ``card`` between columns."""
         raise NotImplementedError  # pragma: no cover
 
+    def card_extra_html(self, card: object) -> str:
+        """Return trusted raw HTML to inject inside this card's ``.board-card``.
+
+        The returned string is appended VERBATIM (NOT through ``esc()``)
+        immediately after the move form, still inside the ``.board-card``
+        container. It is the consumer's responsibility to escape any
+        dynamic/untrusted text it embeds. Defaults to ``""`` (no injection).
+        """
+        return ""
+
+    def column_extra_html(self, status_key: str) -> str:
+        """Return trusted raw HTML to inject inside this column's ``.board-column``.
+
+        The returned string is appended VERBATIM (NOT through ``esc()``)
+        after the ``.board-column-cards`` list, still inside the
+        ``.board-column`` container. It is the consumer's responsibility to
+        escape any dynamic/untrusted text it embeds. Defaults to ``""``.
+        """
+        return ""
+
     def move_endpoint_template(self) -> str:
         """Return the URL template used by the board config in JSON_HYDRATION mode.
 
