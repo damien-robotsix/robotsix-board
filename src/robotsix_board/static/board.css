@@ -240,6 +240,13 @@
   background: #1a4a80;
 }
 
+.board-move-error {
+  display: none;
+  color: #ff6b6b;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
 /* ── drawer (detail panel) ───────────────────────────────────────── */
 
 #drawer,
