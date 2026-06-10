@@ -387,28 +387,28 @@ class TestProtocolBackCompat:
         from robotsix_board import BoardAdapter
 
         class MinimalAdapter:
-            def columns(self):
+            def columns(self) -> list[tuple[str, str]]:
                 return [("open", "Open")]
 
-            def card_id(self, card):
+            def card_id(self, card: object) -> str:
                 return "x"
 
-            def card_title(self, card):
+            def card_title(self, card: object) -> str:
                 return "t"
 
-            def card_badges(self, card):
+            def card_badges(self, card: object) -> list[str]:
                 return []
 
-            def card_timestamps(self, card):
+            def card_timestamps(self, card: object) -> dict[str, str]:
                 return {}
 
-            def move_endpoint(self, card):
+            def move_endpoint(self, card: object) -> tuple[str, str]:
                 return ("/move", "POST")
 
-            def move_endpoint_template(self):
+            def move_endpoint_template(self) -> str:
                 return "/move/{card_id}/{target_status}"
 
-            def render_mode(self):
+            def render_mode(self) -> str:
                 from robotsix_board import RenderMode
 
                 return RenderMode.SERVER_FRAGMENTS
