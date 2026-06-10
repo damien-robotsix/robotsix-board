@@ -20,3 +20,9 @@ def test_static_dir_contains_assets() -> None:
 def test_adapter_contract_importable() -> None:
     assert robotsix_board.BoardAdapter is not None
     assert robotsix_board.RenderMode is not None
+
+
+def test_board_js_exposes_set_refresh_url() -> None:
+    source = (robotsix_board.static_dir() / "board.js").read_text()
+    assert "function robotsixBoardSetRefreshUrl" in source
+    assert "window.robotsixBoardSetRefreshUrl" in source
