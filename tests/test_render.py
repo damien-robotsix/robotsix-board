@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Any
 
 from robotsix_board import RenderMode
 from robotsix_board._render import esc, render_board, render_config_script
@@ -82,6 +83,13 @@ def _sample_cards() -> dict[str, list[dict[str, object]]]:
 
 def _adapter() -> MockAdapter:
     return MockAdapter()
+
+
+def _extract_script_json(result: str) -> dict[str, Any]:
+    """Extract and parse the JSON embedded in the rendered <script> tag."""
+    match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
+    assert match is not None, "Could not find script tag in rendered output"
+    return json.loads(match.group(1))  # type: ignore[no-any-return]
 
 
 # ── tests ─────────────────────────────────────────────────────────────
@@ -223,19 +231,14 @@ class TestRenderBoard:
         result = render_config_script(adapter)
 
         # Extract JSON between <script> tags
-        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-        assert match is not None, "Could not find script tag"
-        json_str = match.group(1)
-        parsed = json.loads(json_str)
+        parsed = _extract_script_json(result)
         assert isinstance(parsed, dict)
 
     def test_render_config_script_has_expected_keys(self) -> None:
         adapter = _adapter()
         result = render_config_script(adapter)
 
-        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-        assert match is not None
-        parsed = json.loads(match.group(1))
+        parsed = _extract_script_json(result)
 
         assert "columns" in parsed
         assert parsed["columns"] == [
@@ -256,9 +259,7 @@ class TestRenderBoard:
         adapter = _adapter()
         result = render_config_script(adapter, refresh_url="/api/board/cards")
 
-        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-        assert match is not None
-        parsed = json.loads(match.group(1))
+        parsed = _extract_script_json(result)
 
         assert "refresh_url" in parsed
         assert parsed["refresh_url"] == "/api/board/cards"
@@ -267,9 +268,7 @@ class TestRenderBoard:
         adapter = _adapter()
         result = render_config_script(adapter, refresh_url=None)
 
-        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-        assert match is not None
-        parsed = json.loads(match.group(1))
+        parsed = _extract_script_json(result)
 
         assert "refresh_url" not in parsed
 
@@ -279,8 +278,6 @@ class TestRenderBoard:
         adapter.move_endpoint_template = lambda: "/api/board/{card_id}/transition"  # type: ignore[method-assign]
 
         result = render_config_script(adapter)
-        match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-        assert match is not None
-        parsed = json.loads(match.group(1))
+        parsed = _extract_script_json(result)
 
         assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"
