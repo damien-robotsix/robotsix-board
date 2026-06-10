@@ -107,9 +107,20 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
             )
             parts.append("</form>")  # .board-card-move
 
+            card_hook = getattr(adapter, "card_extra_html", None)
+            extra = card_hook(card) if callable(card_hook) else ""
+            if extra:
+                parts.append(extra)
+
             parts.append("</div>")  # .board-card
 
         parts.append("</div>")  # .board-column-cards
+
+        col_hook = getattr(adapter, "column_extra_html", None)
+        col_extra = col_hook(status_key) if callable(col_hook) else ""
+        if col_extra:
+            parts.append(col_extra)
+
         parts.append("</div>")  # .board-column
 
     parts.append("</div>")  # #board
