@@ -69,6 +69,20 @@ class BoardAdapter(Protocol):
     implemented. See ``README.md`` for the authoritative description of the
     column order/labels, card-field accessors, move endpoint, and render
     mode.
+
+    OPTIONAL duck-typed hooks (deliberately NOT part of this runtime-checkable
+    Protocol — adding members here breaks ``isinstance()`` for every existing
+    structural implementer, which took the auto-mail board down in production):
+
+    * ``card_extra_html(card) -> str`` — trusted raw HTML appended VERBATIM
+      (NOT through ``esc()``) inside the card's ``.board-card`` container,
+      after the move form.
+    * ``column_extra_html(status_key) -> str`` — trusted raw HTML appended
+      VERBATIM inside the column's ``.board-column``, after the cards list.
+
+    ``render_board()`` looks these up with ``getattr(adapter, ..., None)`` and
+    skips them when absent. Consumers that implement them own the escaping of
+    any user-controlled data embedded in the returned fragments.
     """
 
     def columns(self) -> list[tuple[str, str]]:
@@ -94,26 +108,6 @@ class BoardAdapter(Protocol):
     def move_endpoint(self, card: object) -> tuple[str, str]:
         """Return the ``(url, http_method)`` used to move ``card`` between columns."""
         raise NotImplementedError  # pragma: no cover
-
-    def card_extra_html(self, card: object) -> str:
-        """Return trusted raw HTML to inject inside this card's ``.board-card``.
-
-        The returned string is appended VERBATIM (NOT through ``esc()``)
-        immediately after the move form, still inside the ``.board-card``
-        container. It is the consumer's responsibility to escape any
-        dynamic/untrusted text it embeds. Defaults to ``""`` (no injection).
-        """
-        return ""
-
-    def column_extra_html(self, status_key: str) -> str:
-        """Return trusted raw HTML to inject inside this column's ``.board-column``.
-
-        The returned string is appended VERBATIM (NOT through ``esc()``)
-        after the ``.board-column-cards`` list, still inside the
-        ``.board-column`` container. It is the consumer's responsibility to
-        escape any dynamic/untrusted text it embeds. Defaults to ``""``.
-        """
-        return ""
 
     def move_endpoint_template(self) -> str:
         """Return the URL template used by the board config in JSON_HYDRATION mode.

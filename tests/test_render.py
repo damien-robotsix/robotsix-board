@@ -376,3 +376,41 @@ class TestRenderBoard:
         parsed = _extract_script_json(result)
 
         assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"
+
+
+class TestProtocolBackCompat:
+    def test_adapter_without_extra_html_hooks_satisfies_protocol(self) -> None:
+        """Regression: the extra-html hooks must stay OUT of the
+        runtime-checkable Protocol. Adding them broke isinstance() for every
+        structural implementer (no Protocol defaults apply structurally) and
+        crash-looped the auto-mail board in production on 2026-06-10."""
+        from robotsix_board import BoardAdapter
+
+        class MinimalAdapter:
+            def columns(self):
+                return [("open", "Open")]
+
+            def card_id(self, card):
+                return "x"
+
+            def card_title(self, card):
+                return "t"
+
+            def card_badges(self, card):
+                return []
+
+            def card_timestamps(self, card):
+                return {}
+
+            def move_endpoint(self, card):
+                return ("/move", "POST")
+
+            def move_endpoint_template(self):
+                return "/move/{card_id}/{target_status}"
+
+            def render_mode(self):
+                from robotsix_board import RenderMode
+
+                return RenderMode.SERVER_FRAGMENTS
+
+        assert isinstance(MinimalAdapter(), BoardAdapter)
