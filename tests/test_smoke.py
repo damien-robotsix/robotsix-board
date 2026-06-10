@@ -26,3 +26,16 @@ def test_board_js_exposes_set_refresh_url() -> None:
     source = (robotsix_board.static_dir() / "board.js").read_text()
     assert "function robotsixBoardSetRefreshUrl" in source
     assert "window.robotsixBoardSetRefreshUrl" in source
+
+
+def test_closed_toggle_styles_live_in_css_not_js() -> None:
+    static = robotsix_board.static_dir()
+    css = (static / "board.css").read_text()
+    js = (static / "board.js").read_text()
+
+    assert "#board-closed-toggle {" in css
+    assert "#board-closed-toggle label {" in css
+
+    assert "color: #c0c0e0" not in js
+    assert "user-select: none" not in js
+    assert "padding: 8px 16px" not in js
