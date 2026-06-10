@@ -325,6 +325,20 @@
   }
 }
 
+#board-closed-toggle {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#board-closed-toggle label {
+  color: #c0c0e0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
 /* ── empty-state column placeholder ──────────────────────────────── */
 
 .board-column-cards:empty::after {

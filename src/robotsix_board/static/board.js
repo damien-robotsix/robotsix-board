@@ -836,12 +836,8 @@
 
     var container = document.createElement("div");
     container.id = "board-closed-toggle";
-    container.style.cssText =
-      "padding: 8px 16px; display: flex; align-items: center; gap: 8px;";
 
     var label = document.createElement("label");
-    label.style.cssText =
-      "color: #c0c0e0; font-size: 0.85rem; cursor: pointer; user-select: none;";
 
     var checkbox = document.createElement("input");
     checkbox.type = "checkbox";
