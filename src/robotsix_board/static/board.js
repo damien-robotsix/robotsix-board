@@ -291,10 +291,6 @@
     // ── Inline error placeholder ──
     var errEl = document.createElement("span");
     errEl.className = "board-move-error";
-    errEl.style.display = "none";
-    errEl.style.color = "#ff6b6b";
-    errEl.style.fontSize = "0.75rem";
-    errEl.style.marginLeft = "8px";
     form.appendChild(errEl);
 
     return form;
