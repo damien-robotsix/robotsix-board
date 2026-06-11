@@ -21,6 +21,9 @@ venv/
 .coverage
 htmlcov/
 
+# Node / JS tooling
+node_modules/
+
 # OS / editor files
 .DS_Store
 .idea/

@@ -25,6 +25,14 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npx eslint
+        language: system
+        types: [javascript]
+        stages: [pre-commit]
   - repo: https://github.com/PyCQA/bandit
     rev: '1.8.3'
     hooks:
