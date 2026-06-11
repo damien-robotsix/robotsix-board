@@ -42,6 +42,19 @@ def test_eslint_config_present_and_configured() -> None:
     assert "caughtErrorsIgnorePattern" in text
 
 
+def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    cfg = root / ".github" / "dependabot.yml"
+    assert cfg.is_file()
+    text = cfg.read_text()
+    assert "version: 2" in text
+    assert 'package-ecosystem: "uv"' in text
+    assert 'package-ecosystem: "npm"' in text
+    assert 'package-ecosystem: "github-actions"' in text
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()
