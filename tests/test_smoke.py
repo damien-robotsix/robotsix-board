@@ -28,6 +28,20 @@ def test_board_js_exposes_set_refresh_url() -> None:
     assert "window.robotsixBoardSetRefreshUrl" in source
 
 
+def test_eslint_config_present_and_configured() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    cfg = root / "eslint.config.mjs"
+    pkg = root / "package.json"
+    assert cfg.is_file()
+    assert pkg.is_file()
+    text = cfg.read_text()
+    assert "@eslint/js" in text
+    assert "no-unused-vars" in text
+    assert "caughtErrorsIgnorePattern" in text
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()

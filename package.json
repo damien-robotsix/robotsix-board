@@ -1,0 +1,13 @@
+{
+  "name": "robotsix-board-js-lint",
+  "private": true,
+  "description": "JS lint tooling for robotsix-board static assets (no runtime JS deps).",
+  "scripts": {
+    "lint:js": "eslint src/robotsix_board/static/board.js"
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "@eslint/js": "^9",
+    "globals": "^15"
+  }
+}

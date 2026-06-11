@@ -43,5 +43,13 @@ jobs:
         run: uv run detect-secrets scan --baseline .secrets.baseline
       - name: Type check
         run: uv run mypy src tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install JS lint deps
+        run: npm install
+      - name: Lint JavaScript
+        run: npx eslint src/robotsix_board/static/board.js
       - name: Run tests with coverage
         run: uv run pytest
