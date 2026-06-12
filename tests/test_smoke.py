@@ -63,9 +63,12 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     assert workflow.is_file()
     text = workflow.read_text()
     assert "published" in text
-    assert "uv build" in text
-    assert "pypa/gh-action-pypi-publish" in text
     assert "id-token: write" in text
+    assert (
+        "damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@main"
+        in text
+    )
+    assert "secrets: inherit" in text
 
 
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
