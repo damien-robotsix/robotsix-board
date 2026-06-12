@@ -19,7 +19,7 @@ CI with an explanatory message instead of a bare ``assert``.
 
 from __future__ import annotations
 
-from robotsix_board import BoardAdapter, RenderMode
+from robotsix_board import BoardAdapter
 
 
 class FrozenV1Adapter:
@@ -27,7 +27,7 @@ class FrozenV1Adapter:
 
     This class deliberately does **NOT** inherit from ``BoardAdapter``: it is a
     *structural* implementer, exactly like real downstream consumers. It
-    implements precisely the eight v1 Protocol methods and MUST NOT gain new
+    implements precisely the seven v1 Protocol methods and MUST NOT gain new
     members when the Protocol grows — that is the entire point of this test.
     Its members are the immutable v1 contract; if a Protocol change makes this
     frozen adapter stop satisfying ``isinstance()``, the change is the #40-class
@@ -54,9 +54,6 @@ class FrozenV1Adapter:
 
     def move_endpoint_template(self) -> str:
         return "/move/{card_id}/{target_status}"
-
-    def render_mode(self) -> RenderMode:
-        return RenderMode.SERVER_FRAGMENTS
 
 
 def test_frozen_v1_adapter_satisfies_protocol() -> None:

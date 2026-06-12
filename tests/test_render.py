@@ -6,7 +6,7 @@ import json
 import re
 from typing import Any, cast
 
-from robotsix_board import BoardAdapter, RenderMode
+from robotsix_board import BoardAdapter
 from robotsix_board._render import esc, render_board, render_config_script
 
 # ── mock adapter ──────────────────────────────────────────────────────
@@ -44,9 +44,6 @@ class MockAdapter(BoardAdapter):
 
     def move_endpoint_template(self) -> str:
         return "/move/{card_id}/{target_status}"
-
-    def render_mode(self) -> RenderMode:
-        return RenderMode.SERVER_FRAGMENTS
 
 
 # ── helpers ───────────────────────────────────────────────────────────

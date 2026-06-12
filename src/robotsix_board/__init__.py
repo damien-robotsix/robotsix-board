@@ -117,6 +117,3 @@ class BoardAdapter(Protocol):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def render_mode(self) -> RenderMode:
-        """Return the render mode this consumer uses."""
-        raise NotImplementedError  # pragma: no cover
