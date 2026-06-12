@@ -71,6 +71,20 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     assert "secrets: inherit" in text
 
 
+def test_changelog_present_and_follows_keep_a_changelog() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    changelog = root / "CHANGELOG.md"
+    assert changelog.is_file()
+    text = changelog.read_text()
+    assert "# Changelog" in text
+    assert "## [Unreleased]" in text
+    assert "## [0.1.0]" in text
+    assert "### Added" in text
+    assert "keepachangelog.com" in text
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()
