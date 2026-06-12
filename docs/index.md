@@ -147,15 +147,6 @@ request, so the server only needs to expose a single parameterized route.
 This method is **not** called in `SERVER_FRAGMENTS` mode — only
 `JSON_HYDRATION` mode uses the template.
 
-### `render_mode()`
-
-```python
-def render_mode(self) -> RenderMode:
-```
-
-Return the [`RenderMode`][robotsix_board.RenderMode] this consumer uses.
-The library uses this to decide which rendering code path to take.
-
 ---
 
 ## RenderMode enum
@@ -211,8 +202,7 @@ mode.
 - Each column's header (label + card count), card list, per-card move forms.
 - A `#drawer` shell for the detail panel.
 
-Call this from your server-side templating layer when `adapter.render_mode()`
-returns `SERVER_FRAGMENTS`.
+Call this from your server-side templating layer for `SERVER_FRAGMENTS` mode.
 
 ### `render_config_script()`
 

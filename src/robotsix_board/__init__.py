@@ -116,7 +116,3 @@ class BoardAdapter(Protocol):
         ``{target_status}``, e.g. ``"/move/{card_id}/{target_status}"``.
         """
         raise NotImplementedError  # pragma: no cover
-
-    def render_mode(self) -> RenderMode:
-        """Return the render mode this consumer uses."""
-        raise NotImplementedError  # pragma: no cover
