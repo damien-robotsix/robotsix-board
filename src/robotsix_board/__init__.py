@@ -116,4 +116,3 @@ class BoardAdapter(Protocol):
         ``{target_status}``, e.g. ``"/move/{card_id}/{target_status}"``.
         """
         raise NotImplementedError  # pragma: no cover
-
