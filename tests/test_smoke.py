@@ -55,6 +55,19 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     assert 'package-ecosystem: "github-actions"' in text
 
 
+def test_release_workflow_present_and_publishes_to_pypi() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    workflow = root / ".github" / "workflows" / "release.yml"
+    assert workflow.is_file()
+    text = workflow.read_text()
+    assert "published" in text
+    assert "uv build" in text
+    assert "pypa/gh-action-pypi-publish" in text
+    assert "id-token: write" in text
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()
