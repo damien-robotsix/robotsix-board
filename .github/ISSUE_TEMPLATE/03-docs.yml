@@ -1,0 +1,30 @@
+name: Documentation
+description: Report missing, unclear, or incorrect documentation.
+labels: [documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation issues are bugs too! Let us know what needs fixing.
+  - type: input
+    id: location
+    attributes:
+      label: Which page or section?
+      description: Where is the documentation you are reporting?
+      placeholder: e.g. README.md "Design contract" section, or a
+        specific docstring in src/robotsix_board/__init__.py
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is missing or wrong?
+      description: Describe the gap, error, or unclear passage.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: If you have a specific wording or addition in mind,
+        share it here.

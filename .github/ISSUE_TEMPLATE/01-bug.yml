@@ -1,0 +1,67 @@
+name: Bug Report
+description: Report a bug in robotsix-board.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the
+        sections below — the more detail you provide, the faster we can
+        diagnose and fix the issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: |
+        A clear and concise description of the bug, and what you expected
+        to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Minimal steps to reproduce the bug.
+      placeholder: |
+        1. Create a BoardAdapter with ...
+        2. Call render_board(adapter, RenderMode.SERVER_FRAGMENTS)
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include error messages, stack
+        traces, or screenshots.
+  - type: input
+    id: version
+    attributes:
+      label: Library version
+      description: Which version of robotsix-board are you using?
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Which Python version are you running?
+      placeholder: e.g. 3.14.0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      description: Paste any relevant log output, tracebacks, or console
+        output. This will be automatically formatted as code.
+      render: shell
