@@ -4,25 +4,13 @@ on:
   release:
     types: [published]
 
-# Least-privilege GITHUB_TOKEN: the publish job only reads the repo.
+# Least-privilege default; the publish job below grants the extra OIDC scope it needs.
 permissions:
   contents: read
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    environment: pypi
     permissions:
       id-token: write  # OIDC trusted publishing to PyPI
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-      - name: Set up Python
-        run: uv python install 3.14
-      - name: Build sdist and wheel
-        run: uv build
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+    uses: damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@main
+    secrets: inherit
