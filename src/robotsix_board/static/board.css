@@ -4,7 +4,50 @@
  * Dark-theme column/card/move-form styles for the shared DOM contract.
  * Mill-specific chrome (agents menu, cost dashboard, repo selector,
  * proposals/runs panels) is OUT of scope — those stay in robotsix-mill.
+ *
+ * Theming: all colours are expressed as --board-* custom properties
+ * scoped to :root.  Consumers can override any property on #board or
+ * their own :root to customise the appearance without selector wars.
  */
+
+/* ── custom properties (theming API) ─────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --board-surface-bg: #1a1a2e;
+  --board-column-bg: #16213e;
+  --board-header-bg: #0f3460;
+  --board-card-bg: #1a1a2e;
+
+  /* Borders */
+  --board-border-color: #2a2a4a;
+  --board-border-hover: #3a3a6a;
+
+  /* Text */
+  --board-text-primary: #e0e0e0;
+  --board-text-secondary: #c0c0e0;
+  --board-text-muted: #a0a0c0;
+  --board-text-dim: #8080a0;
+  --board-text-empty: #505070;
+
+  /* Interactive */
+  --board-focus-ring: #4a6fa5;
+  --board-accent: #0f3460;
+  --board-accent-hover: #1a4a80;
+  --board-accent-merged: #4a9eff;
+  --board-error: #ff6b6b;
+
+  /* Source badge */
+  --board-badge-src-bg: #2d1f4e;
+  --board-badge-src-color: #c0a0e0;
+  --board-badge-src-border: #4a3a6a;
+
+  /* Shadows */
+  --board-shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --board-shadow-focus: 0 0 0 2px rgba(74, 111, 165, 0.4);
+  --board-shadow-focus-select: 0 0 0 2px rgba(74, 111, 165, 0.3);
+  --board-shadow-drawer: -4px 0 16px rgba(0, 0, 0, 0.4);
+}
 
 /* ── reset / base ─────────────────────────────────────────────────── */
 
@@ -31,7 +74,7 @@
   gap: 12px;
   overflow-x: auto;
   padding: 16px;
-  background: #1a1a2e;
+  background: var(--board-surface-bg, #1a1a2e);
   min-height: 100vh;
   align-items: flex-start;
 }
@@ -44,9 +87,9 @@
   min-width: 280px;
   max-width: 360px;
   flex-shrink: 0;
-  border: 1px solid #2a2a4a;
+  border: 1px solid var(--board-border-color, #2a2a4a);
   border-radius: 8px;
-  background: #16213e;
+  background: var(--board-column-bg, #16213e);
   overflow: hidden;
 }
 
@@ -61,8 +104,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  background: #0f3460;
-  border-bottom: 1px solid #2a2a4a;
+  background: var(--board-header-bg, #0f3460);
+  border-bottom: 1px solid var(--board-border-color, #2a2a4a);
   position: sticky;
   top: 0;
   z-index: 2;
@@ -72,7 +115,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--board-text-primary, #e0e0e0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,8 +129,8 @@
   height: 24px;
   padding: 0 6px;
   border-radius: 12px;
-  background: #1a1a2e;
-  color: #a0a0c0;
+  background: var(--board-surface-bg, #1a1a2e);
+  color: var(--board-text-muted, #a0a0c0);
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1;
@@ -112,27 +155,27 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  border: 1px solid #2a2a4a;
+  border: 1px solid var(--board-border-color, #2a2a4a);
   border-radius: 6px;
-  background: #1a1a2e;
+  background: var(--board-card-bg, #1a1a2e);
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .board-card:hover {
-  border-color: #3a3a6a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: var(--board-border-hover, #3a3a6a);
+  box-shadow: var(--board-shadow-card-hover, 0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
 .board-card:focus-within {
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.4);
+  border-color: var(--board-focus-ring, #4a6fa5);
+  box-shadow: var(--board-shadow-focus, 0 0 0 2px rgba(74, 111, 165, 0.4));
 }
 
 /* ── merged card indicator ───────────────────────────────────────── */
 
 .board-card--merged {
-  border-left: 4px solid #4a9eff;
+  border-left: 4px solid var(--board-accent-merged, #4a9eff);
   opacity: 0.85;
 }
 
@@ -141,7 +184,7 @@
 .board-card-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--board-text-primary, #e0e0e0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,8 +202,8 @@
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  background: #0f3460;
-  color: #c0c0e0;
+  background: var(--board-accent, #0f3460);
+  color: var(--board-text-secondary, #c0c0e0);
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.4;
@@ -169,14 +212,14 @@
 
 /* Source-indicator badge variant */
 .src-badge {
-  background: #2d1f4e;
-  color: #c0a0e0;
-  border: 1px solid #4a3a6a;
+  background: var(--board-badge-src-bg, #2d1f4e);
+  color: var(--board-badge-src-color, #c0a0e0);
+  border: 1px solid var(--board-badge-src-border, #4a3a6a);
 }
 
 /* Agent-color badge support via custom property */
 .board-badge[data-agent] {
-  background: var(--badge-color, #0f3460);
+  background: var(--badge-color, var(--board-accent, #0f3460));
 }
 
 /* ── card timestamps ─────────────────────────────────────────────── */
@@ -186,7 +229,7 @@
   flex-flow: row wrap;
   gap: 4px 12px;
   font-size: 0.72rem;
-  color: #8080a0;
+  color: var(--board-text-dim, #8080a0);
 }
 
 .board-timestamp {
@@ -201,17 +244,17 @@
   align-items: center;
   margin-top: 4px;
   padding-top: 8px;
-  border-top: 1px solid #2a2a4a;
+  border-top: 1px solid var(--board-border-color, #2a2a4a);
 }
 
 .board-move-select {
   flex: 1;
   min-width: 0;
   padding: 4px 8px;
-  border: 1px solid #2a2a4a;
+  border: 1px solid var(--board-border-color, #2a2a4a);
   border-radius: 4px;
-  background: #16213e;
-  color: #e0e0e0;
+  background: var(--board-column-bg, #16213e);
+  color: var(--board-text-primary, #e0e0e0);
   font-size: 0.8rem;
   cursor: pointer;
   appearance: auto;
@@ -219,16 +262,16 @@
 
 .board-move-select:focus {
   outline: none;
-  border-color: #4a6fa5;
-  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.3);
+  border-color: var(--board-focus-ring, #4a6fa5);
+  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgba(74, 111, 165, 0.3));
 }
 
 .board-move-submit {
   padding: 4px 12px;
-  border: 1px solid #0f3460;
+  border: 1px solid var(--board-accent, #0f3460);
   border-radius: 4px;
-  background: #0f3460;
-  color: #e0e0e0;
+  background: var(--board-accent, #0f3460);
+  color: var(--board-text-primary, #e0e0e0);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -237,12 +280,12 @@
 }
 
 .board-move-submit:hover {
-  background: #1a4a80;
+  background: var(--board-accent-hover, #1a4a80);
 }
 
 .board-move-error {
   display: none;
-  color: #ff6b6b;
+  color: var(--board-error, #ff6b6b);
   font-size: 0.75rem;
   margin-left: 8px;
 }
@@ -257,9 +300,9 @@
   width: 420px;
   max-width: 90vw;
   height: 100vh;
-  background: #16213e;
-  border-left: 1px solid #2a2a4a;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.4);
+  background: var(--board-column-bg, #16213e);
+  border-left: 1px solid var(--board-border-color, #2a2a4a);
+  box-shadow: var(--board-shadow-drawer, -4px 0 16px rgba(0, 0, 0, 0.4));
   z-index: 1000;
   overflow-y: auto;
   transition: transform 0.25s ease;
@@ -272,42 +315,42 @@
 
 .drawer-content {
   padding: 20px;
-  color: #e0e0e0;
+  color: var(--board-text-primary, #e0e0e0);
 }
 
 .drawer-card-title {
   margin: 0 0 8px;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--board-text-primary, #e0e0e0);
 }
 
 .drawer-card-id {
   font-size: 0.85rem;
-  color: #8080a0;
+  color: var(--board-text-dim, #8080a0);
   margin-bottom: 16px;
 }
 
 .drawer-section h3 {
   font-size: 0.9rem;
-  color: #a0a0c0;
+  color: var(--board-text-muted, #a0a0c0);
   margin: 12px 0 4px;
 }
 
 .drawer-section ul {
   margin: 0;
   padding-left: 18px;
-  color: #c0c0e0;
+  color: var(--board-text-secondary, #c0c0e0);
 }
 
 .drawer-close {
   display: inline-block;
   margin-top: 20px;
   padding: 6px 16px;
-  border: 1px solid #2a2a4a;
+  border: 1px solid var(--board-border-color, #2a2a4a);
   border-radius: 4px;
-  background: #0f3460;
-  color: #e0e0e0;
+  background: var(--board-accent, #0f3460);
+  color: var(--board-text-primary, #e0e0e0);
   cursor: pointer;
 }
 
@@ -340,7 +383,7 @@
 }
 
 #board-closed-toggle label {
-  color: #c0c0e0;
+  color: var(--board-text-secondary, #c0c0e0);
   font-size: 0.85rem;
   cursor: pointer;
   user-select: none;
@@ -352,7 +395,7 @@
   content: "No cards";
   display: block;
   padding: 24px 12px;
-  color: #505070;
+  color: var(--board-text-empty, #505070);
   font-size: 0.85rem;
   font-style: italic;
   text-align: center;
