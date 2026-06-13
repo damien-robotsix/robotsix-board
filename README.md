@@ -140,6 +140,50 @@ data. Resolve it at runtime via `robotsix_board.static_dir()`:
 The create step ships **skeleton placeholder** assets; the real chrome lands
 in the build-out ticket.
 
+### CSS custom properties (theming)
+
+All colours in `board.css` are expressed as `--board-*` custom properties
+scoped to `:root`, with the current dark-theme values as defaults.  Consumers
+can override any property on `#board` or their own `:root` to customise the
+appearance without writing increasingly specific selector overrides.
+
+| Category     | Property                     | Default     |
+|-------------|------------------------------|-------------|
+| Surfaces    | `--board-surface-bg`         | `#1a1a2e`   |
+|             | `--board-column-bg`          | `#16213e`   |
+|             | `--board-header-bg`          | `#0f3460`   |
+|             | `--board-card-bg`            | `#1a1a2e`   |
+| Borders     | `--board-border-color`       | `#2a2a4a`   |
+|             | `--board-border-hover`       | `#3a3a6a`   |
+| Text        | `--board-text-primary`       | `#e0e0e0`   |
+|             | `--board-text-secondary`     | `#c0c0e0`   |
+|             | `--board-text-muted`         | `#a0a0c0`   |
+|             | `--board-text-dim`           | `#8080a0`   |
+|             | `--board-text-empty`         | `#505070`   |
+| Interactive | `--board-focus-ring`         | `#4a6fa5`   |
+|             | `--board-accent`             | `#0f3460`   |
+|             | `--board-accent-hover`       | `#1a4a80`   |
+|             | `--board-accent-merged`      | `#4a9eff`   |
+|             | `--board-error`              | `#ff6b6b`   |
+| Badges      | `--board-badge-src-bg`       | `#2d1f4e`   |
+|             | `--board-badge-src-color`    | `#c0a0e0`   |
+|             | `--board-badge-src-border`   | `#4a3a6a`   |
+| Shadows     | `--board-shadow-card-hover`  | `0 2px 8px rgba(0,0,0,0.3)` |
+|             | `--board-shadow-focus`       | `0 0 0 2px rgba(74,111,165,0.4)` |
+|             | `--board-shadow-focus-select`| `0 0 0 2px rgba(74,111,165,0.3)` |
+|             | `--board-shadow-drawer`      | `-4px 0 16px rgba(0,0,0,0.4)` |
+
+Example — light-theme override:
+
+```css
+#board {
+  --board-surface-bg: #ffffff;
+  --board-column-bg: #f5f5f5;
+  --board-text-primary: #1a1a2e;
+  /* ... */
+}
+```
+
 ## Build-out phasing
 
 The build-out should start with the **highest-overlap, lowest-risk slice**:
