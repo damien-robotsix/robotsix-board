@@ -69,6 +69,12 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
         in text
     )
     assert "secrets: inherit" in text
+    # Release-time gate: tag / pyproject version / CHANGELOG consistency.
+    assert "verify:" in text
+    assert "needs: verify" in text
+    assert "tomllib" in text
+    assert "CHANGELOG.md" in text
+    assert "github.event.release.tag_name" in text
 
 
 def test_changelog_present_and_follows_keep_a_changelog() -> None:

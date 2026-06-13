@@ -9,7 +9,28 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify tag, pyproject version, and CHANGELOG are consistent
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::release tag '$TAG' does not match pyproject version '$version'"; exit 1
+          fi
+          if ! grep -qE "^## \[?$version\]?" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section (did you forget to promote [Unreleased]?)"; exit 1
+          fi
+
   publish:
+    needs: verify
     permissions:
       id-token: write  # OIDC trusted publishing to PyPI
     uses: damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@main
