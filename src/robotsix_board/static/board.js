@@ -311,7 +311,9 @@
     select.name = "target_status";
     select.className = "board-move-select";
     buildSelectOptions(select, card.status, getGateBlockedColumns());
-    oldSelect.replaceWith(select);
+    if (oldSelect.parentNode) {
+      oldSelect.parentNode.replaceChild(select, oldSelect);
+    }
   }
 
   /* ==================================================================
@@ -958,4 +960,13 @@
   window.robotsixBoardSetGate = robotsixBoardSetGate;
   window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
   window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
+
+  // Expose pure IIFE-private helpers so they can be unit-tested.
+  window.robotsixBoardInternals = {
+    esc: esc,
+    bootConfig: bootConfig,
+    buildSelectOptions: buildSelectOptions,
+    buildMoveForm: buildMoveForm,
+    rebuildMoveSelect: rebuildMoveSelect,
+  };
 })();

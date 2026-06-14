@@ -109,6 +109,32 @@ def test_changelog_present_and_follows_keep_a_changelog() -> None:
     assert "keepachangelog.com" in text
 
 
+def test_js_unit_test_infrastructure_present() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+
+    pkg = (root / "package.json").read_text()
+    assert '"vitest"' in pkg
+    assert '"test:js"' in pkg
+
+    vitest_cfg = root / "vitest.config.mjs"
+    assert vitest_cfg.is_file()
+    assert "happy-dom" in vitest_cfg.read_text()
+
+    board_test = root / "tests" / "board.test.js"
+    assert board_test.is_file()
+    board_test_text = board_test.read_text()
+    assert "robotsixBoardInternals" in board_test_text
+    assert "esc" in board_test_text
+
+    board_js = (root / "src" / "robotsix_board" / "static" / "board.js").read_text()
+    assert "window.robotsixBoardInternals" in board_js
+
+    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    assert "npx vitest run" in ci
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()

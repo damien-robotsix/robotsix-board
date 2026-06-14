@@ -19,4 +19,12 @@ export default [
       }],
     },
   },
+  {
+    files: ["tests/**/*.test.js", "vitest.config.mjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node },
+    },
+  },
 ];
