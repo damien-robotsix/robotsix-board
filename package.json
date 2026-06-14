@@ -8,7 +8,7 @@
     "test:js": "vitest run --coverage"
   },
   "devDependencies": {
-    "eslint": "^9",
+    "eslint": "^10",
     "@eslint/js": "^9",
     "globals": "^15",
     "stylelint": "^16",
