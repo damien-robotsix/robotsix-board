@@ -27,3 +27,7 @@ For a new optional capability, add a **duck-typed hook** instead: do NOT declare
 **Rule:** Never hard-code presentational styles via `element.style.*` (or `element.style.cssText`) assignments in JavaScript. Instead, apply a class name via `className` / `classList` and define the appearance in the corresponding CSS file (`src/robotsix_board/static/board.css`). Behavioral toggles that flip visibility on events (e.g. `el.style.display = 'none'` to show/hide) and `el.id = ...` selector-hook assignments are permitted — the rule targets *presentational* styling (color, font, margin, padding, layout, initial `display:none`), not logic.
 
 **Rationale:** Recurring pattern in this codebase — `.hidden`, `.board-card--merged`, drawer classes, `.board-move-error`. Keeping appearance in CSS preserves separation of concerns and eases styling maintenance; inline styles also override the stylesheet, making class-based theming impossible.
+
+### JavaScript test coverage ratchet
+
+**Rule:** JS coverage is measured by `@vitest/coverage-v8` and enforced in CI via `vitest run --coverage` (the `coverage` block in `vitest.config.mjs`). The `thresholds` in `vitest.config.mjs` are a **ratchet floor that must only ever increase** toward 100% — parity with the Python `--cov-fail-under=100` gate. Never lower a threshold to make a PR pass; add tests to raise coverage instead. After CI prints the real percentages (`text-summary` reporter), a maintainer ratchets the floors up to just under the reported values.

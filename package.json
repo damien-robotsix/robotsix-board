@@ -5,7 +5,7 @@
   "scripts": {
     "lint:js": "eslint src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
-    "test:js": "vitest run"
+    "test:js": "vitest run --coverage"
   },
   "devDependencies": {
     "eslint": "^9",
@@ -14,6 +14,7 @@
     "stylelint": "^16",
     "stylelint-config-standard": "^36",
     "happy-dom": "^15",
-    "vitest": "^3"
+    "vitest": "^3",
+    "@vitest/coverage-v8": "^3"
   }
 }
