@@ -135,6 +135,29 @@ def test_js_unit_test_infrastructure_present() -> None:
     assert "npx vitest run" in ci
 
 
+def test_js_coverage_infrastructure_present() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+
+    pkg = (root / "package.json").read_text()
+    assert "@vitest/coverage-v8" in pkg
+    assert "vitest run --coverage" in pkg
+
+    vitest_cfg = (root / "vitest.config.mjs").read_text()
+    assert "coverage" in vitest_cfg
+    assert "provider" in vitest_cfg
+    assert '"v8"' in vitest_cfg
+    assert "thresholds" in vitest_cfg
+
+    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    assert "npx vitest run --coverage" in ci
+
+    agent_md = (root / "AGENT.md").read_text()
+    assert "coverage" in agent_md
+    assert "ratchet" in agent_md
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()

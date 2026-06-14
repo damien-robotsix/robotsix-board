@@ -54,6 +54,6 @@ jobs:
       - name: Lint CSS
         run: npx stylelint src/robotsix_board/static/board.css
       - name: Run JavaScript unit tests
-        run: npx vitest run
+        run: npx vitest run --coverage
       - name: Run tests with coverage
         run: uv run pytest
