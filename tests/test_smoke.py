@@ -42,6 +42,24 @@ def test_eslint_config_present_and_configured() -> None:
     assert "caughtErrorsIgnorePattern" in text
 
 
+def test_stylelint_config_present_and_configured() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    cfg = root / ".stylelintrc.json"
+    pkg = root / "package.json"
+    assert cfg.is_file()
+    text = cfg.read_text()
+    assert '"stylelint-config-standard"' in text
+    pkg_text = pkg.read_text()
+    assert '"stylelint"' in pkg_text
+    assert '"lint:css"' in pkg_text
+    pre_commit = (root / ".pre-commit-config.yaml").read_text()
+    assert "stylelint" in pre_commit
+    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    assert "stylelint" in ci
+
+
 def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     from pathlib import Path
 
