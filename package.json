@@ -3,11 +3,14 @@
   "private": true,
   "description": "JS lint tooling for robotsix-board static assets (no runtime JS deps).",
   "scripts": {
-    "lint:js": "eslint src/robotsix_board/static/board.js"
+    "lint:js": "eslint src/robotsix_board/static/board.js",
+    "lint:css": "stylelint src/robotsix_board/static/board.css"
   },
   "devDependencies": {
     "eslint": "^9",
     "@eslint/js": "^9",
-    "globals": "^15"
+    "globals": "^15",
+    "stylelint": "^16",
+    "stylelint-config-standard": "^36"
   }
 }
