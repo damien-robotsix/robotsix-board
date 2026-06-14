@@ -10,7 +10,7 @@
   "devDependencies": {
     "eslint": "^9",
     "@eslint/js": "^9",
-    "globals": "^15",
+    "globals": "^17",
     "stylelint": "^16",
     "stylelint-config-standard": "^36",
     "happy-dom": "^15",
