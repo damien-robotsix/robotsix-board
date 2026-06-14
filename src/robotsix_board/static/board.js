@@ -311,7 +311,9 @@
     select.name = "target_status";
     select.className = "board-move-select";
     buildSelectOptions(select, card.status, getGateBlockedColumns());
-    oldSelect.replaceWith(select);
+    if (oldSelect.parentNode) {
+      oldSelect.parentNode.replaceChild(select, oldSelect);
+    }
   }
 
   /* ==================================================================
