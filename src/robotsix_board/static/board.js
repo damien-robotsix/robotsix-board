@@ -958,4 +958,13 @@
   window.robotsixBoardSetGate = robotsixBoardSetGate;
   window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
   window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
+
+  // Expose pure IIFE-private helpers so they can be unit-tested.
+  window.robotsixBoardInternals = {
+    esc: esc,
+    bootConfig: bootConfig,
+    buildSelectOptions: buildSelectOptions,
+    buildMoveForm: buildMoveForm,
+    rebuildMoveSelect: rebuildMoveSelect,
+  };
 })();
