@@ -41,6 +41,8 @@ jobs:
         run: uv run bandit -r src -ll
       - name: Secret scan (detect-secrets)
         run: uv run detect-secrets scan --baseline .secrets.baseline
+      - name: Dead code check (vulture)
+        run: uv run vulture src/ vulture_whitelist.py
       - name: Type check
         run: uv run mypy src tests
       - name: Set up Node.js
