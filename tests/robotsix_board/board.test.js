@@ -738,14 +738,15 @@ describe("fetchGateDataAsync()", () => {
     // Configure endpoint (triggers fetchGateDataAsync internally)
     window.robotsixBoardSetGateEndpoint("https://example.com/gate");
 
+    // Wait for the async .then() chain to store data in sessionStorage
     await vi.waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledWith("https://example.com/gate");
+      const cached = JSON.parse(
+        sessionStorage.getItem("robotsix-board-gate") || "null"
+      );
+      expect(cached).not.toBeNull();
+      expect(cached.blocked_columns).toEqual(["review"]);
+      expect(cached.version).toBe(1);
     });
-
-    // The data should now be in sessionStorage
-    const cached = JSON.parse(sessionStorage.getItem("robotsix-board-gate"));
-    expect(cached.blocked_columns).toEqual(["review"]);
-    expect(cached.version).toBe(1);
   });
 
   it("logs a warning on fetch failure", async () => {
@@ -930,15 +931,17 @@ describe("attachMoveDelegation()", () => {
 
     form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
+    // Wait for the async .then() chain to move the card and rebuild the select
     await vi.waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalled();
+      const doingCards = board.querySelector(
+        '.board-column[data-status="doing"] .board-card'
+      );
+      expect(doingCards).not.toBeNull();
     });
 
-    // After optimistic move, the card should be in the "doing" column
     const doingCards = board.querySelector(
       '.board-column[data-status="doing"] .board-card'
     );
-    expect(doingCards).not.toBeNull();
     expect(doingCards.getAttribute("data-card-id")).toBe("move-me");
 
     // The move select should have been rebuilt (old status "todo" now an option)
@@ -1122,13 +1125,12 @@ describe("doRefresh()", () => {
 
     doRefresh();
 
+    // Wait for the async .then() chain to apply card diff to the DOM
     await vi.waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledWith("https://example.com/refresh");
+      const board = document.getElementById("board");
+      const card = board.querySelector('.board-card[data-card-id="r1"]');
+      expect(card).not.toBeNull();
     });
-
-    const board = document.getElementById("board");
-    const card = board.querySelector('.board-card[data-card-id="r1"]');
-    expect(card).not.toBeNull();
   });
 
   it("logs a warning on fetch failure", async () => {
@@ -1281,8 +1283,10 @@ describe("robotsixBoardSetGateEndpoint()", () => {
 
 describe("init()", () => {
   it("boots the board when config is present and valid", () => {
-    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    // buildBoardDOM() must come first — it nukes document.body.innerHTML,
+    // which would otherwise destroy the config element set by setBoardConfig().
     buildBoardDOM();
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
 
     // init should succeed (no throw), attach handlers, and create toggle
     init();
