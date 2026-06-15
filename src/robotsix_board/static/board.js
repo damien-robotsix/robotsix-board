@@ -862,7 +862,7 @@
    */
   function getClosedToggleState() {
     try {
-      return localStorage.getItem(CLOSED_TOGGLE_KEY) === "true";
+      return localStorage.getItem(CLOSED_TOGGLE_KEY) !== "false";
     } catch (_e) {
       return true; // default: show closed
     }

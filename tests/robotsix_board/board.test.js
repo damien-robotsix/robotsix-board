@@ -597,18 +597,10 @@ describe("applyClosedToggle()", () => {
     expect(doneCol.classList.contains("hidden")).toBe(false);
   });
 
-  it("is a no-op when CLOSED_KEY is not set", () => {
-    // bootConfig was not called — CLOSED_KEY is null
-    document.body.innerHTML = "";
-    // Clear module state by re-importing?  No — just verify no throw.
-    // Since CLOSED_KEY is module-private we test the no-throw path
-    // by calling with a board that has no matching column.
+  it("is a no-op when the closed column is not found in the DOM", () => {
     buildBoardDOM();
-    // But CLOSED_KEY is set from the previous beforeEach bootConfig...
-    // We'll test the null-guard by constructing a scenario where the
-    // column doesn't exist.
     const board = document.getElementById("board");
-    // Remove the "done" column
+    // Remove the "done" column so findColumnByStatus returns null.
     const doneCol = findColumnByStatus(board, "done");
     if (doneCol) doneCol.remove();
 
@@ -1233,17 +1225,16 @@ describe("robotsixBoardSetRefreshUrl()", () => {
     });
   });
 
-  it("is a no-op when CFG is not initialised", () => {
-    // CFG is module-private; we test the guard by ensuring no fetch
-    // is triggered when CFG lacks a refresh_url (doRefresh bails out).
+  it("is a no-op when the refresh URL is empty/falsy", () => {
+    // doRefresh() checks !CFG.refresh_url — empty string is falsy, so
+    // it returns before calling fetch.  The !CFG guard in setRefreshUrl
+    // itself is not directly exercised here (CFG is initialised).
     setBoardConfig(JSON.stringify({ ...SAMPLE_CONFIG }));
     bootConfig();
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
     window.robotsixBoardSetRefreshUrl("");
-    // doRefresh() checks !CFG.refresh_url — empty string is falsy, so
-    // it returns before calling fetch.
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
