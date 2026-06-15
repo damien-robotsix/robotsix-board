@@ -981,6 +981,7 @@
     openDrawer: openDrawer,
     closeDrawer: closeDrawer,
     attachClosedToggle: attachClosedToggle,
+    startRefreshLoop: startRefreshLoop,
     doRefresh: doRefresh,
     fetchGateDataAsync: fetchGateDataAsync,
     attachMoveDelegation: attachMoveDelegation,
