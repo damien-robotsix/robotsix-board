@@ -349,6 +349,12 @@
    * ``robotsixBoardRefresh()`` call).
    */
   function startRefreshLoop() {
+    // Clear any previously-started timer to prevent leaks on re-init.
+    if (_refreshTimer !== null) {
+      clearInterval(_refreshTimer);
+      _refreshTimer = null;
+    }
+
     if (!CFG.refresh_url) {
       return;
     }
@@ -906,6 +912,18 @@
   }
 
   /**
+   * Stop the periodic refresh poll started by ``startRefreshLoop()``.
+   * Safe to call at any time; is a no-op if no timer is running.
+   * Exposed as ``window.robotsixBoardStopRefresh()``.
+   */
+  function robotsixBoardStopRefresh() {
+    if (_refreshTimer !== null) {
+      clearInterval(_refreshTimer);
+      _refreshTimer = null;
+    }
+  }
+
+  /**
    * Change, at runtime, the URL the board polls for card data.  Sets
    * ``CFG.refresh_url`` — replacing the refresh source used by both
    * ``doRefresh()`` and the polling loop — then triggers an immediate
@@ -949,6 +967,7 @@
 
   // ── Expose public API on window ──────────────────────────────────
   window.robotsixBoardRefresh = robotsixBoardRefresh;
+  window.robotsixBoardStopRefresh = robotsixBoardStopRefresh;
   window.robotsixBoardSetGate = robotsixBoardSetGate;
   window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
   window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
@@ -974,6 +993,7 @@
     closeDrawer: closeDrawer,
     attachClosedToggle: attachClosedToggle,
     startRefreshLoop: startRefreshLoop,
+    stopRefreshLoop: robotsixBoardStopRefresh,
     doRefresh: doRefresh,
     fetchGateDataAsync: fetchGateDataAsync,
     attachMoveDelegation: attachMoveDelegation,

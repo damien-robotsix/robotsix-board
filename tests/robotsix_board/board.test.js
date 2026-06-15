@@ -1265,6 +1265,48 @@ describe("startRefreshLoop()", () => {
     vi.advanceTimersByTime(1);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
+
+  it("clears the previous timer when called again (re-init guard)", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+        refresh_interval_ms: 10000,
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    // First call starts polling.
+    startRefreshLoop();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // Advance past half the interval — the timer is still running.
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // Second call (simulating re-init) must clear the old timer
+    // and start a fresh one.
+    startRefreshLoop();
+    // doRefresh is called immediately on the second call too,
+    // so we have 2 calls now.
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // The old timer is dead — advancing 5000 ms more (which would
+    // have fired the old timer at the 10 s mark) must NOT trigger
+    // another fetch.
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // Advancing to the new timer's interval (another 5 s, total 10 s
+    // since the second call) triggers the new interval.
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
+  });
 });
 
 /* ==================================================================
@@ -1304,6 +1346,69 @@ describe("robotsixBoardRefresh()", () => {
 
     window.robotsixBoardRefresh();
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+/* ==================================================================
+ * 14b.  Public API: window.robotsixBoardStopRefresh
+ * ================================================================ */
+
+describe("robotsixBoardStopRefresh()", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("stops the polling loop so no further fetches fire", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+        refresh_interval_ms: 10000,
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // Stop the loop, then advance past the interval.
+    window.robotsixBoardStopRefresh();
+    vi.advanceTimersByTime(15000);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("is a no-op when no timer is running", () => {
+    // Should not throw.
+    expect(() => window.robotsixBoardStopRefresh()).not.toThrow();
+  });
+
+  it("is a no-op when called twice in a row", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+    window.robotsixBoardStopRefresh();
+    // Second call — should not throw.
+    expect(() => window.robotsixBoardStopRefresh()).not.toThrow();
   });
 });
 
