@@ -31,6 +31,7 @@ const {
   openDrawer,
   closeDrawer,
   attachClosedToggle,
+  startRefreshLoop,
   doRefresh,
   fetchGateDataAsync,
   attachMoveDelegation,
@@ -1166,6 +1167,103 @@ describe("doRefresh()", () => {
 
     doRefresh();
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+/* ==================================================================
+ * 13b. startRefreshLoop
+ * ================================================================ */
+
+describe("startRefreshLoop()", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("bails out when refresh_url is not configured", () => {
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    bootConfig();
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("calls doRefresh immediately when refresh_url is set", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("polls at the configured refresh_interval_ms", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+        refresh_interval_ms: 15000,
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // 14999 ms should NOT trigger another call
+    vi.advanceTimersByTime(14999);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // The remaining 1 ms triggers the second call
+    vi.advanceTimersByTime(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("defaults to 30000 ms when refresh_interval_ms is not set", () => {
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        refresh_url: "https://example.com/refresh",
+      })
+    );
+    bootConfig();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    startRefreshLoop();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // 29999 ms should NOT trigger another call
+    vi.advanceTimersByTime(29999);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // The remaining 1 ms triggers the second call
+    vi.advanceTimersByTime(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });
 
