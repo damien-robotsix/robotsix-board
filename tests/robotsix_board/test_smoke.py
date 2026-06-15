@@ -31,7 +31,7 @@ def test_board_js_exposes_set_refresh_url() -> None:
 def test_eslint_config_present_and_configured() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     cfg = root / "eslint.config.mjs"
     pkg = root / "package.json"
     assert cfg.is_file()
@@ -45,7 +45,7 @@ def test_eslint_config_present_and_configured() -> None:
 def test_stylelint_config_present_and_configured() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     cfg = root / ".stylelintrc.json"
     pkg = root / "package.json"
     assert cfg.is_file()
@@ -63,7 +63,7 @@ def test_stylelint_config_present_and_configured() -> None:
 def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     cfg = root / ".github" / "dependabot.yml"
     assert cfg.is_file()
     text = cfg.read_text()
@@ -76,7 +76,7 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
 def test_release_workflow_present_and_publishes_to_pypi() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     workflow = root / ".github" / "workflows" / "release.yml"
     assert workflow.is_file()
     text = workflow.read_text()
@@ -98,7 +98,7 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
 def test_changelog_present_and_follows_keep_a_changelog() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     changelog = root / "CHANGELOG.md"
     assert changelog.is_file()
     text = changelog.read_text()
@@ -112,7 +112,7 @@ def test_changelog_present_and_follows_keep_a_changelog() -> None:
 def test_js_unit_test_infrastructure_present() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
 
     pkg = (root / "package.json").read_text()
     assert '"vitest"' in pkg
@@ -122,7 +122,7 @@ def test_js_unit_test_infrastructure_present() -> None:
     assert vitest_cfg.is_file()
     assert "happy-dom" in vitest_cfg.read_text()
 
-    board_test = root / "tests" / "board.test.js"
+    board_test = root / "tests" / "robotsix_board" / "board.test.js"
     assert board_test.is_file()
     board_test_text = board_test.read_text()
     assert "robotsixBoardInternals" in board_test_text
@@ -138,7 +138,7 @@ def test_js_unit_test_infrastructure_present() -> None:
 def test_js_coverage_infrastructure_present() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
 
     pkg = (root / "package.json").read_text()
     assert "@vitest/coverage-v8" in pkg
@@ -161,7 +161,7 @@ def test_js_coverage_infrastructure_present() -> None:
 def test_module_curator_periodic_enabled() -> None:
     from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
+    root = Path(__file__).resolve().parent.parent.parent
     cfg = root / ".robotsix-mill" / "periodic" / "module_curator.yaml"
     assert cfg.is_file()
     assert "name: module_curator" in cfg.read_text()

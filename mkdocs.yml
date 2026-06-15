@@ -4,4 +4,4 @@ repo_url: https://github.com/damien-robotsix/robotsix-board
 theme:
   name: material
 nav:
-  - Home: index.md
+  - Home: robotsix_board/index.md

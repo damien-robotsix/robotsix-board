@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 
 // Importing board.js runs its IIFE under the happy-dom environment,
 // which populates window.robotsixBoardInternals with the pure helpers.
-import "../src/robotsix_board/static/board.js";
+import "../../src/robotsix_board/static/board.js";
 
 const { esc, bootConfig, buildSelectOptions, buildMoveForm, rebuildMoveSelect } =
   window.robotsixBoardInternals;
