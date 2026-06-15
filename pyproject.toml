@@ -21,6 +21,7 @@ dev = [
     "pytest-cov",
     "bandit",
     "detect-secrets",
+    "vulture",
 ]
 
 docs = [
@@ -42,6 +43,7 @@ select = ["E", "F", "I", "UP", "B", "S"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
+"vulture_whitelist.py" = ["B018"]
 
 [tool.mypy]
 python_version = "3.14"
@@ -53,4 +55,4 @@ known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["mkdocs", "mkdocs-material"]  # CLI tools used via the docs workflow, not imported
+DEP002 = ["mkdocs", "mkdocs-material", "vulture"]  # CLI tools used via workflows, not imported
