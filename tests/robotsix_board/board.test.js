@@ -54,7 +54,12 @@ const SAMPLE_CONFIG = {
  * bootConfig() can locate and parse it.
  */
 function setBoardConfig(json) {
-  document.body.innerHTML = "";
+  // Remove any existing #board-config element (but do NOT clear the
+  // entire body — callers may have already built DOM like #board that
+  // must survive for init() tests.)
+  const existing = document.getElementById("board-config");
+  if (existing) existing.remove();
+
   const el = document.createElement("script");
   el.id = "board-config";
   el.type = "application/json";
@@ -1283,8 +1288,10 @@ describe("robotsixBoardSetGateEndpoint()", () => {
 
 describe("init()", () => {
   it("boots the board when config is present and valid", () => {
-    // buildBoardDOM() must come first — it nukes document.body.innerHTML,
-    // which would otherwise destroy the config element set by setBoardConfig().
+    // buildBoardDOM() clears the body and creates #board; setBoardConfig()
+    // adds #board-config without clearing (so #board survives).  Order
+    // matters: buildBoardDOM() must come first because it still nukes
+    // document.body.innerHTML.
     buildBoardDOM();
     setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
 
