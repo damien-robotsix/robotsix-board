@@ -56,7 +56,7 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         parts.append('<div class="board-column-cards">')
 
         other_keys = [k for k, _ in columns if k != status_key]
-        other_labels = {k: lbl for k, lbl in columns}
+        other_labels = dict(columns)
 
         for card in column_cards:
             cid = adapter.card_id(card)
