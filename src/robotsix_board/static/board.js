@@ -75,9 +75,6 @@
   /** @type {object|null} Parsed board-config JSON. */
   var CFG = null;
 
-  /** @type {object|null}  { status_key: label } lookup. */
-  var COLUMN_MAP = null;
-
   /** @type {string|null}  status_key of the terminal / closed column. */
   var CLOSED_KEY = null;
 
@@ -101,12 +98,7 @@
       return false;
     }
 
-    // Build column lookup
-    COLUMN_MAP = {};
     var cols = CFG.columns || [];
-    for (var i = 0; i < cols.length; i++) {
-      COLUMN_MAP[cols[i][0]] = cols[i][1];
-    }
 
     // Identify closed column: last column in config, or key matching
     // "closed" / "done" (case-insensitive).
