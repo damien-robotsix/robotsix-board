@@ -862,7 +862,7 @@
    */
   function getClosedToggleState() {
     try {
-      return localStorage.getItem(CLOSED_TOGGLE_KEY) === "true";
+      return localStorage.getItem(CLOSED_TOGGLE_KEY) !== "false";
     } catch (_e) {
       return true; // default: show closed
     }
@@ -968,5 +968,23 @@
     buildSelectOptions: buildSelectOptions,
     buildMoveForm: buildMoveForm,
     rebuildMoveSelect: rebuildMoveSelect,
+    hashStr: hashStr,
+    agentColor: agentColor,
+    updateColumnCounts: updateColumnCounts,
+    findColumnByStatus: findColumnByStatus,
+    getGateData: getGateData,
+    getClosedToggleState: getClosedToggleState,
+    setClosedToggleState: setClosedToggleState,
+    applyClosedToggle: applyClosedToggle,
+    buildCardElement: buildCardElement,
+    applyCardDiff: applyCardDiff,
+    openDrawer: openDrawer,
+    closeDrawer: closeDrawer,
+    attachClosedToggle: attachClosedToggle,
+    doRefresh: doRefresh,
+    fetchGateDataAsync: fetchGateDataAsync,
+    attachMoveDelegation: attachMoveDelegation,
+    attachDrawerDelegation: attachDrawerDelegation,
+    init: init,
   };
 })();
