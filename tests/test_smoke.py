@@ -158,6 +158,15 @@ def test_js_coverage_infrastructure_present() -> None:
     assert "ratchet" in agent_md
 
 
+def test_module_curator_periodic_enabled() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    cfg = root / ".robotsix-mill" / "periodic" / "module_curator.yaml"
+    assert cfg.is_file()
+    assert "name: module_curator" in cfg.read_text()
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()
