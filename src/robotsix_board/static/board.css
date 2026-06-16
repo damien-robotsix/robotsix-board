@@ -385,6 +385,13 @@
   user-select: none;
 }
 
+#board-closed-checkbox {
+  accent-color: var(--board-accent, #0f3460);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 /* ── empty-state column placeholder ──────────────────────────────── */
 
 .board-column-cards:empty::after {
