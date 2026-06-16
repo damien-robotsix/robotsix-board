@@ -3,4 +3,6 @@ modules:
     description: Shared kanban-board frontend library — board HTML/CSS/JS chrome, parameterized by a BoardAdapter and render mode.
     paths:
       - src/robotsix_board/
+      - tests/robotsix_board/
+      - docs/robotsix_board/
     dependencies: []
