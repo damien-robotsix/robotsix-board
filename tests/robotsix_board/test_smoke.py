@@ -74,7 +74,10 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
 
 
 def test_release_workflow_present_and_publishes_to_pypi() -> None:
+    import re
     from pathlib import Path
+
+    import yaml
 
     root = Path(__file__).resolve().parent.parent.parent
     workflow = root / ".github" / "workflows" / "release.yml"
@@ -82,10 +85,6 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     text = workflow.read_text()
     assert "published" in text
     assert "id-token: write" in text
-    assert (
-        "damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@main"
-        in text
-    )
     assert "secrets: inherit" in text
     # Release-time gate: tag / pyproject version / CHANGELOG consistency.
     assert "verify:" in text
@@ -93,6 +92,20 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     assert "tomllib" in text
     assert "CHANGELOG.md" in text
     assert "github.event.release.tag_name" in text
+
+    # Cross-repo reusable workflow pin: must reference the robotsix-mill
+    # workflow at a full 40-char commit SHA (not a mutable branch ref).
+    doc = yaml.safe_load(text)
+    publish_job = doc["jobs"]["publish"]
+    uses_ref = publish_job["uses"]
+    expected_prefix = (
+        "damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@"
+    )
+    assert expected_prefix in uses_ref
+    sha = uses_ref.split("@", 1)[1]
+    assert re.fullmatch(r"[0-9a-f]{40}", sha), (
+        f"expected 40-char hex SHA after '@', got {sha!r}"
+    )
 
 
 def test_changelog_present_and_follows_keep_a_changelog() -> None:
