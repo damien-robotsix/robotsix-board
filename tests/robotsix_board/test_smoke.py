@@ -77,7 +77,7 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     import re
     from pathlib import Path
 
-    import yaml
+    import yaml  # type: ignore[import-untyped]
 
     root = Path(__file__).resolve().parent.parent.parent
     workflow = root / ".github" / "workflows" / "release.yml"
