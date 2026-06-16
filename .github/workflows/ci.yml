@@ -5,57 +5,101 @@ on:
     branches: [main]
   pull_request:
 
-# Least-privilege GITHUB_TOKEN: the test job only reads the repo.
 permissions:
   contents: read
 
-# Cancel superseded runs for the same PR; let push runs on main finish.
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  test:
+  ci:
+    uses: damien-robotsix/robotsix-mill/.github/workflows/python-ci.yml@main
+    with:
+      python-version: "3.14"
+      cov-package: "robotsix_board"
+      coverage-threshold: "70"
+      run-bandit: true
+      install-extras: "dev"
+    permissions:
+      contents: read
+      security-events: write
+
+  security:
+    uses: damien-robotsix/robotsix-mill/.github/workflows/python-security.yml@main
+    with:
+      python-version: "3.14"
+      install-extras: "dev"
+      run-trufflehog: true
+      run-pip-audit: true
+    permissions:
+      contents: read
+      actions: write
+
+  detect-secrets:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-      - name: Set up Python
-        run: uv python install 3.14
-      - name: Install dependencies
-        run: uv sync --locked --extra dev --extra docs
-      - name: Scan dependencies for vulnerabilities
-        run: uv run pip-audit --strict --vulnerability-service osv
-      - name: Check dependencies
-        run: uv run deptry .
-      - name: Lint
-        run: uv run ruff check .
-      - name: Format check
-        run: uv run ruff format --check .
-      - name: SAST scan (bandit)
-        run: uv run bandit -r src -ll
-      - name: Secret scan (detect-secrets)
-        run: uv run detect-secrets scan --baseline .secrets.baseline
-      - name: Dead code check (vulture)
-        run: uv run vulture src/ vulture_whitelist.py
-      - name: Type check
-        run: uv run mypy src tests
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.14
+      - run: uv sync --frozen --extra dev
+      - run: uv run detect-secrets scan --baseline .secrets.baseline
+
+  vulture:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.14
+      - run: uv sync --frozen --extra dev
+      - run: uv run vulture src/ vulture_whitelist.py
+
+  mypy-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.14
+      - run: uv sync --frozen --extra dev
+      - run: uv run mypy tests
+
+  js-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install JS lint deps
-        run: npm install
-      - name: Lint JavaScript
-        run: npx eslint src/robotsix_board/static/board.js
-      - name: Lint CSS
-        run: npx stylelint src/robotsix_board/static/board.css
-      - name: Run JavaScript unit tests
-        run: npx vitest run --coverage
-      - name: Run tests with coverage
-        run: uv run pytest
-      - name: Build docs site
-        run: uv run mkdocs build --strict
+      - run: npm install
+      - run: npx eslint src/robotsix_board/static/board.js
+      - run: npx stylelint src/robotsix_board/static/board.css
+
+  js-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npx vitest run --coverage
