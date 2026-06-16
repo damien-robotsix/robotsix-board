@@ -21,6 +21,7 @@ dev = [
     "pytest-cov",
     "bandit",
     "detect-secrets",
+    "towncrier",
     "vulture",
 ]
 
@@ -55,4 +56,9 @@ known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["mkdocs", "mkdocs-material", "vulture"]  # CLI tools used via workflows, not imported
+DEP002 = ["mkdocs", "mkdocs-material", "towncrier", "vulture"]  # CLI tools used via workflows, not imported
+
+[tool.towncrier]
+directory = "changes"
+filename = "CHANGELOG.md"
+package = "robotsix_board"
