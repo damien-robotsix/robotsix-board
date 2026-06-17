@@ -7,6 +7,7 @@
 - `local` (`mypy`): `uv run mypy src tests`
 - `PyCQA/bandit`: `bandit` (`-ll`)
 - `Yelp/detect-secrets`: `detect-secrets` (`--baseline .secrets.baseline`)
+- `rhysd/actionlint`: `actionlint-docker`
 
 These are the expected hooks. Deeper checks run in CI.
 
