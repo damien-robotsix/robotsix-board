@@ -23,6 +23,7 @@ const {
   updateColumnCounts,
   findColumnByStatus,
   getGateData,
+  getGateBlockedColumns,
   getClosedToggleState,
   setClosedToggleState,
   applyClosedToggle,
@@ -717,6 +718,29 @@ describe("getGateData()", () => {
     const data = getGateData();
     expect(data).toBeDefined();
     expect(data.blocked_columns).toEqual([]);
+  });
+});
+
+/* ==================================================================
+ * 8b.  getGateBlockedColumns
+ * ================================================================ */
+
+describe("getGateBlockedColumns()", () => {
+  it("returns [] when no gate data exists", () => {
+    sessionStorage.removeItem("robotsix-board-gate");
+    expect(getGateBlockedColumns()).toEqual([]);
+  });
+
+  it("returns blocked_columns from cached gate data", () => {
+    window.robotsixBoardSetGate({ blocked_columns: ["done"] });
+    expect(getGateBlockedColumns()).toEqual(["done"]);
+  });
+
+  it("returns [] when blocked_columns is not an array", () => {
+    // Create corrupt gate data where blocked_columns is a string
+    const badData = { blocked_columns: "not-an-array", version: 1, fetched_at: Date.now() };
+    sessionStorage.setItem("robotsix-board-gate", JSON.stringify(badData));
+    expect(getGateBlockedColumns()).toEqual([]);
   });
 });
 

@@ -984,6 +984,7 @@
     updateColumnCounts: updateColumnCounts,
     findColumnByStatus: findColumnByStatus,
     getGateData: getGateData,
+    getGateBlockedColumns: getGateBlockedColumns,
     getClosedToggleState: getClosedToggleState,
     setClosedToggleState: setClosedToggleState,
     applyClosedToggle: applyClosedToggle,
