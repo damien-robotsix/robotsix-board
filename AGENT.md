@@ -32,3 +32,9 @@ For a new optional capability, add a **duck-typed hook** instead: do NOT declare
 ### JavaScript test coverage ratchet
 
 **Rule:** JS coverage is measured by `@vitest/coverage-v8` and enforced in CI via `vitest run --coverage` (the `coverage` block in `vitest.config.mjs`). The `thresholds` in `vitest.config.mjs` are a **ratchet floor that must only ever increase** toward 100% — parity with the Python `--cov-fail-under=100` gate. Never lower a threshold to make a PR pass; add tests to raise coverage instead. After CI prints the real percentages (`text-summary` reporter), a maintainer ratchets the floors up to just under the reported values.
+
+### Export surfaces in board.js
+
+**Rule:** Every new module-level function in `src/robotsix_board/static/board.js` must be assigned to one of the two export surfaces at the bottom of the file: `window.robotsixBoard*` (direct assignment) for the public API, or `window.robotsixBoardInternals = { ... }` for testable helpers. All function names must use **camelCase**.
+
+**Rationale:** Ticket `20260618T142122Z`: `getGateBlockedColumns` was the only module-level function (out of 29) missing from either export block, breaking direct unit-testability. Every other function follows this convention.
