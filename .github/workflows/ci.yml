@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: damien-robotsix/robotsix-mill/.github/workflows/python-ci.yml@main
+    uses: damien-robotsix/robotsix-mill/.github/workflows/python-ci.yml@e98676e99b75371460286cebe55895d0ec7631c8  # v0.0.1
     with:
       python-version: "3.14"
       cov-package: "robotsix_board"
@@ -26,7 +26,7 @@ jobs:
       security-events: write
 
   security:
-    uses: damien-robotsix/robotsix-mill/.github/workflows/python-security.yml@main
+    uses: damien-robotsix/robotsix-mill/.github/workflows/python-security.yml@e98676e99b75371460286cebe55895d0ec7631c8  # v0.0.1
     with:
       python-version: "3.14"
       install-extras: "dev"
