@@ -1474,12 +1474,23 @@ describe("robotsixBoardSetRefreshUrl()", () => {
 });
 
 describe("robotsixBoardSetRefreshInterval()", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("is a no-op when the board is not initialised", () => {
-    // No CFG set — guards should prevent crash
+    // Reset CFG to null so the !CFG guard is actually exercised.
+    // JSON.parse("null") returns null; bootConfig() assigns it to CFG.
+    setBoardConfig("null");
+    bootConfig();  // CFG = null, returns false
     expect(() => window.robotsixBoardSetRefreshInterval(10000)).not.toThrow();
   });
 
-  it("changes the polling interval at runtime", async () => {
+  it("changes the polling interval at runtime", () => {
     setBoardConfig(JSON.stringify({
       ...SAMPLE_CONFIG,
       refresh_url: "https://example.com/refresh",
@@ -1494,20 +1505,22 @@ describe("robotsixBoardSetRefreshInterval()", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    // Start with 5-second interval
+    // Start with 5-second interval — one immediate fetch.
     startRefreshLoop();
-    expect(fetchSpy).toHaveBeenCalledTimes(1);  // immediate boot fetch
-
-    // Change to 10-second interval
-    window.robotsixBoardSetRefreshInterval(10000);
-
-    // After 5 seconds (old interval) — no additional fetch
-    vi.advanceTimersByTime(5000);
     expect(fetchSpy).toHaveBeenCalledTimes(1);
 
-    // After another 5 seconds (total 10, new interval) — fetch should fire
+    // Change to 10-second interval — startRefreshLoop() fires doRefresh()
+    // immediately, so we get a second fetch right away.
+    window.robotsixBoardSetRefreshInterval(10000);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // After 5 seconds — no fetch yet (new timer is at 10 s).
     vi.advanceTimersByTime(5000);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    // After another 5 seconds (total 10 s since interval change) — fetch fires.
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
   });
 });
 
