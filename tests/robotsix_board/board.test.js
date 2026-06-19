@@ -1473,6 +1473,44 @@ describe("robotsixBoardSetRefreshUrl()", () => {
   });
 });
 
+describe("robotsixBoardSetRefreshInterval()", () => {
+  it("is a no-op when the board is not initialised", () => {
+    // No CFG set — guards should prevent crash
+    expect(() => window.robotsixBoardSetRefreshInterval(10000)).not.toThrow();
+  });
+
+  it("changes the polling interval at runtime", async () => {
+    setBoardConfig(JSON.stringify({
+      ...SAMPLE_CONFIG,
+      refresh_url: "https://example.com/refresh",
+      refresh_interval_ms: 5000,
+    }));
+    bootConfig();
+    buildBoardDOM();
+
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    // Start with 5-second interval
+    startRefreshLoop();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);  // immediate boot fetch
+
+    // Change to 10-second interval
+    window.robotsixBoardSetRefreshInterval(10000);
+
+    // After 5 seconds (old interval) — no additional fetch
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // After another 5 seconds (total 10, new interval) — fetch should fire
+    vi.advanceTimersByTime(5000);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+});
+
 /* ==================================================================
  * 16.  Public API: window.robotsixBoardSetGate
  * ================================================================ */

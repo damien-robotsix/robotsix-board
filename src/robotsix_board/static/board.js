@@ -939,6 +939,20 @@
     doRefresh();
   }
 
+  /**
+   * Change, at runtime, the board's polling interval.  Stops the
+   * current refresh timer and starts a new one at ``ms`` milliseconds.
+   * No-op if the board is not initialised.
+   * Exposed as ``window.robotsixBoardSetRefreshInterval()``.
+   *
+   * @param {number} ms  — interval in milliseconds (>= 1000 recommended)
+   */
+  function robotsixBoardSetRefreshInterval(ms) {
+    if (!CFG) return;
+    CFG.refresh_interval_ms = ms;
+    startRefreshLoop();  // clears old timer, starts new one at updated interval
+  }
+
   /* ==================================================================
    * 10.  Bootstrap
    * ================================================================ */
@@ -971,6 +985,7 @@
   window.robotsixBoardSetGate = robotsixBoardSetGate;
   window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
   window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
+  window.robotsixBoardSetRefreshInterval = robotsixBoardSetRefreshInterval;
 
   // Expose pure IIFE-private helpers so they can be unit-tested.
   window.robotsixBoardInternals = {
