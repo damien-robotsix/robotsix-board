@@ -16,6 +16,8 @@ const {
   esc,
   bootConfig,
   buildSelectOptions,
+  buildBadgesRow,
+  buildTimestampsRow,
   buildMoveForm,
   rebuildMoveSelect,
   hashStr,
@@ -365,60 +367,6 @@ describe("buildCardElement()", () => {
     expect(el.classList.contains("board-card--merged")).toBe(true);
   });
 
-  it("renders generic badges", () => {
-    const el = buildCardElement({
-      id: "c3",
-      title: "Badged",
-      status: "todo",
-      badges: ["bug", "urgent"],
-    });
-    const badgeRow = el.querySelector(".board-card-badges");
-    expect(badgeRow).not.toBeNull();
-    const badges = badgeRow.querySelectorAll(".board-badge:not(.src-badge)");
-    expect(badges.length).toBe(2);
-    expect(badges[0].textContent).toBe("bug");
-    expect(badges[1].textContent).toBe("urgent");
-  });
-
-  it("renders agent badges with --badge-color style", () => {
-    const el = buildCardElement({
-      id: "c4",
-      title: "Agent",
-      status: "todo",
-      agent_badges: ["alice"],
-    });
-    const agentBadge = el.querySelector('.board-badge[data-agent="alice"]');
-    expect(agentBadge).not.toBeNull();
-    expect(agentBadge.style.getPropertyValue("--badge-color")).toMatch(/^hsl\(/);
-  });
-
-  it("renders a source badge with .src-badge class", () => {
-    const el = buildCardElement({
-      id: "c5",
-      title: "Source",
-      status: "todo",
-      source_badge: "github",
-    });
-    const srcBadge = el.querySelector(".board-badge.src-badge");
-    expect(srcBadge).not.toBeNull();
-    expect(srcBadge.textContent).toBe("github");
-  });
-
-  it("renders timestamps", () => {
-    const el = buildCardElement({
-      id: "c6",
-      title: "Timed",
-      status: "todo",
-      timestamps: { created: "2025-01-01", updated: "2025-06-15" },
-    });
-    const tsRow = el.querySelector(".board-card-timestamps");
-    expect(tsRow).not.toBeNull();
-    const tsSpans = tsRow.querySelectorAll(".board-timestamp");
-    expect(tsSpans.length).toBe(2);
-    expect(tsSpans[0].textContent).toContain("created");
-    expect(tsSpans[1].textContent).toContain("updated");
-  });
-
   it("HTML-escapes the card id in the element id attribute", () => {
     const el = buildCardElement({ id: '<script>"', title: "XSS", status: "todo" });
     // The id attribute should be escaped
@@ -426,19 +374,138 @@ describe("buildCardElement()", () => {
     expect(el.id).not.toContain('"');
   });
 
-  it("does not render a badge row when there are no badges", () => {
-    const el = buildCardElement({ id: "c7", title: "Plain", status: "todo" });
-    expect(el.querySelector(".board-card-badges")).toBeNull();
+  it("includes badge and timestamp rows when card has them", () => {
+    const el = buildCardElement({
+      id: "c3",
+      title: "Full",
+      status: "todo",
+      badges: ["bug"],
+      timestamps: { created: "2025-01-01" },
+    });
+    expect(el.querySelector(".board-card-badges")).not.toBeNull();
+    expect(el.querySelector(".board-card-timestamps")).not.toBeNull();
+  });
+});
+
+/* ==================================================================
+ * 3b.  buildBadgesRow
+ * ================================================================ */
+
+describe("buildBadgesRow()", () => {
+  beforeEach(() => {
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    bootConfig();
   });
 
-  it("does not render a timestamp row when timestamps is empty", () => {
-    const el = buildCardElement({
-      id: "c8",
-      title: "No TS",
-      status: "todo",
-      timestamps: {},
+  it("returns a .board-card-badges div with generic badge spans", () => {
+    const row = buildBadgesRow({
+      badges: ["bug", "urgent"],
     });
-    expect(el.querySelector(".board-card-timestamps")).toBeNull();
+    expect(row).not.toBeNull();
+    expect(row.className).toBe("board-card-badges");
+    const badges = row.querySelectorAll(".board-badge:not(.src-badge)");
+    expect(badges.length).toBe(2);
+    expect(badges[0].textContent).toBe("bug");
+    expect(badges[1].textContent).toBe("urgent");
+  });
+
+  it("returns an element with agent badges that have --badge-color style", () => {
+    const row = buildBadgesRow({
+      agent_badges: ["alice"],
+    });
+    const agentBadge = row.querySelector('.board-badge[data-agent="alice"]');
+    expect(agentBadge).not.toBeNull();
+    expect(agentBadge.style.getPropertyValue("--badge-color")).toMatch(/^hsl\(/);
+  });
+
+  it("returns an element with a source badge using .src-badge class", () => {
+    const row = buildBadgesRow({
+      source_badge: "github",
+    });
+    const srcBadge = row.querySelector(".board-badge.src-badge");
+    expect(srcBadge).not.toBeNull();
+    expect(srcBadge.textContent).toBe("github");
+  });
+
+  it("returns null when there are no badges at all", () => {
+    expect(buildBadgesRow({})).toBeNull();
+    expect(buildBadgesRow({ badges: [], agent_badges: [], source_badge: "" })).toBeNull();
+  });
+
+  it("returns null when badges is an empty array (only field present)", () => {
+    expect(buildBadgesRow({ badges: [] })).toBeNull();
+  });
+
+  it("returns null when agent_badges is an empty array (only field present)", () => {
+    expect(buildBadgesRow({ agent_badges: [] })).toBeNull();
+  });
+
+  it("returns null when source_badge is an empty string (only field present)", () => {
+    expect(buildBadgesRow({ source_badge: "" })).toBeNull();
+  });
+
+  it("returns a row when at least one badge category is non-empty", () => {
+    expect(buildBadgesRow({ badges: ["one"] })).not.toBeNull();
+    expect(buildBadgesRow({ agent_badges: ["bot"] })).not.toBeNull();
+    expect(buildBadgesRow({ source_badge: "pr" })).not.toBeNull();
+  });
+
+  it("handles null input gracefully (no throw)", () => {
+    expect(() => buildBadgesRow(null)).not.toThrow();
+    expect(buildBadgesRow(null)).toBeNull();
+  });
+});
+
+/* ==================================================================
+ * 3c.  buildTimestampsRow
+ * ================================================================ */
+
+describe("buildTimestampsRow()", () => {
+  beforeEach(() => {
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    bootConfig();
+  });
+
+  it("returns a .board-card-timestamps div with timestamp spans", () => {
+    const row = buildTimestampsRow({
+      timestamps: { created: "2025-01-01", updated: "2025-06-15" },
+    });
+    expect(row).not.toBeNull();
+    expect(row.className).toBe("board-card-timestamps");
+    const tsSpans = row.querySelectorAll(".board-timestamp");
+    expect(tsSpans.length).toBe(2);
+    expect(tsSpans[0].textContent).toContain("created");
+    expect(tsSpans[1].textContent).toContain("updated");
+  });
+
+  it("HTML-escapes timestamp keys and values", () => {
+    const row = buildTimestampsRow({
+      timestamps: { "<key>": '<val>"' },
+    });
+    const span = row.querySelector(".board-timestamp");
+    expect(span.textContent).not.toContain("<");
+    expect(span.textContent).not.toContain('"');
+  });
+
+  it("returns null when timestamps is missing", () => {
+    expect(buildTimestampsRow({})).toBeNull();
+  });
+
+  it("returns null when timestamps is an empty object", () => {
+    expect(buildTimestampsRow({ timestamps: {} })).toBeNull();
+  });
+
+  it("returns null when timestamps is null", () => {
+    expect(buildTimestampsRow({ timestamps: null })).toBeNull();
+  });
+
+  it("returns null when timestamps is not an object (e.g. a string)", () => {
+    expect(buildTimestampsRow({ timestamps: "not-an-object" })).toBeNull();
+  });
+
+  it("returns null when card itself is null (no throw)", () => {
+    expect(() => buildTimestampsRow(null)).not.toThrow();
+    expect(buildTimestampsRow(null)).toBeNull();
   });
 });
 

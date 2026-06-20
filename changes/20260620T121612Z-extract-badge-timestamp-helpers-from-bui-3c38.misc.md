@@ -1,0 +1,1 @@
+Extract badge/timestamp helpers from buildCardElement to reduce nesting and length

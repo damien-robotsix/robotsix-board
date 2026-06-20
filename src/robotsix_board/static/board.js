@@ -153,63 +153,15 @@
     titleEl.textContent = card.title || "";
     div.appendChild(titleEl);
 
-    // ── Badges (generic, agent, source) ──
-    var hasGeneric = Array.isArray(card.badges) && card.badges.length > 0;
-    var hasAgent = Array.isArray(card.agent_badges) && card.agent_badges.length > 0;
-    var hasSource = typeof card.source_badge === "string" && card.source_badge !== "";
-
-    if (hasGeneric || hasAgent || hasSource) {
-      var badgeRow = document.createElement("div");
-      badgeRow.className = "board-card-badges";
-
-      // Generic badges
-      if (hasGeneric) {
-        for (var b = 0; b < card.badges.length; b++) {
-          var span = document.createElement("span");
-          span.className = "board-badge";
-          span.textContent = card.badges[b];
-          badgeRow.appendChild(span);
-        }
-      }
-
-      // Agent badges (with deterministic colour)
-      if (hasAgent) {
-        for (var a = 0; a < card.agent_badges.length; a++) {
-          var agentSpan = document.createElement("span");
-          agentSpan.className = "board-badge";
-          agentSpan.setAttribute("data-agent", card.agent_badges[a]);
-          agentSpan.style.setProperty(
-            "--badge-color",
-            agentColor(card.agent_badges[a])
-          );
-          agentSpan.textContent = card.agent_badges[a];
-          badgeRow.appendChild(agentSpan);
-        }
-      }
-
-      // Source badge (uses .src-badge variant)
-      if (hasSource) {
-        var srcSpan = document.createElement("span");
-        srcSpan.className = "board-badge src-badge";
-        srcSpan.textContent = card.source_badge;
-        badgeRow.appendChild(srcSpan);
-      }
-
+    // ── Badges ──
+    var badgeRow = buildBadgesRow(card);
+    if (badgeRow) {
       div.appendChild(badgeRow);
     }
 
     // ── Timestamps ──
-    var ts = card.timestamps;
-    if (ts && typeof ts === "object" && Object.keys(ts).length > 0) {
-      var tsRow = document.createElement("div");
-      tsRow.className = "board-card-timestamps";
-      var keys = Object.keys(ts);
-      for (var k = 0; k < keys.length; k++) {
-        var tsSpan = document.createElement("span");
-        tsSpan.className = "board-timestamp";
-        tsSpan.textContent = esc(keys[k]) + ": " + esc(String(ts[keys[k]]));
-        tsRow.appendChild(tsSpan);
-      }
+    var tsRow = buildTimestampsRow(card);
+    if (tsRow) {
       div.appendChild(tsRow);
     }
 
@@ -218,6 +170,88 @@
     div.appendChild(moveForm);
 
     return div;
+  }
+
+  /**
+   * Build a .board-card-badges div from a card's badge data.
+   *
+   * Returns the populated div, or null when no badges exist.
+   *
+   * @param {object} card
+   * @returns {HTMLElement|null}
+   */
+  function buildBadgesRow(card) {
+    var hasGeneric = Array.isArray(card.badges) && card.badges.length > 0;
+    var hasAgent = Array.isArray(card.agent_badges) && card.agent_badges.length > 0;
+    var hasSource = typeof card.source_badge === "string" && card.source_badge !== "";
+
+    if (!(hasGeneric || hasAgent || hasSource)) {
+      return null;
+    }
+
+    var row = document.createElement("div");
+    row.className = "board-card-badges";
+
+    // Generic badges
+    if (hasGeneric) {
+      for (var b = 0; b < card.badges.length; b++) {
+        var span = document.createElement("span");
+        span.className = "board-badge";
+        span.textContent = card.badges[b];
+        row.appendChild(span);
+      }
+    }
+
+    // Agent badges (with deterministic colour)
+    if (hasAgent) {
+      for (var a = 0; a < card.agent_badges.length; a++) {
+        var agentSpan = document.createElement("span");
+        agentSpan.className = "board-badge";
+        agentSpan.setAttribute("data-agent", card.agent_badges[a]);
+        agentSpan.style.setProperty(
+          "--badge-color",
+          agentColor(card.agent_badges[a])
+        );
+        agentSpan.textContent = card.agent_badges[a];
+        row.appendChild(agentSpan);
+      }
+    }
+
+    // Source badge (uses .src-badge variant)
+    if (hasSource) {
+      var srcSpan = document.createElement("span");
+      srcSpan.className = "board-badge src-badge";
+      srcSpan.textContent = card.source_badge;
+      row.appendChild(srcSpan);
+    }
+
+    return row;
+  }
+
+  /**
+   * Build a .board-card-timestamps div from a card's timestamp data.
+   *
+   * Returns the populated div, or null when no timestamps exist.
+   *
+   * @param {object} card
+   * @returns {HTMLElement|null}
+   */
+  function buildTimestampsRow(card) {
+    var ts = card.timestamps;
+    if (!ts || typeof ts !== "object" || Object.keys(ts).length === 0) {
+      return null;
+    }
+
+    var row = document.createElement("div");
+    row.className = "board-card-timestamps";
+    var keys = Object.keys(ts);
+    for (var k = 0; k < keys.length; k++) {
+      var tsSpan = document.createElement("span");
+      tsSpan.className = "board-timestamp";
+      tsSpan.textContent = esc(keys[k]) + ": " + esc(String(ts[keys[k]]));
+      row.appendChild(tsSpan);
+    }
+    return row;
   }
 
   /**
@@ -992,6 +1026,8 @@
     esc: esc,
     bootConfig: bootConfig,
     buildSelectOptions: buildSelectOptions,
+    buildBadgesRow: buildBadgesRow,
+    buildTimestampsRow: buildTimestampsRow,
     buildMoveForm: buildMoveForm,
     rebuildMoveSelect: rebuildMoveSelect,
     hashStr: hashStr,
