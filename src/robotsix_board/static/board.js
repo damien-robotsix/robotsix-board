@@ -181,6 +181,8 @@
    * @returns {HTMLElement|null}
    */
   function buildBadgesRow(card) {
+    if (!card) return null;
+
     var hasGeneric = Array.isArray(card.badges) && card.badges.length > 0;
     var hasAgent = Array.isArray(card.agent_badges) && card.agent_badges.length > 0;
     var hasSource = typeof card.source_badge === "string" && card.source_badge !== "";
@@ -237,6 +239,8 @@
    * @returns {HTMLElement|null}
    */
   function buildTimestampsRow(card) {
+    if (!card) return null;
+
     var ts = card.timestamps;
     if (!ts || typeof ts !== "object" || Object.keys(ts).length === 0) {
       return null;
