@@ -3,6 +3,9 @@ site_description: Shared kanban-board frontend library — integration docs
 repo_url: https://github.com/damien-robotsix/robotsix-board
 theme:
   name: material
+markdown_extensions:
+  - pymdownx.snippets:
+      base_path: [.]
 plugins:
   - search
   - mkdocstrings:
