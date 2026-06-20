@@ -1,0 +1,1 @@
+ci_fix: out-of-scope CI failure — security / security (pip-audit: GHSA-6v7p-g79w-8964 in msgpack 1.1.2) in uv.lock (to bump msgpack to >=1.2.1) or .github/workflows/ci.yml (to add pip-audit-ignore-vulns)

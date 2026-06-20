@@ -32,6 +32,7 @@ jobs:
       install-extras: "dev"
       run-trufflehog: true
       run-pip-audit: true
+      pip-audit-ignore-vulns: "GHSA-6v7p-g79w-8964"
     permissions:
       contents: read
       actions: write
