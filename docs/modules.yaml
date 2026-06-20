@@ -5,4 +5,7 @@ modules:
       - src/robotsix_board/
       - tests/robotsix_board/
       - docs/robotsix_board/
+      - docs/robotsix_board/api.md
+      - docs/robotsix_board/changelog.md
+      - docs/robotsix_board/contributing.md
     dependencies: []
