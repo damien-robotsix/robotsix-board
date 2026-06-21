@@ -1,0 +1,1 @@
+Enforce JS export surface convention with a Vitest test in board.test.js
