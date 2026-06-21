@@ -1,3 +1,8 @@
+[![CI](https://github.com/damien-robotsix/robotsix-board/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/damien-robotsix/robotsix-board/actions/workflows/ci.yml?query=branch%3Amain)
+[![License](https://img.shields.io/github/license/damien-robotsix/robotsix-board?style=flat)](https://github.com/damien-robotsix/robotsix-board/blob/main/LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/robotsix-board?style=flat)](https://pypi.org/project/robotsix-board/)
+[![Python versions](https://img.shields.io/pypi/pyversions/robotsix-board?style=flat)](https://pypi.org/project/robotsix-board/)
+
 # robotsix-board
 
 Shared kanban-board frontend library: column-per-status board of cards with a move-between-columns action, auto-refresh, and a click-through detail panel. Owns the board HTML/CSS/JS chrome, parameterized by a small data adapter (column order, card fields, move endpoint) and a render mode (server-rendered fragments vs JSON+JS hydration). Consumed by robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib BaseHTTPRequestHandler + inline Jinja).
