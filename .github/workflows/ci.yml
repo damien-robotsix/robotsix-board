@@ -86,7 +86,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: '20'
-      - run: npm install
+      - run: npm install --package-lock-only && npm ci
       - run: npx eslint src/robotsix_board/static/board.js
       - run: npx stylelint src/robotsix_board/static/board.css
 
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: '20'
-      - run: npm install
+      - run: npm install --package-lock-only && npm ci
       - run: npx vitest run --coverage
 
   actionlint:
