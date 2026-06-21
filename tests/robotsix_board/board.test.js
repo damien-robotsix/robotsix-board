@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Importing board.js runs its IIFE under the happy-dom environment,
 // which populates window.robotsixBoardInternals with the pure helpers.
@@ -1597,6 +1600,56 @@ describe("init()", () => {
     init();
 
     expect(document.getElementById("board-closed-toggle")).toBeNull();
+  });
+});
+
+/* ==================================================================
+ * 19.  Export-surface convention audit (AGENT.md lines 36-40)
+ * ================================================================ */
+
+describe("export surface convention", () => {
+  const boardJsPath = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../src/robotsix_board/static/board.js",
+  );
+  const src = readFileSync(boardJsPath, "utf-8");
+
+  // Extract every module-level function name (^  function <name>).
+  const funcDeclRe = /^  function (\w+)/gm;
+  const declaredFuncs = new Set();
+  let m;
+  while ((m = funcDeclRe.exec(src)) !== null) {
+    declaredFuncs.add(m[1]);
+  }
+
+  // Extract function names from window.robotsixBoard* = <name>; assignments.
+  const publicApiRe = /window\.robotsixBoard\w+\s*=\s*(\w+);/g;
+  const publicApiFuncs = new Set();
+  while ((m = publicApiRe.exec(src)) !== null) {
+    publicApiFuncs.add(m[1]);
+  }
+
+  // Isolate the Internals object literal and extract its keys.
+  const internalsBlockMatch = src.match(
+    /window\.robotsixBoardInternals\s*=\s*\{([^}]+)\}/s,
+  );
+  const internalsKeys = new Set();
+  if (internalsBlockMatch) {
+    const keyRe = /(\w+):/g;
+    while ((m = keyRe.exec(internalsBlockMatch[1])) !== null) {
+      internalsKeys.add(m[1]);
+    }
+  }
+
+  const exportedFuncs = new Set([...publicApiFuncs, ...internalsKeys]);
+
+  it("has at least one function declared (sanity)", () => {
+    expect(declaredFuncs.size).toBeGreaterThan(0);
+  });
+
+  it("exports every module-level function via window.robotsixBoard* or Internals", () => {
+    const missing = [...declaredFuncs].filter((fn) => !exportedFuncs.has(fn));
+    expect(missing).toEqual([]);
   });
 });
 
