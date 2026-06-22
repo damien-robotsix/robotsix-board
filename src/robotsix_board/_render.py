@@ -75,8 +75,9 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
 
             # badges
             parts.append('<div class="board-card-badges">')
-            for badge in badges:
-                parts.append(f'<span class="board-badge">{esc(badge)}</span>')
+            parts.extend(
+                f'<span class="board-badge">{esc(badge)}</span>' for badge in badges
+            )
             parts.append("</div>")  # .board-card-badges
 
             # timestamps
@@ -95,12 +96,12 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
             )
             parts.append('<select name="target_status" class="board-move-select">')
             parts.append('<option value="">Move to…</option>')
-            for other_key in other_keys:
-                parts.append(
-                    f'<option value="{esc(other_key)}">'
-                    f"{esc(other_labels[other_key])}"
-                    f"</option>"
-                )
+            parts.extend(
+                f'<option value="{esc(other_key)}">'
+                f"{esc(other_labels[other_key])}"
+                f"</option>"
+                for other_key in other_keys
+            )
             parts.append("</select>")
             parts.append(
                 '<button type="submit" class="board-move-submit">Move</button>'

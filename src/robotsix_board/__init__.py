@@ -25,16 +25,16 @@ from typing import Protocol, runtime_checkable
 __version__ = "0.1.0"
 
 __all__ = [
-    "__version__",
-    "static_dir",
-    "RenderMode",
     "BoardAdapter",
+    "RenderMode",
+    "__version__",
     "esc",
     "render_board",
     "render_config_script",
+    "static_dir",
 ]
 
-from ._render import esc, render_board, render_config_script  # noqa: E402
+from ._render import esc, render_board, render_config_script
 
 
 def static_dir() -> pathlib.Path:
