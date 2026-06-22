@@ -1,0 +1,1 @@
+Add RUF (Ruff-specific) and PERF (performance) rule categories to ruff lint select
