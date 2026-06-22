@@ -1,0 +1,1 @@
+robotsix-board: enable the deps-bump.yml periodic dependency-bumping workflow
