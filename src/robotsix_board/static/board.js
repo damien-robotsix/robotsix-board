@@ -41,6 +41,8 @@
    *
    * Escapes "&", "<", ">", "\"", "'" to their named or numeric
    * entity references.
+   * @param {string} s - The string to escape.
+   * @returns {string} The escaped string.
    */
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (ch) {
@@ -51,6 +53,9 @@
   /**
    * Simple deterministic hash: sum of character codes modulo *m*.
    * Used for agent-colour hue assignment.
+   * @param {string} s - The string to hash.
+   * @param {number} m - The modulus.
+   * @returns {number} The hash value.
    */
   function hashStr(s, m) {
     var h = 0;
@@ -62,6 +67,8 @@
 
   /**
    * Return a HSL background colour string for an agent name.
+   * @param {string} name - The agent name.
+   * @returns {string} HSL color string.
    */
   function agentColor(name) {
     var hue = hashStr(name, 360);
@@ -82,6 +89,7 @@
    * Boot: locate #board-config, parse, validate, and store globally.
    * Returns true on success, false when the page is not in
    * json_hydration mode (bail out).
+   * @returns {boolean} True if config parsed successfully.
    */
   function bootConfig() {
     var el = document.getElementById("board-config");
@@ -133,9 +141,8 @@
    *     agent_badges: string[],  // optional – rendered with agent colour
    *     source_badge: string,    // optional – gets .src-badge class
    *   }
-   *
-   * @param {object} card
-   * @returns {HTMLElement}
+   * @param {object} card - The card data object.
+   * @returns {HTMLElement} The built card element.
    */
   function buildCardElement(card) {
     var div = document.createElement("div");
@@ -222,7 +229,6 @@
 
   /**
    * Populate a <select> element with column options for moving a card.
-   *
    * @param {HTMLSelectElement} select  — the select to populate
    * @param {string} currentStatus      — status to skip (the card's current column)
    * @param {Array<string>} gateBlocked — columns blocked by gate checks
@@ -251,9 +257,8 @@
 
   /**
    * Build the .board-card-move <form> for a card.
-   *
-   * @param {object} card
-   * @returns {HTMLElement}
+   * @param {object} card - The card data object.
+   * @returns {HTMLElement} The built move form element.
    */
   function buildMoveForm(card) {
     var form = document.createElement("form");
@@ -291,8 +296,7 @@
   /**
    * Rebuild the move <select> inside *form* for *card* to reflect the
    * card's new current status (used after an optimistic move).
-   *
-   * @param {HTMLFormElement} form
+   * @param {HTMLFormElement} form - The move form element.
    * @param {object} card  — requires at minimum { id, status }
    */
   function rebuildMoveSelect(form, card) {
@@ -393,8 +397,7 @@
   /**
    * Diff *cards* (array of card objects from the server) against the
    * current DOM and add / move / remove card elements as needed.
-   *
-   * @param {object[]} cards
+   * @param {object[]} cards - Array of card objects from the server.
    */
   function applyCardDiff(cards) {
     var board = document.getElementById("board");
@@ -464,10 +467,9 @@
 
   /**
    * Find a .board-column element by its data-status attribute.
-   *
    * @param {HTMLElement} board  — the #board container
-   * @param {string} status
-   * @returns {HTMLElement|null}
+   * @param {string} status      — the status key to find
+   * @returns {HTMLElement|null} The matching column element, or null.
    */
   function findColumnByStatus(board, status) {
     if (!board || !status) return null;
@@ -601,7 +603,6 @@
 
   /**
    * Populate and open the detail drawer for *cardEl*.
-   *
    * @param {HTMLElement} cardEl  — the .board-card DOM element
    */
   function openDrawer(cardEl) {
@@ -704,8 +705,7 @@
   /**
    * Return the list of column status_keys that are currently blocked
    * (moves into them should be prevented or warned).
-   *
-   * @returns {string[]}
+   * @returns {string[]} Array of blocked column status keys.
    */
   function getGateBlockedColumns() {
     var data = getGateData();
@@ -720,8 +720,7 @@
    * check.  If no valid cache exists and a gate endpoint is
    * configured, an async fetch is triggered (results available on the
    * next call).  Returns the current best-known data (possibly empty).
-   *
-   * @returns {object}  { blocked_columns: string[], ... }
+   * @returns {object} Gate data with blocked_columns array.
    */
   function getGateData() {
     // Try to read from cache
@@ -784,7 +783,6 @@
    * Store gate data in sessionStorage.  Callable externally via
    * ``window.robotsixBoardSetGate()`` so server-rendered pages can
    * prime the gate cache without an extra round-trip.
-   *
    * @param {object} data  — { blocked_columns: string[], ... }
    */
   function robotsixBoardSetGate(data) {
@@ -802,8 +800,7 @@
    * fetch gate state from this URL (with TTL-based caching in
    * sessionStorage).  Callable externally via
    * ``window.robotsixBoardSetGateEndpoint()``.
-   *
-   * @param {string} url
+   * @param {string} url - The gate endpoint URL.
    */
   function robotsixBoardSetGateEndpoint(url) {
     _gateEndpoint = url;
@@ -856,7 +853,8 @@
   }
 
   /**
-   * @returns {boolean}
+   * Get the closed-toggle state from localStorage.
+   * @returns {boolean} True if closed column should be shown.
    */
   function getClosedToggleState() {
     try {
@@ -867,7 +865,8 @@
   }
 
   /**
-   * @param {boolean} show
+   * Persist the closed-toggle state to localStorage.
+   * @param {boolean} show - Whether to show the closed column.
    */
   function setClosedToggleState(show) {
     try {
@@ -879,8 +878,7 @@
 
   /**
    * Apply the closed-column visibility based on the toggle state.
-   *
-   * @param {boolean} show
+   * @param {boolean} show - Whether to show the closed column.
    */
   function applyClosedToggle(show) {
     if (!CLOSED_KEY) return;
@@ -930,8 +928,7 @@
    * refresh so the change takes effect without waiting for the next
    * poll tick.  No-op if the board is not initialised (no config).
    * Exposed as ``window.robotsixBoardSetRefreshUrl()``.
-   *
-   * @param {string} url
+   * @param {string} url - The new refresh URL.
    */
   function robotsixBoardSetRefreshUrl(url) {
     if (!CFG) return;
@@ -944,7 +941,6 @@
    * current refresh timer and starts a new one at ``ms`` milliseconds.
    * No-op if the board is not initialised.
    * Exposed as ``window.robotsixBoardSetRefreshInterval()``.
-   *
    * @param {number} ms  — interval in milliseconds (>= 1000 recommended)
    */
   function robotsixBoardSetRefreshInterval(ms) {
