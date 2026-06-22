@@ -87,7 +87,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       - run: npm install --package-lock-only && npm ci
-      - run: npx eslint src/robotsix_board/static/board.js
+      - run: npx eslint --max-warnings 0 src/robotsix_board/static/board.js
       - run: npx stylelint src/robotsix_board/static/board.css
 
   js-test:
