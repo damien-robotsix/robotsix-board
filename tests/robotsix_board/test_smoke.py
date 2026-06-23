@@ -180,6 +180,34 @@ def test_module_curator_periodic_enabled() -> None:
     assert "name: module_curator" in cfg.read_text()
 
 
+def test_pyproject_has_urls_and_classifiers() -> None:
+    import tomllib
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent.parent
+    pyproject = root / "pyproject.toml"
+    assert pyproject.is_file()
+    data = tomllib.loads(pyproject.read_text())
+
+    project = data["project"]
+
+    urls = project["urls"]
+    assert urls["Homepage"] == "https://github.com/damien-robotsix/robotsix-board"
+    assert urls["Repository"] == "https://github.com/damien-robotsix/robotsix-board"
+    assert urls["Documentation"] == "https://damien-robotsix.github.io/robotsix-board/"
+    assert urls["Issues"] == "https://github.com/damien-robotsix/robotsix-board/issues"
+    assert urls["Changelog"].startswith(
+        "https://github.com/damien-robotsix/robotsix-board/blob/"
+    )
+
+    classifiers = project["classifiers"]
+    assert "Development Status :: 4 - Beta" in classifiers
+    assert "Intended Audience :: Developers" in classifiers
+    assert "License :: OSI Approved :: MIT License" in classifiers
+    assert "Programming Language :: Python :: 3.14" in classifiers
+    assert "Typing :: Typed" in classifiers
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()

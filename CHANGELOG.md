@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- PyPI metadata: `[project.urls]` and `[project.classifiers]` in `pyproject.toml`.
+
 ## [0.1.0] - 2026-06-12
 
 ### Added
