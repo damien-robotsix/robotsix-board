@@ -212,6 +212,7 @@ def render_config_script(
     *,
     refresh_url: str | None = None,
     refresh_interval_ms: int = 30_000,
+    gate_endpoint: str | None = None,
 ) -> str:
 ```
 
@@ -227,6 +228,9 @@ for **`JSON_HYDRATION`** mode.
   the config and the client does not auto-refresh.
 - `refresh_interval_ms` *(keyword-only)* — polling interval in milliseconds
   (default `30_000` = 30 seconds). Ignored if `refresh_url` is `None`.
+- `gate_endpoint` *(keyword-only)* — optional URL the client should fetch
+  for gate-blocking data. When `None` (the default), gate blocking is
+  disabled.
 
 **Returns:** A `<script>` tag containing a JSON config blob. The fields are:
 
@@ -236,6 +240,7 @@ for **`JSON_HYDRATION`** mode.
 - `render_mode` — always `"json_hydration"`.
 - `refresh_interval_ms` — as passed.
 - `refresh_url` — as passed (omitted if `None`).
+- `gate_endpoint` — as passed (omitted if `None`).
 
 Call this from your `JSON_HYDRATION` endpoint, typically embedded in the
 `<head>` or at the top of the board page alongside the `<script>` tag that
