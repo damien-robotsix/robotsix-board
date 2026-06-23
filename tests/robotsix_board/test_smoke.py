@@ -60,6 +60,18 @@ def test_stylelint_config_present_and_configured() -> None:
     assert "stylelint" in ci
 
 
+def test_check_jsonschema_workflows_hook_configured() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent.parent
+    pre_commit = (root / ".pre-commit-config.yaml").read_text()
+    assert "python-jsonschema/check-jsonschema" in pre_commit
+    assert "check-github-workflows" in pre_commit
+
+    pyproject = (root / "pyproject.toml").read_text()
+    assert '"check-jsonschema"' in pyproject
+
+
 def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     from pathlib import Path
 
