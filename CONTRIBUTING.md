@@ -1,5 +1,7 @@
 # Contributing to robotsix-board
 
+Looking for support instead of contributing? See [SUPPORT.md](.github/SUPPORT.md).
+
 ## Changelog fragments
 
 Every user-facing pull request must include a changelog fragment — a short

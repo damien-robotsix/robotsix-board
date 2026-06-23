@@ -1,0 +1,1 @@
+Add SUPPORT.md community health file to direct users to support channels

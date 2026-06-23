@@ -208,6 +208,19 @@ def test_pyproject_has_urls_and_classifiers() -> None:
     assert "Typing :: Typed" in classifiers
 
 
+def test_support_md_present() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent.parent
+    support_md = root / ".github" / "SUPPORT.md"
+    assert support_md.is_file()
+    text = support_md.read_text()
+    assert "GitHub Discussions" in text
+    assert "Bug Report" in text
+    assert "Feature Request" in text
+    assert "SECURITY.md" in text
+
+
 def test_closed_toggle_styles_live_in_css_not_js() -> None:
     static = robotsix_board.static_dir()
     css = (static / "board.css").read_text()
