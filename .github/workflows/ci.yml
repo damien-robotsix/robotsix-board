@@ -45,6 +45,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081  # v5.4.2
+        with:
+          enable-cache: true
       - run: uv python install 3.14
       - run: uv sync --frozen --extra dev
       - run: uv run detect-secrets scan --baseline .secrets.baseline
@@ -58,6 +60,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081  # v5.4.2
+        with:
+          enable-cache: true
       - run: uv python install 3.14
       - run: uv sync --frozen --extra dev
       - run: uv run vulture src/ vulture_whitelist.py
@@ -71,6 +75,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081  # v5.4.2
+        with:
+          enable-cache: true
       - run: uv python install 3.14
       - run: uv sync --frozen --extra dev
       - run: uv run mypy tests
@@ -86,6 +92,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version-file: '.nvmrc'
+          cache: 'npm'
       - run: npm install --package-lock-only && npm ci
       - run: npm audit --audit-level=high
       - run: npx eslint --max-warnings 0 src/robotsix_board/static/board.js
@@ -102,6 +109,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version-file: '.nvmrc'
+          cache: 'npm'
       - run: npm install --package-lock-only && npm ci
       - run: npx vitest run --coverage
 
