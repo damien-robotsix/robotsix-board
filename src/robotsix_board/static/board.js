@@ -483,6 +483,70 @@
    * ================================================================ */
 
   /**
+   * Perform a card move via fetch().  On success, moves the card DOM
+   * element to the target column, rebuilds the select, and updates
+   * column counts.  On failure, reverts the select and shows an
+   * inline error.
+   */
+  function performMove(cardId, cardEl, form, select, errorEl) {
+    if (!cardId) return;
+
+    var targetStatus = select.value;
+    var oldValue = targetStatus;
+
+    // Build the move URL from the configured template
+    var url = (
+      CFG.move_endpoint_template || "/move/{card_id}/{target_status}"
+    )
+      .replace("{card_id}", encodeURIComponent(cardId))
+      .replace("{target_status}", encodeURIComponent(targetStatus));
+
+    fetch(url, { method: CFG.move_method || "POST" })
+      .then(function (resp) {
+        if (!resp.ok) {
+          throw new Error("move returned " + resp.status);
+        }
+        return resp;
+      })
+      .then(function () {
+        // Success — clear any previous error
+        if (errorEl) {
+          errorEl.style.display = "none";
+          errorEl.textContent = "";
+        }
+
+        // Optimistically move the card DOM element to the target column
+        var targetCol = findColumnByStatus(
+          document.getElementById("board"),
+          targetStatus
+        );
+        if (targetCol) {
+          var cardList = targetCol.querySelector(".board-column-cards");
+          if (cardList) {
+            cardList.appendChild(cardEl);
+          }
+        }
+
+        // Rebuild the move select so the old column becomes an
+        // option and the new column is removed from the list.
+        rebuildMoveSelect(form, { id: cardId, status: targetStatus });
+        updateColumnCounts();
+      })
+      .catch(function (err) {
+        console.warn("board.js: move fetch failed:", err);
+
+        // Revert the select to its original value
+        select.value = oldValue;
+
+        // Display an inline error message
+        if (errorEl) {
+          errorEl.textContent = "Move failed: " + err.message;
+          errorEl.style.display = "inline";
+        }
+      });
+  }
+
+  /**
    * Attach delegated submit handler on #board for .board-card-move
    * forms.  Uses event delegation — no per-card listeners — so it
    * scales to large boards.
@@ -509,59 +573,9 @@
       var cardId = cardEl.getAttribute("data-card-id");
       if (!cardId) return;
 
-      var oldValue = select.value;
       var errorEl = form.querySelector(".board-move-error");
 
-      // Build the move URL from the configured template
-      var url = (
-        CFG.move_endpoint_template || "/move/{card_id}/{target_status}"
-      )
-        .replace("{card_id}", encodeURIComponent(cardId))
-        .replace("{target_status}", encodeURIComponent(targetStatus));
-
-      fetch(url, { method: CFG.move_method || "POST" })
-        .then(function (resp) {
-          if (!resp.ok) {
-            throw new Error("move returned " + resp.status);
-          }
-          return resp;
-        })
-        .then(function () {
-          // Success — clear any previous error
-          if (errorEl) {
-            errorEl.style.display = "none";
-            errorEl.textContent = "";
-          }
-
-          // Optimistically move the card DOM element to the target column
-          var targetCol = findColumnByStatus(
-            document.getElementById("board"),
-            targetStatus
-          );
-          if (targetCol) {
-            var cardList = targetCol.querySelector(".board-column-cards");
-            if (cardList) {
-              cardList.appendChild(cardEl);
-            }
-          }
-
-          // Rebuild the move select so the old column becomes an
-          // option and the new column is removed from the list.
-          rebuildMoveSelect(form, { id: cardId, status: targetStatus });
-          updateColumnCounts();
-        })
-        .catch(function (err) {
-          console.warn("board.js: move fetch failed:", err);
-
-          // Revert the select to its original value
-          select.value = oldValue;
-
-          // Display an inline error message
-          if (errorEl) {
-            errorEl.textContent = "Move failed: " + err.message;
-            errorEl.style.display = "inline";
-          }
-        });
+      performMove(cardId, cardEl, form, select, errorEl);
     });
   }
 
@@ -1008,6 +1022,7 @@
     stopRefreshLoop: robotsixBoardStopRefresh,
     doRefresh: doRefresh,
     fetchGateDataAsync: fetchGateDataAsync,
+    performMove: performMove,
     attachMoveDelegation: attachMoveDelegation,
     attachDrawerDelegation: attachDrawerDelegation,
     init: init,

@@ -38,6 +38,7 @@ const {
   startRefreshLoop,
   doRefresh,
   fetchGateDataAsync,
+  performMove,
   attachMoveDelegation,
   attachDrawerDelegation,
   init,
@@ -927,7 +928,148 @@ describe("openDrawer() / closeDrawer()", () => {
 });
 
 /* ==================================================================
- * 11.  attachMoveDelegation
+ * 11.  performMove
+ * ================================================================ */
+
+describe("performMove()", () => {
+  beforeEach(() => {
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    bootConfig();
+    buildBoardDOM();
+  });
+
+  it("successful fetch moves card DOM to target column", async () => {
+    const board = document.getElementById("board");
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "move-me");
+
+    const form = buildMoveForm({ id: "move-me", status: "todo" });
+    cardEl.appendChild(form);
+    todoCards.appendChild(cardEl);
+
+    const select = form.querySelector("select[name='target_status']");
+    select.value = "doing";
+    const errorEl = form.querySelector(".board-move-error");
+
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    performMove("move-me", cardEl, form, select, errorEl);
+
+    await vi.waitFor(() => {
+      const doingCards = board.querySelector(
+        '.board-column[data-status="doing"] .board-card'
+      );
+      expect(doingCards).not.toBeNull();
+    });
+
+    const doingCards = board.querySelector(
+      '.board-column[data-status="doing"] .board-card'
+    );
+    expect(doingCards.getAttribute("data-card-id")).toBe("move-me");
+
+    // Select should be rebuilt (old status "todo" now an option)
+    const newSelect = doingCards.querySelector("select[name='target_status']");
+    expect(newSelect).not.toBeNull();
+    const values = Array.from(newSelect.options).map((o) => o.value);
+    expect(values).toContain("todo");
+    expect(values).not.toContain("doing");
+  });
+
+  it("failed fetch reverts select and shows inline error", async () => {
+    const board = document.getElementById("board");
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "fail-me");
+
+    const form = buildMoveForm({ id: "fail-me", status: "todo" });
+    cardEl.appendChild(form);
+    todoCards.appendChild(cardEl);
+
+    const select = form.querySelector("select[name='target_status']");
+    select.value = "doing";
+    const errorEl = form.querySelector(".board-move-error");
+
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: false, status: 422 });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    performMove("fail-me", cardEl, form, select, errorEl);
+
+    await vi.waitFor(() => {
+      expect(errorEl.style.display).toBe("inline");
+      expect(errorEl.textContent).toContain("Move failed");
+    });
+
+    // Select should be reverted to original value
+    expect(select.value).toBe("doing");
+  });
+
+  it("null/empty cardId causes early return without fetch", () => {
+    const board = document.getElementById("board");
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "");
+
+    const form = buildMoveForm({ id: "", status: "todo" });
+    cardEl.appendChild(form);
+    todoCards.appendChild(cardEl);
+
+    const select = form.querySelector("select[name='target_status']");
+    select.value = "doing";
+    const errorEl = form.querySelector(".board-move-error");
+
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    performMove("", cardEl, form, select, errorEl);
+
+    // Early return — fetch must not be called
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("URL template expansion uses configured endpoint", () => {
+    const board = document.getElementById("board");
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "url-test");
+
+    const form = buildMoveForm({ id: "url-test", status: "todo" });
+    cardEl.appendChild(form);
+    todoCards.appendChild(cardEl);
+
+    const select = form.querySelector("select[name='target_status']");
+    select.value = "done";
+    const errorEl = form.querySelector(".board-move-error");
+
+    const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    performMove("url-test", cardEl, form, select, errorEl);
+
+    const urlArg = fetchSpy.mock.calls[0][0];
+    expect(urlArg).toBe("/move/url-test/done");
+  });
+});
+
+/* ==================================================================
+ * 12.  attachMoveDelegation
  * ================================================================ */
 
 describe("attachMoveDelegation()", () => {
@@ -1055,7 +1197,7 @@ describe("attachMoveDelegation()", () => {
 });
 
 /* ==================================================================
- * 12.  attachDrawerDelegation
+ * 13.  attachDrawerDelegation
  * ================================================================ */
 
 describe("attachDrawerDelegation()", () => {
@@ -1132,7 +1274,7 @@ describe("attachDrawerDelegation()", () => {
 });
 
 /* ==================================================================
- * 13.  doRefresh
+ * 14.  doRefresh
  * ================================================================ */
 
 describe("doRefresh()", () => {
@@ -1337,7 +1479,7 @@ describe("startRefreshLoop()", () => {
 });
 
 /* ==================================================================
- * 14.  Public API: window.robotsixBoardRefresh
+ * 15.  Public API: window.robotsixBoardRefresh
  * ================================================================ */
 
 describe("robotsixBoardRefresh()", () => {
@@ -1440,7 +1582,7 @@ describe("robotsixBoardStopRefresh()", () => {
 });
 
 /* ==================================================================
- * 15.  Public API: window.robotsixBoardSetRefreshUrl
+ * 16.  Public API: window.robotsixBoardSetRefreshUrl
  * ================================================================ */
 
 describe("robotsixBoardSetRefreshUrl()", () => {
@@ -1528,7 +1670,7 @@ describe("robotsixBoardSetRefreshInterval()", () => {
 });
 
 /* ==================================================================
- * 16.  Public API: window.robotsixBoardSetGate
+ * 17.  Public API: window.robotsixBoardSetGate
  * ================================================================ */
 
 describe("robotsixBoardSetGate()", () => {
@@ -1544,7 +1686,7 @@ describe("robotsixBoardSetGate()", () => {
 });
 
 /* ==================================================================
- * 17.  Public API: window.robotsixBoardSetGateEndpoint
+ * 18.  Public API: window.robotsixBoardSetGateEndpoint
  * ================================================================ */
 
 describe("robotsixBoardSetGateEndpoint()", () => {
@@ -1564,7 +1706,7 @@ describe("robotsixBoardSetGateEndpoint()", () => {
 });
 
 /* ==================================================================
- * 18.  init
+ * 19.  init
  * ================================================================ */
 
 describe("init()", () => {
@@ -1604,7 +1746,7 @@ describe("init()", () => {
 });
 
 /* ==================================================================
- * 19.  Export-surface convention audit (AGENT.md lines 36-40)
+ * 20.  Export-surface convention audit (AGENT.md lines 36-40)
  * ================================================================ */
 
 describe("export surface convention", () => {

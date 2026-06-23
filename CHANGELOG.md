@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `performMove()` helper extracted from `attachMoveDelegation()` in `board.js` for the fetch + move lifecycle, exposed via `window.robotsixBoardInternals`.
 - PyPI metadata: `[project.urls]` and `[project.classifiers]` in `pyproject.toml`.
 - GitHub Sponsors: `.github/FUNDING.yml` pointing to `damien-robotsix`.
 - `.github/SUPPORT.md` with links to Discussions, Issues, and security reporting guidance.
