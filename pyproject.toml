@@ -10,6 +10,20 @@ requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
 dependencies = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/damien-robotsix/robotsix-board"
+Repository = "https://github.com/damien-robotsix/robotsix-board"
+Documentation = "https://damien-robotsix.github.io/robotsix-board/"
+Issues = "https://github.com/damien-robotsix/robotsix-board/issues"
+Changelog = "https://github.com/damien-robotsix/robotsix-board/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
