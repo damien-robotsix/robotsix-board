@@ -111,7 +111,10 @@ describe("bootConfig()", () => {
   });
 
   it("calls robotsixBoardSetGateEndpoint when gate_endpoint is set", () => {
-    const fetchSpy = vi.fn();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ blocked_columns: [] }),
+    });
     vi.stubGlobal("fetch", fetchSpy);
 
     setBoardConfig(
