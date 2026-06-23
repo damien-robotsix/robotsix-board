@@ -487,6 +487,12 @@
    * element to the target column, rebuilds the select, and updates
    * column counts.  On failure, reverts the select and shows an
    * inline error.
+   *
+   * @param {string} cardId - The card ID.
+   * @param {HTMLElement} cardEl - The card DOM element.
+   * @param {HTMLFormElement} form - The move form element.
+   * @param {HTMLSelectElement} select - The target status select.
+   * @param {HTMLElement} errorEl - The error display element.
    */
   function performMove(cardId, cardEl, form, select, errorEl) {
     if (!cardId) return;
