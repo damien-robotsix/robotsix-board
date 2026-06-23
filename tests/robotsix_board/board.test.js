@@ -109,6 +109,24 @@ describe("bootConfig()", () => {
     setBoardConfig(JSON.stringify({ render_mode: "static", columns: [] }));
     expect(bootConfig()).toBe(false);
   });
+
+  it("calls robotsixBoardSetGateEndpoint when gate_endpoint is set", () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ blocked_columns: [] }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    setBoardConfig(
+      JSON.stringify({
+        ...SAMPLE_CONFIG,
+        gate_endpoint: "https://example.com/gate",
+      })
+    );
+    bootConfig();
+
+    expect(fetchSpy).toHaveBeenCalledWith("https://example.com/gate");
+  });
 });
 
 describe("buildSelectOptions()", () => {

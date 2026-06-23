@@ -120,6 +120,10 @@
       }
     }
 
+    if (CFG.gate_endpoint) {
+      robotsixBoardSetGateEndpoint(CFG.gate_endpoint);
+    }
+
     return true;
   }
 

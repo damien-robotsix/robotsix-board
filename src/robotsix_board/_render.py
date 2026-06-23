@@ -141,6 +141,7 @@ def render_config_script(
     *,
     refresh_url: str | None = None,
     refresh_interval_ms: int = 30_000,
+    gate_endpoint: str | None = None,
 ) -> str:
     """Render a ``<script id="board-config" type="application/json">`` tag.
 
@@ -162,6 +163,8 @@ def render_config_script(
     }
     if refresh_url is not None:
         config["refresh_url"] = refresh_url
+    if gate_endpoint is not None:
+        config["gate_endpoint"] = gate_endpoint
 
     json_str = _json.dumps(config, separators=(",", ":"), sort_keys=True)
     return f'<script id="board-config" type="application/json">\n{json_str}\n</script>'

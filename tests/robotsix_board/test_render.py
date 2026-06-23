@@ -373,3 +373,20 @@ class TestRenderBoard:
         parsed = _extract_script_json(result)
 
         assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"
+
+    def test_render_config_script_includes_gate_endpoint_when_set(self) -> None:
+        adapter = _adapter()
+        result = render_config_script(adapter, gate_endpoint="/api/gate")
+
+        parsed = _extract_script_json(result)
+
+        assert "gate_endpoint" in parsed
+        assert parsed["gate_endpoint"] == "/api/gate"
+
+    def test_render_config_script_omits_gate_endpoint_when_none(self) -> None:
+        adapter = _adapter()
+        result = render_config_script(adapter, gate_endpoint=None)
+
+        parsed = _extract_script_json(result)
+
+        assert "gate_endpoint" not in parsed
