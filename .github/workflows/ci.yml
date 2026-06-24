@@ -97,6 +97,7 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npx eslint --max-warnings 0 src/robotsix_board/static/board.js
       - run: npx stylelint src/robotsix_board/static/board.css
+      - run: npx markdownlint-cli2 '**/*.md' '#node_modules' '#.venv'
 
   js-test:
     runs-on: ubuntu-latest

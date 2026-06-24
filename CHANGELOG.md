@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `markdownlint-cli2` pre-commit hook and CI step to lint all Markdown files for accessibility and formatting issues.
+
 ### Changed
 
 - CI: enable `setup-uv` cache and `setup-node` npm cache across all jobs, cutting install time for cache hits.

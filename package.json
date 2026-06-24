@@ -5,6 +5,7 @@
   "scripts": {
     "lint:js": "eslint src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
+    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv'",
     "test:js": "vitest run --coverage"
   },
   "devDependencies": {
@@ -16,6 +17,7 @@
     "eslint-plugin-jsdoc": "^50",
     "happy-dom": "^20",
     "vitest": "^3",
-    "@vitest/coverage-v8": "^3"
+    "@vitest/coverage-v8": "^3",
+    "markdownlint-cli2": "^0.22"
   }
 }
