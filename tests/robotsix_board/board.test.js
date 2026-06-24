@@ -1813,6 +1813,91 @@ describe("export surface convention", () => {
   });
 });
 
+/* ==================================================================
+ * 21.  CSS class name cross-file consistency
+ * ================================================================ */
+
+describe("CSS class name cross-file consistency", () => {
+  const boardCssPath = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../src/robotsix_board/static/board.css",
+  );
+  const boardJsPath = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../src/robotsix_board/static/board.js",
+  );
+
+  const cssSrc = readFileSync(boardCssPath, "utf-8");
+  const jsSrc = readFileSync(boardJsPath, "utf-8");
+
+  // --- extract CSS class selectors from board.css ---
+  // Matches .class-name where class-name starts with a letter,
+  // not preceded by a digit (avoids matching decimal numbers
+  // like 0.85, rgba(0,0,0,0.4), etc.).
+  const cssClassRe = /(?<!\d)\.([a-zA-Z_][\w-]*)/g;
+  const cssClasses = new Set();
+  let m;
+  while ((m = cssClassRe.exec(cssSrc)) !== null) {
+    cssClasses.add(m[1]);
+  }
+
+  // --- extract CSS class names used in board.js ---
+  // Patterns covered:
+  //   .className = "..."            — direct assignment (single or space-separated)
+  //   .classList.add("...")         — add/remove/toggle calls
+  //   .querySelector(".foo .bar")   — CSS selector strings
+  //   .querySelectorAll(...)        — same
+  //   .closest(...)                 — same
+  //   HTML string literals with class="..."
+  const jsClasses = new Set();
+
+  // 1. className = "cls1 cls2" and classList.*("cls")
+  const classNameRe = /\.className\s*=\s*"([^"]+)"/g;
+  while ((m = classNameRe.exec(jsSrc)) !== null) {
+    for (const cls of m[1].split(/\s+/)) {
+      if (cls) jsClasses.add(cls);
+    }
+  }
+
+  // 2. classList.add("cls"), classList.remove("cls"), classList.toggle("cls")
+  const classListRe = /\.classList\.(?:add|remove|toggle)\("([^"]+)"\)/g;
+  while ((m = classListRe.exec(jsSrc)) !== null) {
+    jsClasses.add(m[1]);
+  }
+
+  // 3. querySelector/querySelectorAll/closest with CSS selector strings
+  //    that contain class references.
+  //    We extract class names from ".class-name" patterns inside
+  //    selector string arguments.
+  const querySelectorRe = /\.(?:querySelector(?:All)?|closest)\("([^"]+)"\)/g;
+  while ((m = querySelectorRe.exec(jsSrc)) !== null) {
+    const sel = m[1];
+    const clsRe = /\.([a-zA-Z_][\w-]*)/g;
+    let cm;
+    while ((cm = clsRe.exec(sel)) !== null) {
+      jsClasses.add(cm[1]);
+    }
+  }
+
+  // 4. HTML string literals with class="..." attributes
+  const htmlClassRe = /class="([^"]+)"/g;
+  while ((m = htmlClassRe.exec(jsSrc)) !== null) {
+    for (const cls of m[1].split(/\s+/)) {
+      if (cls) jsClasses.add(cls);
+    }
+  }
+
+  // --- known exceptions ---
+  // "hidden" is a utility/visibility class — it is defined in
+  // board.css but its usage via classList is dynamic, so it
+  // passes the check naturally.  No special-casing needed.
+
+  it("every JS class name has a matching CSS rule in board.css", () => {
+    const missing = [...jsClasses].filter((cls) => !cssClasses.has(cls));
+    expect(missing).toEqual([]);
+  });
+});
+
 // Smoke-check that vi is wired up for use by future fetch-touching tests.
 describe("vitest helpers", () => {
   it("can stub a global fetch", () => {

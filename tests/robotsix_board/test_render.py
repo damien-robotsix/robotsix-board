@@ -203,6 +203,43 @@ class TestRenderBoard:
         for cls in expected_classes:
             assert cls in html, f"Missing CSS class: {cls}"
 
+    def test_render_board_css_classes_match_css_file(self) -> None:
+        """Every CSS class rendered by render_board() must exist in board.css."""
+        from pathlib import Path
+
+        css_path = (
+            Path(__file__).resolve().parent.parent.parent
+            / "src"
+            / "robotsix_board"
+            / "static"
+            / "board.css"
+        )
+        css_text = css_path.read_text()
+
+        # Extract CSS class selectors: .class-name where class-name
+        # starts with a letter.  Negative lookbehind for a digit
+        # avoids matching decimal numbers (0.85, rgba(0.4), etc.).
+        css_classes: set[str] = set()
+        for m in re.finditer(r"(?<!\d)\.([a-zA-Z_][\w-]*)", css_text):
+            css_classes.add(m.group(1))
+
+        # Collect every class="..." value from render_board() output.
+        adapter = _adapter()
+        cards = _sample_cards()
+        html = render_board(adapter, cards)
+
+        render_classes: set[str] = set()
+        for m in re.finditer(r'class="([^"]+)"', html):
+            for cls in m.group(1).split():
+                if cls:
+                    render_classes.add(cls)
+
+        missing = render_classes - css_classes
+        assert not missing, (
+            f"CSS classes rendered by render_board() but missing from board.css: "
+            f"{sorted(missing)}"
+        )
+
     def test_render_board_empty_column(self) -> None:
         adapter = _adapter()
         cards: dict[str, list[object]] = {
