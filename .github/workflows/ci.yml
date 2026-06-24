@@ -130,3 +130,19 @@ jobs:
               - '.github/workflows/**'
       - if: steps.changes.outputs.workflows == 'true'
         run: docker run --rm -v "$PWD":/repo --workdir /repo rhysd/actionlint:1.7.7 -color
+
+  build-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081  # v5.4.2
+        with:
+          enable-cache: true
+      - name: Build wheel
+        run: uv build
+      - name: Smoke test — import from built wheel
+        run: uv run --with dist/*.whl --no-project -- python -c "import robotsix_board; print(robotsix_board.__version__)"
