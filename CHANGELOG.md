@@ -12,19 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `markdownlint-cli2` pre-commit hook and CI step to lint all Markdown files for accessibility and formatting issues.
-
-### Changed
-
-- CI: enable `setup-uv` cache and `setup-node` npm cache across all jobs, cutting install time for cache hits.
-
-### Added
-
 - `performMove()` helper extracted from `attachMoveDelegation()` in `board.js` for the fetch + move lifecycle, exposed via `window.robotsixBoardInternals`.
 - PyPI metadata: `[project.urls]` and `[project.classifiers]` in `pyproject.toml`.
 - GitHub Sponsors: `.github/FUNDING.yml` pointing to `damien-robotsix`.
 - `.github/SUPPORT.md` with links to Discussions, Issues, and security reporting guidance.
 - `check-jsonschema` `check-github-workflows` pre-commit hook to validate GitHub Actions workflow YAML against the official schema.
 - `gate_endpoint` keyword-only parameter to `render_config_script()` enabling server-to-client gate-blocking endpoint configuration.  `bootConfig()` in `board.js` automatically wires `CFG.gate_endpoint` via `robotsixBoardSetGateEndpoint()`.
+
+### Changed
+
+- CI: enable `setup-uv` cache and `setup-node` npm cache across all jobs, cutting install time for cache hits.
 
 ## [0.1.0] - 2026-06-12
 

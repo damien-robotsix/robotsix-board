@@ -8,7 +8,7 @@ Every user-facing pull request must include a changelog fragment — a short
 Markdown file describing the change — placed in the `changes/` directory.
 The file naming convention is:
 
-```
+```text
 changes/<PR_NUMBER>.<type>.md
 ```
 

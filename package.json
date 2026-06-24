@@ -5,7 +5,7 @@
   "scripts": {
     "lint:js": "eslint src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
-    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv'",
+    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changes'",
     "test:js": "vitest run --coverage"
   },
   "devDependencies": {

@@ -4,6 +4,8 @@
     "MD033": false,
     "MD041": false,
     "MD045": true,
-    "MD059": true
+    "MD059": true,
+    "MD004": { "style": "asterisk" },
+    "MD060": false
   }
 }
