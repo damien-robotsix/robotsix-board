@@ -12,11 +12,13 @@ uv sync --extra dev --extra docs
 ```
 
 Run tests:
+
 ```bash
 uv run pytest
 ```
 
 Build the docs site:
+
 ```bash
 uv run mkdocs serve
 ```

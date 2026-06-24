@@ -80,22 +80,22 @@ the board; the library implementation must not drift from it.
 A consumer drives the board by supplying an adapter (see
 `robotsix_board.BoardAdapter`) that answers:
 
-* **Column order + labels** — the ordered list of `(status_key, label)`
+- **Column order + labels** — the ordered list of `(status_key, label)`
   pairs. Column order is significant: it is the left-to-right order columns
   appear on the board, and the labels are the human-readable column headings.
-* **Card-field accessors** — given a card object, the adapter exposes:
-  * `id` — a stable identifier (used as the DOM/card key and in move URLs).
-  * `title` — the display title.
-  * `badges` — zero or more short badge labels.
-  * `timestamps` — named timestamp fields (e.g. created / updated).
-* **Move endpoint** — the `(url, http_method)` used to move a card from one
+- **Card-field accessors** — given a card object, the adapter exposes:
+  - `id` — a stable identifier (used as the DOM/card key and in move URLs).
+  - `title` — the display title.
+  - `badges` — zero or more short badge labels.
+  - `timestamps` — named timestamp fields (e.g. created / updated).
+- **Move endpoint** — the `(url, http_method)` used to move a card from one
   column to another. The move control posts the target `status_key` to this
   endpoint.
-* **Structural HTML hooks (optional)** — two optional adapter methods inject
+- **Structural HTML hooks (optional)** — two optional adapter methods inject
   trusted raw HTML into the server-rendered markup (`SERVER_FRAGMENTS` only):
-  * `card_extra_html(card) -> str` — output is injected inside `.board-card`,
+  - `card_extra_html(card) -> str` — output is injected inside `.board-card`,
     immediately after the per-card move form.
-  * `column_extra_html(status_key) -> str` — output is injected inside
+  - `column_extra_html(status_key) -> str` — output is injected inside
     `.board-column`, after the `.board-column-cards` list.
 
   **Trust boundary:** hook output is emitted VERBATIM, bypassing `esc()`. The
@@ -107,11 +107,11 @@ A consumer drives the board by supplying an adapter (see
 
 The board supports two transports, selected via `robotsix_board.RenderMode`:
 
-* **Server-rendered HTML fragments** (`RenderMode.SERVER_FRAGMENTS`) — the
+- **Server-rendered HTML fragments** (`RenderMode.SERVER_FRAGMENTS`) — the
   server emits ready-to-insert HTML fragments. This is the stdlib/Jinja
   consumer path (e.g. robotsix-auto-mail, `BaseHTTPRequestHandler` + inline
   Jinja).
-* **JSON + client-side JS hydration** (`RenderMode.JSON_HYDRATION`) — the
+- **JSON + client-side JS hydration** (`RenderMode.JSON_HYDRATION`) — the
   server emits JSON and the bundled `board.js` hydrates the markup on the
   client. This is the FastAPI consumer path (e.g. robotsix-mill, which mounts
   the packaged `static/` directory and serves `board.js`).
@@ -123,11 +123,11 @@ behavior are shared regardless of transport.
 
 Both transports produce the same DOM shape:
 
-* **Column container** — one container per column, keyed by `status_key`,
+- **Column container** — one container per column, keyed by `status_key`,
   headed by the column `label`.
-* **Card markup** — a card element keyed by the card `id`, showing `title`,
+- **Card markup** — a card element keyed by the card `id`, showing `title`,
   `badges`, and `timestamps`.
-* **Move control** — a per-card form/dropdown listing the other columns;
+- **Move control** — a per-card form/dropdown listing the other columns;
   selecting a target column issues the adapter's move endpoint request.
 
 All HTML interpolation goes through a single centralized `esc()` escaping
@@ -139,8 +139,8 @@ escaping implementation rather than each re-implementing escaping.
 The packaged `static/` directory ships `board.css` and `board.js` as package
 data. Resolve it at runtime via `robotsix_board.static_dir()`:
 
-* A FastAPI consumer mounts the directory as a static-files route.
-* A stdlib consumer reads the asset files and inlines them into responses.
+- A FastAPI consumer mounts the directory as a static-files route.
+- A stdlib consumer reads the asset files and inlines them into responses.
 
 The create step ships **skeleton placeholder** assets; the real chrome lands
 in the build-out ticket.

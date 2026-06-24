@@ -1,0 +1,12 @@
+{
+  "config": {
+    "MD013": false,
+    "MD033": false,
+    "MD041": false,
+    "MD045": true,
+    "MD059": true,
+    "MD004": { "style": "consistent" },
+    "MD024": { "siblings_only": true },
+    "MD060": false
+  }
+}
