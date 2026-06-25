@@ -247,7 +247,7 @@
     var cols = CFG.columns || [];
     for (var i = 0; i < cols.length; i++) {
       var key = cols[i][0];
-      if (key === currentStatus) continue;
+      if (key === currentStatus) { continue; }
       var opt = document.createElement("option");
       opt.value = key;
       opt.textContent = cols[i][1];
@@ -305,7 +305,7 @@
    */
   function rebuildMoveSelect(form, card) {
     var oldSelect = form.querySelector("select[name='target_status']");
-    if (!oldSelect) return;
+    if (!oldSelect) { return; }
 
     var select = document.createElement("select");
     select.name = "target_status";
@@ -326,13 +326,13 @@
    */
   function updateColumnCounts() {
     var board = document.getElementById("board");
-    if (!board) return;
+    if (!board) { return; }
 
     var columns = board.querySelectorAll(".board-column");
     for (var i = 0; i < columns.length; i++) {
       var col = columns[i];
       var countEl = col.querySelector(".board-column-count");
-      if (!countEl) continue;
+      if (!countEl) { continue; }
 
       // Count visible (non-.hidden) cards
       var cards = col.querySelectorAll(
@@ -379,7 +379,7 @@
    * current DOM state.
    */
   function doRefresh() {
-    if (!CFG.refresh_url) return;
+    if (!CFG.refresh_url) { return; }
 
     fetch(CFG.refresh_url)
       .then(function (resp) {
@@ -405,8 +405,8 @@
    */
   function applyCardDiff(cards) {
     var board = document.getElementById("board");
-    if (!board) return;
-    if (!Array.isArray(cards)) return;
+    if (!board) { return; }
+    if (!Array.isArray(cards)) { return; }
 
     // Index incoming cards by id
     var incoming = {};
@@ -476,7 +476,7 @@
    * @returns {HTMLElement|null} The matching column element, or null.
    */
   function findColumnByStatus(board, status) {
-    if (!board || !status) return null;
+    if (!board || !status) { return null; }
     return board.querySelector(
       '.board-column[data-status="' + CSS.escape(status) + '"]'
     );
@@ -498,7 +498,7 @@
    * @param {HTMLElement} errorEl - The error display element.
    */
   function performMove(cardId, cardEl, form, select, errorEl) {
-    if (!cardId) return;
+    if (!cardId) { return; }
 
     var targetStatus = select.value;
     var oldValue = targetStatus;
@@ -562,25 +562,25 @@
    */
   function attachMoveDelegation() {
     var board = document.getElementById("board");
-    if (!board) return;
+    if (!board) { return; }
 
     board.addEventListener("submit", function (evt) {
       var form = evt.target.closest(".board-card-move");
-      if (!form) return; // not our form — let it bubble
+      if (!form) { return; } // not our form — let it bubble
 
       evt.preventDefault();
 
       var select = form.querySelector("select[name='target_status']");
-      if (!select) return;
+      if (!select) { return; }
 
       var targetStatus = select.value;
-      if (!targetStatus) return; // placeholder "Move to…" selected
+      if (!targetStatus) { return; } // placeholder "Move to…" selected
 
       var cardEl = form.closest(".board-card");
-      if (!cardEl) return;
+      if (!cardEl) { return; }
 
       var cardId = cardEl.getAttribute("data-card-id");
-      if (!cardId) return;
+      if (!cardId) { return; }
 
       var errorEl = form.querySelector(".board-move-error");
 
@@ -599,7 +599,7 @@
    */
   function attachDrawerDelegation() {
     var board = document.getElementById("board");
-    if (!board) return;
+    if (!board) { return; }
 
     board.addEventListener("click", function (evt) {
       // Ignore clicks on or inside the move form
@@ -608,14 +608,14 @@
       }
 
       var cardEl = evt.target.closest(".board-card");
-      if (!cardEl) return;
+      if (!cardEl) { return; }
 
       openDrawer(cardEl);
     });
 
     // Close button delegation on #drawer
     var drawer = document.getElementById("drawer");
-    if (!drawer) return;
+    if (!drawer) { return; }
 
     drawer.addEventListener("click", function (evt) {
       if (evt.target.closest(".drawer-close")) {
@@ -630,10 +630,10 @@
    */
   function openDrawer(cardEl) {
     var drawer = document.getElementById("drawer");
-    if (!drawer) return;
+    if (!drawer) { return; }
 
     var content = drawer.querySelector(".drawer-content");
-    if (!content) return;
+    if (!content) { return; }
 
     // Gather data from the card's DOM structure
     var cardId = cardEl.getAttribute("data-card-id") || "";
@@ -699,7 +699,7 @@
    */
   function closeDrawer() {
     var drawer = document.getElementById("drawer");
-    if (!drawer) return;
+    if (!drawer) { return; }
 
     drawer.classList.add("hidden");
 
@@ -785,7 +785,7 @@
    * picked up by the next ``getGateData()`` call.
    */
   function fetchGateDataAsync() {
-    if (!_gateEndpoint) return;
+    if (!_gateEndpoint) { return; }
 
     fetch(_gateEndpoint)
       .then(function (resp) {
@@ -844,11 +844,11 @@
    */
   function attachClosedToggle() {
     var board = document.getElementById("board");
-    if (!board) return;
-    if (!CLOSED_KEY) return;
+    if (!board) { return; }
+    if (!CLOSED_KEY) { return; }
 
     // Idempotent — don't create duplicate toggles
-    if (document.getElementById("board-closed-toggle")) return;
+    if (document.getElementById("board-closed-toggle")) { return; }
 
     var container = document.createElement("div");
     container.id = "board-closed-toggle";
@@ -904,12 +904,12 @@
    * @param {boolean} show - Whether to show the closed column.
    */
   function applyClosedToggle(show) {
-    if (!CLOSED_KEY) return;
+    if (!CLOSED_KEY) { return; }
     var col = findColumnByStatus(
       document.getElementById("board"),
       CLOSED_KEY
     );
-    if (!col) return;
+    if (!col) { return; }
 
     if (show) {
       col.classList.remove("hidden");
@@ -928,7 +928,7 @@
    * ``window.robotsixBoardRefresh()``.
    */
   function robotsixBoardRefresh() {
-    if (!CFG || CFG.render_mode !== "json_hydration") return;
+    if (!CFG || CFG.render_mode !== "json_hydration") { return; }
     doRefresh();
   }
 
@@ -954,7 +954,7 @@
    * @param {string} url - The new refresh URL.
    */
   function robotsixBoardSetRefreshUrl(url) {
-    if (!CFG) return;
+    if (!CFG) { return; }
     CFG.refresh_url = url;
     doRefresh();
   }
@@ -967,7 +967,7 @@
    * @param {number} ms  — interval in milliseconds (>= 1000 recommended)
    */
   function robotsixBoardSetRefreshInterval(ms) {
-    if (!CFG) return;
+    if (!CFG) { return; }
     CFG.refresh_interval_ms = ms;
     startRefreshLoop();  // clears old timer, starts new one at updated interval
   }
