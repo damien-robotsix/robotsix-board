@@ -1,1 +1,1 @@
-Remove redundant npm install --package-lock-only prefix from CI js-lint and js-test jobs
+Revert premature removal of npm install --package-lock-only from CI; package-lock.json must be updated first to allow npm ci to work standalone.
