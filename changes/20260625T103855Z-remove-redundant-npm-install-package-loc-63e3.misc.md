@@ -1,0 +1,1 @@
+Remove redundant npm install --package-lock-only prefix from CI js-lint and js-test jobs
