@@ -438,23 +438,11 @@
       var existing = currentMap[card.id];
       if (!existing) {
         // New card — render into the correct column
-        var targetCol = findColumnByStatus(board, card.status);
-        if (targetCol) {
-          var cardList = targetCol.querySelector(".board-column-cards");
-          if (cardList) {
-            cardList.appendChild(buildCardElement(card));
-          }
-        }
+        appendCardToColumn(card, board, card.status);
       } else if (existing.columnStatus !== card.status) {
         // Moved card — remove from old column, render into new
         existing.el.remove();
-        var newCol = findColumnByStatus(board, card.status);
-        if (newCol) {
-          var newCardList = newCol.querySelector(".board-column-cards");
-          if (newCardList) {
-            newCardList.appendChild(buildCardElement(card));
-          }
-        }
+        appendCardToColumn(card, board, card.status);
       }
       // else: unchanged — leave the existing DOM element alone to
       // avoid flicker and preserve user interaction state.
@@ -480,6 +468,22 @@
     return board.querySelector(
       '.board-column[data-status="' + CSS.escape(status) + '"]'
     );
+  }
+
+  /**
+   * Append a newly-built card element to the column matching *status*.
+   * @param {object} card — card data object passed to buildCardElement
+   * @param {HTMLElement} board — the #board container
+   * @param {string} status — the target column's status key
+   * @returns {boolean} true if the card was appended, false if the column or card-list was not found
+   */
+  function appendCardToColumn(card, board, status) {
+    var col = findColumnByStatus(board, status);
+    if (!col) { return false; }
+    var list = col.querySelector(".board-column-cards");
+    if (!list) { return false; }
+    list.appendChild(buildCardElement(card));
+    return true;
   }
 
   /* ==================================================================
@@ -1017,6 +1021,7 @@
     agentColor: agentColor,
     updateColumnCounts: updateColumnCounts,
     findColumnByStatus: findColumnByStatus,
+    appendCardToColumn: appendCardToColumn,
     getGateData: getGateData,
     getGateBlockedColumns: getGateBlockedColumns,
     getClosedToggleState: getClosedToggleState,

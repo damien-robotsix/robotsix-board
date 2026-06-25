@@ -25,6 +25,7 @@ const {
   agentColor,
   updateColumnCounts,
   findColumnByStatus,
+  appendCardToColumn,
   getGateData,
   getGateBlockedColumns,
   getClosedToggleState,
@@ -321,6 +322,77 @@ describe("findColumnByStatus()", () => {
   it("returns null when status is empty string", () => {
     const board = buildBoardDOM();
     expect(findColumnByStatus(board, "")).toBeNull();
+  });
+});
+
+describe("appendCardToColumn()", () => {
+  beforeEach(() => {
+    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+    bootConfig();
+  });
+
+  it("appends a card to the correct column and returns true", () => {
+    buildBoardDOM();
+    const board = document.getElementById("board");
+
+    const result = appendCardToColumn(
+      { id: "new-1", title: "New Card", status: "todo" },
+      board,
+      "todo"
+    );
+
+    expect(result).toBe(true);
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-card'
+    );
+    expect(todoCards).not.toBeNull();
+    expect(todoCards.getAttribute("data-card-id")).toBe("new-1");
+  });
+
+  it("returns false when the target column is not found", () => {
+    buildBoardDOM();
+    const board = document.getElementById("board");
+
+    const result = appendCardToColumn(
+      { id: "x", title: "X", status: "missing" },
+      board,
+      "missing"
+    );
+
+    expect(result).toBe(false);
+  });
+
+  it("returns false when the card-list element is missing", () => {
+    buildBoardDOM();
+    const board = document.getElementById("board");
+
+    // Remove the .board-column-cards container from the "todo" column
+    const col = findColumnByStatus(board, "todo");
+    const list = col.querySelector(".board-column-cards");
+    list.remove();
+
+    const result = appendCardToColumn(
+      { id: "x", title: "X", status: "todo" },
+      board,
+      "todo"
+    );
+
+    expect(result).toBe(false);
+  });
+
+  it("handles an empty card object gracefully (calls buildCardElement)", () => {
+    buildBoardDOM();
+    const board = document.getElementById("board");
+
+    const result = appendCardToColumn({}, board, "todo");
+
+    expect(result).toBe(true);
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-card'
+    );
+    expect(todoCards).not.toBeNull();
+    // buildCardElement should produce a .board-card element
+    expect(todoCards.classList.contains("board-card")).toBe(true);
   });
 });
 
