@@ -33,6 +33,7 @@ dev = [
     "mypy",
     "pip-audit",
     "pytest-cov",
+    "pytest-xdist",
     "bandit",
     "check-jsonschema",
     "detect-secrets",
@@ -50,7 +51,7 @@ docs = [
 packages = ["src/robotsix_board"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=robotsix_board --cov-branch --cov-report=term-missing --cov-fail-under=100"
+addopts = "-n auto --cov=robotsix_board --cov-branch --cov-report=term-missing --cov-fail-under=100"
 
 [tool.ruff]
 line-length = 88
@@ -72,7 +73,7 @@ known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "towncrier", "vulture", "check-jsonschema"]  # CLI tools used via workflows, not imported
+DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "towncrier", "vulture", "check-jsonschema", "pytest-xdist"]  # CLI tools used via workflows, not imported
 
 [tool.towncrier]
 directory = "changes"
