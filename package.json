@@ -2,6 +2,9 @@
   "name": "robotsix-board-js-lint",
   "private": true,
   "description": "JS lint tooling for robotsix-board static assets (no runtime JS deps).",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "lint:js": "eslint src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
