@@ -1,0 +1,1 @@
+Add pytest-xdist for parallel test execution in CI and local runs
