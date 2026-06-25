@@ -19,6 +19,12 @@ export default [
         caughtErrors: "all",
         caughtErrorsIgnorePattern: "^_",
       }],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-debugger": "warn",
+      "eqeqeq": ["error", "always"],
+      "prefer-const": "error",
+      "curly": "error",
+      "no-alert": "warn",
     },
   },
   {
