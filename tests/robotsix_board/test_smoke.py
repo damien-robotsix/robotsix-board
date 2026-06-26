@@ -244,3 +244,17 @@ def test_closed_toggle_styles_live_in_css_not_js() -> None:
     assert "color: #c0c0e0" not in js
     assert "user-select: none" not in js
     assert "padding: 8px 16px" not in js
+
+
+def test_json_hydration_string_consistent_across_python_and_js() -> None:
+    """The RenderMode.JSON_HYDRATION enum value must appear in board.js.
+
+    If the enum value is renamed, the JS bail-out checks would silently
+    fail and the board would never initialize in JSON_HYDRATION mode.
+    """
+    expected = robotsix_board.RenderMode.JSON_HYDRATION.value
+    js_source = (robotsix_board.static_dir() / "board.js").read_text()
+    assert expected in js_source, (
+        f"Enum value {expected!r} not found in board.js — "
+        "JS bail-out checks would silently fail"
+    )
