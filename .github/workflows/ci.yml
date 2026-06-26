@@ -74,7 +74,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm ci
+      - run: npm install --package-lock-only && npm ci
       - run: npm audit --audit-level=high
       - run: npx eslint --max-warnings 0 src/robotsix_board/static/board.js
       - run: npx stylelint src/robotsix_board/static/board.css
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm ci
+      - run: npm install --package-lock-only && npm ci
       - run: npx vitest run --coverage
 
   actionlint:
