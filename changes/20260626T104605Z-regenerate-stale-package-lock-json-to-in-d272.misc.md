@@ -1,0 +1,1 @@
+Regenerate stale package-lock.json to include all declared devDependencies and switch CI to plain npm ci
