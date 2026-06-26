@@ -1,0 +1,4 @@
+*                       @damien-robotsix/maintainers
+/.github/workflows     @damien-robotsix/ci-maintainers
+pyproject.toml          @damien-robotsix/maintainers
+src/robotsix_board/static/  @damien-robotsix/frontend-maintainers
