@@ -149,6 +149,8 @@ def render_config_script(
     mode.  The config includes column definitions from *adapter* plus
     JS-specific keyword-only parameters.
     """
+    from . import RenderMode  # lazy — avoids circular import at module level
+
     columns = adapter.columns()
 
     move_method = "POST"
@@ -158,7 +160,7 @@ def render_config_script(
         "columns": [[k, lbl] for k, lbl in columns],
         "move_endpoint_template": move_endpoint_template,
         "move_method": move_method,
-        "render_mode": "json_hydration",
+        "render_mode": RenderMode.JSON_HYDRATION.value,
         "refresh_interval_ms": refresh_interval_ms,
     }
     if refresh_url is not None:
