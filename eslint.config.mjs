@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import jsdoc from "eslint-plugin-jsdoc";
+import vitest from "@vitest/eslint-plugin";
 
 export default [
   js.configs.recommended,
@@ -29,10 +30,14 @@ export default [
   },
   {
     files: ["tests/**/*.test.js", "vitest.config.mjs"],
+    plugins: { vitest },
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
       globals: { ...globals.node },
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
     },
   },
 ];
