@@ -62,10 +62,13 @@ jobs:
             mypy-tests) uv run mypy tests ;;
           esac
 
-  js-lint:
+  js:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      matrix:
+        tool: [lint, test]
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
@@ -75,25 +78,18 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm install --package-lock-only && npm ci
-      - run: npm audit --audit-level=high
-      - run: npx eslint --max-warnings 0 src/robotsix_board/static/board.js
-      - run: npx stylelint src/robotsix_board/static/board.css
-      - run: npx markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changes'
-
-  js-test:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      - run: npm install --package-lock-only && npm ci
-      - run: npx vitest run --coverage
+      - run: |
+          case "${{ matrix.tool }}" in
+            lint)
+              npm audit --audit-level=high
+              npx eslint --max-warnings 0 src/robotsix_board/static/board.js
+              npx stylelint src/robotsix_board/static/board.css
+              npx markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changes'
+              ;;
+            test)
+              npx vitest run --coverage
+              ;;
+          esac
 
   actionlint:
     runs-on: ubuntu-latest
