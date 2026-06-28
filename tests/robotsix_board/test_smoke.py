@@ -130,7 +130,7 @@ def test_js_unit_test_infrastructure_present() -> None:
     assert vitest_cfg.is_file()
     assert "happy-dom" in vitest_cfg.read_text()
 
-    board_test = REPO_ROOT / "tests" / "robotsix_board" / "board.test.js"
+    board_test = REPO_ROOT / "tests" / "robotsix_board" / "board.helpers.test.js"
     assert board_test.is_file()
     board_test_text = board_test.read_text()
     assert "robotsixBoardInternals" in board_test_text
