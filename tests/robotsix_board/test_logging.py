@@ -140,6 +140,82 @@ class TestRenderBoardErrorResilience:
         assert "Good" in html
         assert 'id="card-g2"' in html
 
+    def test_failing_card_extra_html_hook_is_logged_and_continued(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """When card_extra_html raises, the warning is logged and
+        the card div is still closed (no unclosed tags)."""
+
+        class HookAdapter:
+            def columns(self) -> list[tuple[str, str]]:
+                return [("todo", "To Do")]
+
+            def card_id(self, card: object) -> str:
+                return "c1"
+
+            def card_title(self, card: object) -> str:
+                return "Title"
+
+            def card_badges(self, card: object) -> list[str]:
+                return []
+
+            def card_timestamps(self, card: object) -> dict[str, str]:
+                return {}
+
+            def move_endpoint(self, card: object) -> tuple[str, str]:
+                return ("/move/x", "POST")
+
+            def card_extra_html(self, card: object) -> str:
+                raise RuntimeError("hook exploded")
+
+        adapter = HookAdapter()
+        with caplog.at_level(logging.WARNING, logger="robotsix_board._render"):
+            html = render_board(adapter, {"todo": [{"id": "c1"}]})
+
+        assert "card_extra_html hook failed" in caplog.text
+        assert "hook exploded" in caplog.text
+        # Card div is still present and properly structured (no crash).
+        assert 'id="card-c1"' in html
+        assert "Title" in html
+
+    def test_failing_column_extra_html_hook_is_logged_and_continued(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """When column_extra_html raises, the warning is logged and
+        the column div is still closed."""
+
+        class HookAdapter:
+            def columns(self) -> list[tuple[str, str]]:
+                return [("todo", "To Do")]
+
+            def card_id(self, card: object) -> str:
+                return "c1"
+
+            def card_title(self, card: object) -> str:
+                return "Title"
+
+            def card_badges(self, card: object) -> list[str]:
+                return []
+
+            def card_timestamps(self, card: object) -> dict[str, str]:
+                return {}
+
+            def move_endpoint(self, card: object) -> tuple[str, str]:
+                return ("/move/x", "POST")
+
+            def column_extra_html(self, status_key: str) -> str:
+                raise RuntimeError("column hook exploded")
+
+        adapter = HookAdapter()
+        with caplog.at_level(logging.WARNING, logger="robotsix_board._render"):
+            html = render_board(adapter, {"todo": [{"id": "c1"}]})
+
+        assert "column_extra_html hook failed" in caplog.text
+        assert "column hook exploded" in caplog.text
+        # Column div and card are still present (no crash).
+        assert "To Do" in html
+        assert 'id="card-c1"' in html
+
 
 class TestRenderConfigScriptErrorResilience:
     def test_render_config_script_columns_failure(

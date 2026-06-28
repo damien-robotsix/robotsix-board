@@ -124,8 +124,20 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
             )
             parts.append("</form>")  # .board-card-move
 
+            # ── optional duck-typed hook: card_extra_html(card) ──
             card_hook = getattr(adapter, "card_extra_html", None)
-            extra = card_hook(card) if callable(card_hook) else ""
+            if callable(card_hook):
+                try:
+                    extra = card_hook(card)
+                except Exception:
+                    _logger.warning(
+                        "card_extra_html hook failed for card %r: omitting",
+                        card,
+                        exc_info=True,
+                    )
+                    extra = ""
+            else:
+                extra = ""
             if extra:
                 parts.append(extra)
 
@@ -133,8 +145,20 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
 
         parts.append("</div>")  # .board-column-cards
 
+        # ── optional duck-typed hook: column_extra_html(status_key) ──
         col_hook = getattr(adapter, "column_extra_html", None)
-        col_extra = col_hook(status_key) if callable(col_hook) else ""
+        if callable(col_hook):
+            try:
+                col_extra = col_hook(status_key)
+            except Exception:
+                _logger.warning(
+                    "column_extra_html hook failed for status_key %r: omitting",
+                    status_key,
+                    exc_info=True,
+                )
+                col_extra = ""
+        else:
+            col_extra = ""
         if col_extra:
             parts.append(col_extra)
 
