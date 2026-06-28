@@ -23,6 +23,8 @@ import pathlib
 from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
+from ._render import esc, render_board, render_config_script
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "0.1.0"
@@ -36,8 +38,6 @@ __all__ = [
     "render_config_script",
     "static_dir",
 ]
-
-from ._render import esc, render_board, render_config_script
 
 
 def static_dir() -> pathlib.Path:

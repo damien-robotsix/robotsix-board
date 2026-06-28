@@ -19,9 +19,9 @@ class TestNullHandler:
     def test_package_logger_has_null_handler(self) -> None:
         logger = logging.getLogger("robotsix_board")
         handlers = logger.handlers
-        assert any(
-            isinstance(h, logging.NullHandler) for h in handlers
-        ), f"Expected a NullHandler in {handlers!r}"
+        assert any(isinstance(h, logging.NullHandler) for h in handlers), (
+            f"Expected a NullHandler in {handlers!r}"
+        )
 
     def test_import_does_not_emit_no_handler_warning(
         self, capsys: pytest.CaptureFixture[str]
@@ -32,9 +32,7 @@ class TestNullHandler:
         importlib.reload(robotsix_board)
 
         captured = capsys.readouterr()
-        assert "No handler" not in captured.err, (
-            f"Unexpected stderr: {captured.err!r}"
-        )
+        assert "No handler" not in captured.err, f"Unexpected stderr: {captured.err!r}"
 
 
 class _FailingAdapter:
@@ -78,6 +76,7 @@ class TestRenderBoardErrorResilience:
         self, caplog: pytest.LogCaptureFixture
     ) -> None:
         """When a card's adapter calls raise, the card is skipped with a warning."""
+
         class SemiFailingAdapter(_FailingAdapter):
             def columns(self) -> list[tuple[str, str]]:
                 return [("todo", "To Do")]
@@ -101,6 +100,7 @@ class TestRenderBoardErrorResilience:
         self, caplog: pytest.LogCaptureFixture
     ) -> None:
         """When the first card fails, the second card still renders."""
+
         class PickyAdapter:
             def columns(self) -> list[tuple[str, str]]:
                 return [("todo", "To Do")]
@@ -165,6 +165,9 @@ class TestRenderBoardErrorResilience:
             def move_endpoint(self, card: object) -> tuple[str, str]:
                 return ("/move/x", "POST")
 
+            def move_endpoint_template(self) -> str:
+                return "/move/{card_id}/{target_status}"
+
             def card_extra_html(self, card: object) -> str:
                 raise RuntimeError("hook exploded")
 
@@ -202,6 +205,9 @@ class TestRenderBoardErrorResilience:
 
             def move_endpoint(self, card: object) -> tuple[str, str]:
                 return ("/move/x", "POST")
+
+            def move_endpoint_template(self) -> str:
+                return "/move/{card_id}/{target_status}"
 
             def column_extra_html(self, status_key: str) -> str:
                 raise RuntimeError("column hook exploded")
