@@ -18,9 +18,12 @@ See ``README.md`` for the full design contract.
 
 from __future__ import annotations
 
+import logging
 import pathlib
 from enum import StrEnum
 from typing import Protocol, runtime_checkable
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "0.1.0"
 
