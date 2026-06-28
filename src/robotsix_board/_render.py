@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import html as _html
 import json as _json
+import logging
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
+
+_logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from . import BoardAdapter
@@ -39,7 +42,14 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
     per :meth:`~BoardAdapter.columns` entry.  *cards* maps each column's
     ``status_key`` to the list of card objects that belong in that column.
     """
-    columns = adapter.columns()
+    try:
+        columns = adapter.columns()
+    except Exception:
+        _logger.warning(
+            "Failed to fetch columns from adapter %r", adapter, exc_info=True
+        )
+        return '<div id="board" class="board"></div>'
+
     parts: list[str] = ['<div id="board" class="board">']
 
     for status_key, label in columns:
@@ -59,11 +69,17 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         other_labels = dict(columns)
 
         for card in column_cards:
-            cid = adapter.card_id(card)
-            title = adapter.card_title(card)
-            badges = adapter.card_badges(card)
-            timestamps = adapter.card_timestamps(card)
-            move_url, move_method = adapter.move_endpoint(card)
+            try:
+                cid = adapter.card_id(card)
+                title = adapter.card_title(card)
+                badges = adapter.card_badges(card)
+                timestamps = adapter.card_timestamps(card)
+                move_url, move_method = adapter.move_endpoint(card)
+            except Exception:
+                _logger.warning(
+                    "Failed to render card %r: skipping", card, exc_info=True
+                )
+                continue
 
             parts.append(
                 f'<div class="board-card" id="card-{esc(cid)}"'
@@ -108,8 +124,20 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
             )
             parts.append("</form>")  # .board-card-move
 
+            # ── optional duck-typed hook: card_extra_html(card) ──
             card_hook = getattr(adapter, "card_extra_html", None)
-            extra = card_hook(card) if callable(card_hook) else ""
+            if callable(card_hook):
+                try:
+                    extra = card_hook(card)
+                except Exception:
+                    _logger.warning(
+                        "card_extra_html hook failed for card %r: omitting",
+                        card,
+                        exc_info=True,
+                    )
+                    extra = ""
+            else:
+                extra = ""
             if extra:
                 parts.append(extra)
 
@@ -117,8 +145,20 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
 
         parts.append("</div>")  # .board-column-cards
 
+        # ── optional duck-typed hook: column_extra_html(status_key) ──
         col_hook = getattr(adapter, "column_extra_html", None)
-        col_extra = col_hook(status_key) if callable(col_hook) else ""
+        if callable(col_hook):
+            try:
+                col_extra = col_hook(status_key)
+            except Exception:
+                _logger.warning(
+                    "column_extra_html hook failed for status_key %r: omitting",
+                    status_key,
+                    exc_info=True,
+                )
+                col_extra = ""
+        else:
+            col_extra = ""
         if col_extra:
             parts.append(col_extra)
 
@@ -151,10 +191,24 @@ def render_config_script(
     """
     from . import RenderMode  # lazy — avoids circular import at module level
 
-    columns = adapter.columns()
+    try:
+        columns = adapter.columns()
+    except Exception:
+        _logger.warning(
+            "Failed to fetch columns from adapter %r", adapter, exc_info=True
+        )
+        columns = []
 
     move_method = "POST"
-    move_endpoint_template = adapter.move_endpoint_template()
+    try:
+        move_endpoint_template = adapter.move_endpoint_template()
+    except Exception:
+        _logger.warning(
+            "Failed to fetch move_endpoint_template from adapter %r",
+            adapter,
+            exc_info=True,
+        )
+        move_endpoint_template = ""
 
     config: dict[str, object] = {
         "columns": [[k, lbl] for k, lbl in columns],
