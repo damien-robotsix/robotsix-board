@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import robotsix_board
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def test_version_is_non_empty_string() -> None:
@@ -29,11 +33,8 @@ def test_board_js_exposes_set_refresh_url() -> None:
 
 
 def test_eslint_config_present_and_configured() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    cfg = root / "eslint.config.mjs"
-    pkg = root / "package.json"
+    cfg = REPO_ROOT / "eslint.config.mjs"
+    pkg = REPO_ROOT / "package.json"
     assert cfg.is_file()
     assert pkg.is_file()
     text = cfg.read_text()
@@ -43,40 +44,31 @@ def test_eslint_config_present_and_configured() -> None:
 
 
 def test_stylelint_config_present_and_configured() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    cfg = root / ".stylelintrc.json"
-    pkg = root / "package.json"
+    cfg = REPO_ROOT / ".stylelintrc.json"
+    pkg = REPO_ROOT / "package.json"
     assert cfg.is_file()
     text = cfg.read_text()
     assert '"stylelint-config-standard"' in text
     pkg_text = pkg.read_text()
     assert '"stylelint"' in pkg_text
     assert '"lint:css"' in pkg_text
-    pre_commit = (root / ".pre-commit-config.yaml").read_text()
+    pre_commit = (REPO_ROOT / ".pre-commit-config.yaml").read_text()
     assert "stylelint" in pre_commit
-    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     assert "stylelint" in ci
 
 
 def test_check_jsonschema_workflows_hook_configured() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    pre_commit = (root / ".pre-commit-config.yaml").read_text()
+    pre_commit = (REPO_ROOT / ".pre-commit-config.yaml").read_text()
     assert "python-jsonschema/check-jsonschema" in pre_commit
     assert "check-github-workflows" in pre_commit
 
-    pyproject = (root / "pyproject.toml").read_text()
+    pyproject = (REPO_ROOT / "pyproject.toml").read_text()
     assert '"check-jsonschema"' in pyproject
 
 
 def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    cfg = root / ".github" / "dependabot.yml"
+    cfg = REPO_ROOT / ".github" / "dependabot.yml"
     assert cfg.is_file()
     text = cfg.read_text()
     assert "version: 2" in text
@@ -87,12 +79,10 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
 
 def test_release_workflow_present_and_publishes_to_pypi() -> None:
     import re
-    from pathlib import Path
 
     import yaml  # type: ignore[import-untyped]
 
-    root = Path(__file__).resolve().parent.parent.parent
-    workflow = root / ".github" / "workflows" / "release.yml"
+    workflow = REPO_ROOT / ".github" / "workflows" / "release.yml"
     assert workflow.is_file()
     text = workflow.read_text()
     assert "published" in text
@@ -121,10 +111,7 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
 
 
 def test_changelog_present_and_follows_keep_a_changelog() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    changelog = root / "CHANGELOG.md"
+    changelog = REPO_ROOT / "CHANGELOG.md"
     assert changelog.is_file()
     text = changelog.read_text()
     assert "# Changelog" in text
@@ -135,69 +122,57 @@ def test_changelog_present_and_follows_keep_a_changelog() -> None:
 
 
 def test_js_unit_test_infrastructure_present() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-
-    pkg = (root / "package.json").read_text()
+    pkg = (REPO_ROOT / "package.json").read_text()
     assert '"vitest"' in pkg
     assert '"test:js"' in pkg
 
-    vitest_cfg = root / "vitest.config.mjs"
+    vitest_cfg = REPO_ROOT / "vitest.config.mjs"
     assert vitest_cfg.is_file()
     assert "happy-dom" in vitest_cfg.read_text()
 
-    board_test = root / "tests" / "robotsix_board" / "board.test.js"
+    board_test = REPO_ROOT / "tests" / "robotsix_board" / "board.test.js"
     assert board_test.is_file()
     board_test_text = board_test.read_text()
     assert "robotsixBoardInternals" in board_test_text
     assert "esc" in board_test_text
 
-    board_js = (root / "src" / "robotsix_board" / "static" / "board.js").read_text()
+    board_js_path = REPO_ROOT / "src" / "robotsix_board" / "static" / "board.js"
+    board_js = board_js_path.read_text()
     assert "window.robotsixBoardInternals" in board_js
 
-    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     assert "npx vitest run" in ci
 
 
 def test_js_coverage_infrastructure_present() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-
-    pkg = (root / "package.json").read_text()
+    pkg = (REPO_ROOT / "package.json").read_text()
     assert "@vitest/coverage-v8" in pkg
     assert "vitest run --coverage" in pkg
 
-    vitest_cfg = (root / "vitest.config.mjs").read_text()
+    vitest_cfg = (REPO_ROOT / "vitest.config.mjs").read_text()
     assert "coverage" in vitest_cfg
     assert "provider" in vitest_cfg
     assert '"v8"' in vitest_cfg
     assert "thresholds" in vitest_cfg
 
-    ci = (root / ".github" / "workflows" / "ci.yml").read_text()
+    ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     assert "npx vitest run --coverage" in ci
 
-    agent_md = (root / "AGENT.md").read_text()
+    agent_md = (REPO_ROOT / "AGENT.md").read_text()
     assert "coverage" in agent_md
     assert "ratchet" in agent_md
 
 
 def test_module_curator_periodic_enabled() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    cfg = root / ".robotsix-mill" / "periodic" / "module_curator.yaml"
+    cfg = REPO_ROOT / ".robotsix-mill" / "periodic" / "module_curator.yaml"
     assert cfg.is_file()
     assert "name: module_curator" in cfg.read_text()
 
 
 def test_pyproject_has_urls_and_classifiers() -> None:
     import tomllib
-    from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent.parent
-    pyproject = root / "pyproject.toml"
+    pyproject = REPO_ROOT / "pyproject.toml"
     assert pyproject.is_file()
     data = tomllib.loads(pyproject.read_text())
 
@@ -221,10 +196,7 @@ def test_pyproject_has_urls_and_classifiers() -> None:
 
 
 def test_support_md_present() -> None:
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parent.parent.parent
-    support_md = root / ".github" / "SUPPORT.md"
+    support_md = REPO_ROOT / ".github" / "SUPPORT.md"
     assert support_md.is_file()
     text = support_md.read_text()
     assert "GitHub Discussions" in text
