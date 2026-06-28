@@ -63,7 +63,7 @@ Or run all pre-commit hooks at once:
 uv run pre-commit run --all-files
 ```
 
-CI runs `uv lock` → `uv sync --frozen --extra dev` → `uv run deptry .` → tests.
+CI runs `uv lock` → `uv sync --locked --extra dev` → `uv run deptry .` → tests.
 
 ## Contributing
 

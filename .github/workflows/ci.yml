@@ -54,7 +54,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv python install 3.14
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --locked --extra dev
       - run: |
           case "${{ matrix.tool }}" in
             detect-secrets) uv run detect-secrets scan --baseline .secrets.baseline ;;
