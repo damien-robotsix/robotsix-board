@@ -210,7 +210,7 @@
       badgeRow.className = "board-card-badges";
 
       // Generic badges
-      if (hasGeneric) {
+      if (Array.isArray(badges) && badges.length > 0) {
         for (var b = 0; b < badges.length; b++) {
           var span = document.createElement("span");
           span.className = "board-badge";
@@ -220,7 +220,7 @@
       }
 
       // Agent badges (with deterministic colour)
-      if (hasAgent) {
+      if (Array.isArray(agentBadges) && agentBadges.length > 0) {
         for (var a = 0; a < agentBadges.length; a++) {
           var agentSpan = document.createElement("span");
           agentSpan.className = "board-badge";
@@ -463,7 +463,7 @@
       if (cid) {
         var col = /** @type {HTMLElement} */ (el).closest(".board-column");
         currentMap[cid] = {
-          el: el,
+          el: /** @type {HTMLElement} */ (el),
           columnStatus: col ? col.getAttribute("data-status") : null,
         };
       }
@@ -610,7 +610,7 @@
     if (!board) { return; }
 
     board.addEventListener("submit", function (evt) {
-      var form = /** @type {HTMLElement} */ (evt.target).closest(".board-card-move");
+      var form = /** @type {HTMLFormElement} */ (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move"));
       if (!form) { return; } // not our form — let it bubble
 
       evt.preventDefault();
