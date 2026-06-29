@@ -35,6 +35,88 @@ def esc(s: str) -> str:
     return _html.escape(s, quote=True)
 
 
+def _render_card(
+    adapter: BoardAdapter,
+    card: object,
+    other_keys: list[str],
+    other_labels: dict[str, str],
+) -> list[str]:
+    """Render a single card's HTML fragments.
+
+    Returns a list of HTML strings to be appended to the column's card
+    list.  Returns an empty list (no output) when card property access
+    raises an exception.
+    """
+    try:
+        cid = adapter.card_id(card)
+        title = adapter.card_title(card)
+        badges = adapter.card_badges(card)
+        timestamps = adapter.card_timestamps(card)
+        move_url, move_method = adapter.move_endpoint(card)
+    except Exception:
+        _logger.warning("Failed to render card %r: skipping", card, exc_info=True)
+        return []
+
+    parts: list[str] = []
+
+    parts.append(
+        f'<div class="board-card" id="card-{esc(cid)}" data-card-id="{esc(cid)}">'
+    )
+
+    # title
+    parts.append(f'<div class="board-card-title">{esc(title)}</div>')
+
+    # badges
+    parts.append('<div class="board-card-badges">')
+    parts.extend(f'<span class="board-badge">{esc(badge)}</span>' for badge in badges)
+    parts.append("</div>")  # .board-card-badges
+
+    # timestamps
+    if timestamps:
+        parts.append('<div class="board-card-timestamps">')
+        for key, value in timestamps.items():
+            parts.append(
+                f'<span class="board-timestamp">{esc(key)}: {esc(value)}</span>'
+            )
+        parts.append("</div>")  # .board-card-timestamps
+
+    # move form
+    parts.append(
+        f'<form class="board-card-move" method="{esc(move_method)}"'
+        f' action="{esc(move_url)}">'
+    )
+    parts.append('<select name="target_status" class="board-move-select">')
+    parts.append('<option value="">Move to…</option>')
+    parts.extend(
+        f'<option value="{esc(other_key)}">{esc(other_labels[other_key])}</option>'
+        for other_key in other_keys
+    )
+    parts.append("</select>")
+    parts.append('<button type="submit" class="board-move-submit">Move</button>')
+    parts.append("</form>")  # .board-card-move
+
+    # ── optional duck-typed hook: card_extra_html(card) ──
+    card_hook = getattr(adapter, "card_extra_html", None)
+    if callable(card_hook):
+        try:
+            extra = card_hook(card)
+        except Exception:
+            _logger.warning(
+                "card_extra_html hook failed for card %r: omitting",
+                card,
+                exc_info=True,
+            )
+            extra = ""
+    else:
+        extra = ""
+    if extra:
+        parts.append(extra)
+
+    parts.append("</div>")  # .board-card
+
+    return parts
+
+
 def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -> str:
     """Render the full board HTML for SERVER_FRAGMENTS mode.
 
@@ -69,79 +151,7 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         other_labels = dict(columns)
 
         for card in column_cards:
-            try:
-                cid = adapter.card_id(card)
-                title = adapter.card_title(card)
-                badges = adapter.card_badges(card)
-                timestamps = adapter.card_timestamps(card)
-                move_url, move_method = adapter.move_endpoint(card)
-            except Exception:
-                _logger.warning(
-                    "Failed to render card %r: skipping", card, exc_info=True
-                )
-                continue
-
-            parts.append(
-                f'<div class="board-card" id="card-{esc(cid)}"'
-                f' data-card-id="{esc(cid)}">'
-            )
-
-            # title
-            parts.append(f'<div class="board-card-title">{esc(title)}</div>')
-
-            # badges
-            parts.append('<div class="board-card-badges">')
-            parts.extend(
-                f'<span class="board-badge">{esc(badge)}</span>' for badge in badges
-            )
-            parts.append("</div>")  # .board-card-badges
-
-            # timestamps
-            if timestamps:
-                parts.append('<div class="board-card-timestamps">')
-                for key, value in timestamps.items():
-                    parts.append(
-                        f'<span class="board-timestamp">{esc(key)}: {esc(value)}</span>'
-                    )
-                parts.append("</div>")  # .board-card-timestamps
-
-            # move form
-            parts.append(
-                f'<form class="board-card-move" method="{esc(move_method)}"'
-                f' action="{esc(move_url)}">'
-            )
-            parts.append('<select name="target_status" class="board-move-select">')
-            parts.append('<option value="">Move to…</option>')
-            parts.extend(
-                f'<option value="{esc(other_key)}">'
-                f"{esc(other_labels[other_key])}"
-                f"</option>"
-                for other_key in other_keys
-            )
-            parts.append("</select>")
-            parts.append(
-                '<button type="submit" class="board-move-submit">Move</button>'
-            )
-            parts.append("</form>")  # .board-card-move
-
-            # ── optional duck-typed hook: card_extra_html(card) ──
-            card_hook = getattr(adapter, "card_extra_html", None)
-            if callable(card_hook):
-                try:
-                    extra = card_hook(card)
-                except Exception:
-                    _logger.warning(
-                        "card_extra_html hook failed for card %r: omitting",
-                        card,
-                        exc_info=True,
-                    )
-                    extra = ""
-            else:
-                extra = ""
-            if extra:
-                parts.append(extra)
-
-            parts.append("</div>")  # .board-card
+            parts.extend(_render_card(adapter, card, other_keys, other_labels))
 
         parts.append("</div>")  # .board-column-cards
 
