@@ -179,72 +179,11 @@ The library provides two rendering functions via `robotsix_board._render`
 from robotsix_board import render_board, render_config_script
 ```
 
-### `render_board()`
-
-```python
-def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -> str:
-```
-
-**Purpose:** Produce the complete board HTML for **`SERVER_FRAGMENTS`**
-mode.
-
-**Parameters:**
-
-- `adapter` — a [`BoardAdapter`][robotsix_board.BoardAdapter] that describes
-  columns, card accessors, and move endpoints.
-- `cards` — a mapping from `status_key` → list of card objects. Each key
-  should correspond to a column returned by `adapter.columns()`. Cards whose
-  `status_key` has no matching column are silently excluded.
-
-**Returns:** A complete HTML string containing:
-
-- The `#board` container with one `.board-column` per column.
-- Each column's header (label + card count), card list, per-card move forms.
-- A `#drawer` shell for the detail panel.
-
-Call this from your server-side templating layer for `SERVER_FRAGMENTS` mode.
-
-### `render_config_script()`
-
-```python
-def render_config_script(
-    adapter: BoardAdapter,
-    *,
-    refresh_url: str | None = None,
-    refresh_interval_ms: int = 30_000,
-    gate_endpoint: str | None = None,
-) -> str:
-```
-
-**Purpose:** Emit a `<script id="board-config" type="application/json">` tag
-for **`JSON_HYDRATION`** mode.
-
-**Parameters:**
-
-- `adapter` — a [`BoardAdapter`][robotsix_board.BoardAdapter]; columns and
-  `move_endpoint_template()` are read from the adapter.
-- `refresh_url` *(keyword-only)* — optional URL the client should poll for
-  board refreshes. When `None` (the default), no polling URL is included in
-  the config and the client does not auto-refresh.
-- `refresh_interval_ms` *(keyword-only)* — polling interval in milliseconds
-  (default `30_000` = 30 seconds). Ignored if `refresh_url` is `None`.
-- `gate_endpoint` *(keyword-only)* — optional URL the client should fetch
-  for gate-blocking data. When `None` (the default), gate blocking is
-  disabled.
-
-**Returns:** A `<script>` tag containing a JSON config blob. The fields are:
-
-- `columns` — the column `[status_key, label]` pairs from the adapter.
-- `move_endpoint_template` — from `adapter.move_endpoint_template()`.
-- `move_method` — always `"POST"`.
-- `render_mode` — always `"json_hydration"`.
-- `refresh_interval_ms` — as passed.
-- `refresh_url` — as passed (omitted if `None`).
-- `gate_endpoint` — as passed (omitted if `None`).
-
-Call this from your `JSON_HYDRATION` endpoint, typically embedded in the
-`<head>` or at the top of the board page alongside the `<script>` tag that
-loads `board.js`.
+`render_board()` produces the complete board HTML for `SERVER_FRAGMENTS`
+mode, and `render_config_script()` emits a `<script>` configuration tag for
+`JSON_HYDRATION` mode. Both accept a [`BoardAdapter`][robotsix_board.BoardAdapter].
+Full signatures, parameter descriptions, and return-value details are
+auto-generated from source in the [API Reference](api.md).
 
 ---
 
