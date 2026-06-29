@@ -95,14 +95,13 @@ def test_release_workflow_present_and_publishes_to_pypi() -> None:
     assert "CHANGELOG.md" in text
     assert "github.event.release.tag_name" in text
 
-    # Cross-repo reusable workflow pin: must reference the robotsix-mill
-    # workflow at a full 40-char commit SHA (not a mutable branch ref).
+    # Cross-repo reusable workflow pin: must reference the shared
+    # robotsix-github-workflows workflow at a full 40-char commit SHA
+    # (not a mutable branch ref).
     doc = yaml.safe_load(text)
     publish_job = doc["jobs"]["publish"]
     uses_ref = publish_job["uses"]
-    expected_prefix = (
-        "damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@"
-    )
+    expected_prefix = "robotsix-github-workflows/.github/workflows/python-release.yml@"
     assert expected_prefix in uses_ref
     sha = uses_ref.split("@", 1)[1]
     assert re.fullmatch(r"[0-9a-f]{40}", sha), (
