@@ -730,7 +730,7 @@
     // .drawer-content) closes it.  We attach a one-shot handler
     // that is removed on close.
     /**
-     * @param {MouseEvent} evt
+     * @param {MouseEvent} evt - The click event on the drawer backdrop.
      */
     var onBackdrop = function (evt) {
       if (!(/** @type {HTMLElement} */ (evt.target).closest(".drawer-content"))) {

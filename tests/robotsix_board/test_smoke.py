@@ -29,7 +29,7 @@ def test_adapter_contract_importable() -> None:
 def test_board_js_exposes_set_refresh_url() -> None:
     source = (robotsix_board.static_dir() / "board.js").read_text()
     assert "function robotsixBoardSetRefreshUrl" in source
-    assert "window.robotsixBoardSetRefreshUrl" in source
+    assert 'window["robotsixBoardSetRefreshUrl"]' in source
 
 
 def test_eslint_config_present_and_configured() -> None:
@@ -137,7 +137,7 @@ def test_js_unit_test_infrastructure_present() -> None:
 
     board_js_path = REPO_ROOT / "src" / "robotsix_board" / "static" / "board.js"
     board_js = board_js_path.read_text()
-    assert "window.robotsixBoardInternals" in board_js
+    assert 'window["robotsixBoardInternals"]' in board_js
 
     ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     assert "npx vitest run" in ci
