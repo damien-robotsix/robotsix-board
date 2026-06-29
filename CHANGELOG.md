@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Extract card-rendering logic from `render_board()` into a private `_render_card()` helper, reducing nesting depth and making card rendering independently testable.
+- CI: enable `setup-uv` cache and `setup-node` npm cache across all jobs, cutting install time for cache hits.
 
 ### Fixed
 
@@ -42,10 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.github/SUPPORT.md` with links to Discussions, Issues, and security reporting guidance.
 - `check-jsonschema` `check-github-workflows` pre-commit hook to validate GitHub Actions workflow YAML against the official schema.
 - `gate_endpoint` keyword-only parameter to `render_config_script()` enabling server-to-client gate-blocking endpoint configuration.  `bootConfig()` in `board.js` automatically wires `CFG.gate_endpoint` via `robotsixBoardSetGateEndpoint()`.
-
-### Changed
-
-- CI: enable `setup-uv` cache and `setup-node` npm cache across all jobs, cutting install time for cache hits.
 
 ## [0.1.0] - 2026-06-12
 
