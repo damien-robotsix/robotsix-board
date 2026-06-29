@@ -17,6 +17,39 @@
 (function () {
   "use strict";
 
+  /**
+   * @typedef {{
+   *   render_mode: string,
+   *   columns: Array<[string, string]>,
+   *   gate_endpoint?: string,
+   *   refresh_url?: string|null,
+   *   refresh_interval_ms?: number,
+   *   move_method?: string,
+   *   move_endpoint_template?: string
+   * }} BoardConfig
+   */
+
+  /**
+   * @typedef {{
+   *   id: string,
+   *   title: string,
+   *   status: string,
+   *   badges?: string[],
+   *   timestamps?: Record<string, unknown>,
+   *   merged?: boolean,
+   *   agent_badges?: string[],
+   *   source_badge?: string
+   * }} BoardCard
+   */
+
+  /**
+   * @typedef {{
+   *   blocked_columns: string[],
+   *   version?: number,
+   *   fetched_at?: number
+   * }} GateData
+   */
+
   /* ==================================================================
    * 0.  Helpers
    * ================================================================ */
@@ -26,6 +59,7 @@
    * Used by esc() below.  Keys are the literal characters "&", "<",
    * ">", "\"", "'".
    */
+  /** @type {Record<string, string>} */
   var ENTITY_MAP = {
     "&": "&amp;",
     "<": "&lt;",
@@ -79,7 +113,7 @@
    * 1.  Configuration
    * ================================================================ */
 
-  /** @type {object|null} Parsed board-config JSON. */
+  /** @type {BoardConfig|null} Parsed board-config JSON. */
   var CFG = null;
 
   /** @type {string|null}  status_key of the terminal / closed column. */
@@ -145,7 +179,7 @@
    *     agent_badges: string[],  // optional – rendered with agent colour
    *     source_badge: string,    // optional – gets .src-badge class
    *   }
-   * @param {object} card - The card data object.
+   * @param {BoardCard} card - The card data object.
    * @returns {HTMLElement} The built card element.
    */
   function buildCardElement(card) {
@@ -165,8 +199,10 @@
     div.appendChild(titleEl);
 
     // ── Badges (generic, agent, source) ──
-    var hasGeneric = Array.isArray(card.badges) && card.badges.length > 0;
-    var hasAgent = Array.isArray(card.agent_badges) && card.agent_badges.length > 0;
+    var badges = card.badges;
+    var hasGeneric = Array.isArray(badges) && badges.length > 0;
+    var agentBadges = card.agent_badges;
+    var hasAgent = Array.isArray(agentBadges) && agentBadges.length > 0;
     var hasSource = typeof card.source_badge === "string" && card.source_badge !== "";
 
     if (hasGeneric || hasAgent || hasSource) {
@@ -174,26 +210,26 @@
       badgeRow.className = "board-card-badges";
 
       // Generic badges
-      if (hasGeneric) {
-        for (var b = 0; b < card.badges.length; b++) {
+      if (Array.isArray(badges) && badges.length > 0) {
+        for (var b = 0; b < badges.length; b++) {
           var span = document.createElement("span");
           span.className = "board-badge";
-          span.textContent = card.badges[b];
+          span.textContent = badges[b];
           badgeRow.appendChild(span);
         }
       }
 
       // Agent badges (with deterministic colour)
-      if (hasAgent) {
-        for (var a = 0; a < card.agent_badges.length; a++) {
+      if (Array.isArray(agentBadges) && agentBadges.length > 0) {
+        for (var a = 0; a < agentBadges.length; a++) {
           var agentSpan = document.createElement("span");
           agentSpan.className = "board-badge";
-          agentSpan.setAttribute("data-agent", card.agent_badges[a]);
+          agentSpan.setAttribute("data-agent", agentBadges[a]);
           agentSpan.style.setProperty(
             "--badge-color",
-            agentColor(card.agent_badges[a])
+            agentColor(agentBadges[a])
           );
-          agentSpan.textContent = card.agent_badges[a];
+          agentSpan.textContent = agentBadges[a];
           badgeRow.appendChild(agentSpan);
         }
       }
@@ -202,7 +238,7 @@
       if (hasSource) {
         var srcSpan = document.createElement("span");
         srcSpan.className = "board-badge src-badge";
-        srcSpan.textContent = card.source_badge;
+        srcSpan.textContent = card.source_badge || null;
         badgeRow.appendChild(srcSpan);
       }
 
@@ -244,6 +280,7 @@
     defaultOpt.textContent = "Move to\u2026";
     select.appendChild(defaultOpt);
 
+    if (!CFG) { return select; }
     var cols = CFG.columns || [];
     for (var i = 0; i < cols.length; i++) {
       var key = cols[i][0];
@@ -261,12 +298,13 @@
 
   /**
    * Build the .board-card-move <form> for a card.
-   * @param {object} card - The card data object.
+   * @param {BoardCard} card - The card data object.
    * @returns {HTMLElement} The built move form element.
    */
   function buildMoveForm(card) {
     var form = document.createElement("form");
     form.className = "board-card-move";
+    if (!CFG) { return form; }
     form.setAttribute("method", CFG.move_method || "POST");
 
     // Build the action URL from the template
@@ -301,7 +339,7 @@
    * Rebuild the move <select> inside *form* for *card* to reflect the
    * card's new current status (used after an optimistic move).
    * @param {HTMLFormElement} form - The move form element.
-   * @param {object} card  — requires at minimum { id, status }
+   * @param {{id: string, status: string}} card  — requires at minimum { id, status }
    */
   function rebuildMoveSelect(form, card) {
     var oldSelect = form.querySelector("select[name='target_status']");
@@ -346,7 +384,7 @@
    * 4.  Refresh loop
    * ================================================================ */
 
-  /** @type {number|null} */
+  /** @type {ReturnType<typeof setInterval>|null} */
   var _refreshTimer = null;
 
   /**
@@ -363,7 +401,7 @@
       _refreshTimer = null;
     }
 
-    if (!CFG.refresh_url) {
+    if (!CFG || !CFG.refresh_url) {
       return;
     }
     var interval = Number(CFG.refresh_interval_ms) || 30000;
@@ -379,7 +417,7 @@
    * current DOM state.
    */
   function doRefresh() {
-    if (!CFG.refresh_url) { return; }
+    if (!CFG || !CFG.refresh_url) { return; }
 
     fetch(CFG.refresh_url)
       .then(function (resp) {
@@ -401,7 +439,7 @@
   /**
    * Diff *cards* (array of card objects from the server) against the
    * current DOM and add / move / remove card elements as needed.
-   * @param {object[]} cards - Array of card objects from the server.
+   * @param {BoardCard[]} cards - Array of card objects from the server.
    */
   function applyCardDiff(cards) {
     var board = document.getElementById("board");
@@ -409,6 +447,7 @@
     if (!Array.isArray(cards)) { return; }
 
     // Index incoming cards by id
+    /** @type {Record<string, BoardCard>} */
     var incoming = {};
     for (var i = 0; i < cards.length; i++) {
       incoming[cards[i].id] = cards[i];
@@ -416,20 +455,22 @@
 
     // Index current DOM cards by data-card-id
     var currentEls = board.querySelectorAll(".board-card");
+    /** @type {Record<string, {el: HTMLElement, columnStatus: string|null}>} */
     var currentMap = {}; // cardId → { el, columnStatus }
     for (var j = 0; j < currentEls.length; j++) {
       var el = currentEls[j];
       var cid = el.getAttribute("data-card-id");
       if (cid) {
-        var col = el.closest(".board-column");
+        var col = /** @type {HTMLElement} */ (el).closest(".board-column");
         currentMap[cid] = {
-          el: el,
+          el: /** @type {HTMLElement} */ (el),
           columnStatus: col ? col.getAttribute("data-status") : null,
         };
       }
     }
 
     // Walk incoming cards: add new, move changed-status, skip unchanged
+    /** @type {Record<string, boolean>} */
     var seen = {};
     for (var k = 0; k < cards.length; k++) {
       var card = cards[k];
@@ -472,7 +513,7 @@
 
   /**
    * Append a newly-built card element to the column matching *status*.
-   * @param {object} card — card data object passed to buildCardElement
+   * @param {BoardCard} card — card data object passed to buildCardElement
    * @param {HTMLElement} board — the #board container
    * @param {string} status — the target column's status key
    * @returns {boolean} true if the card was appended, false if the column or card-list was not found
@@ -503,6 +544,7 @@
    */
   function performMove(cardId, cardEl, form, select, errorEl) {
     if (!cardId) { return; }
+    if (!CFG) { return; }
 
     var targetStatus = select.value;
     var oldValue = targetStatus;
@@ -529,10 +571,9 @@
         }
 
         // Optimistically move the card DOM element to the target column
-        var targetCol = findColumnByStatus(
-          document.getElementById("board"),
-          targetStatus
-        );
+        var board = document.getElementById("board");
+        if (!board) { return; }
+        var targetCol = findColumnByStatus(board, targetStatus);
         if (targetCol) {
           var cardList = targetCol.querySelector(".board-column-cards");
           if (cardList) {
@@ -569,24 +610,24 @@
     if (!board) { return; }
 
     board.addEventListener("submit", function (evt) {
-      var form = evt.target.closest(".board-card-move");
+      var form = /** @type {HTMLFormElement} */ (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move"));
       if (!form) { return; } // not our form — let it bubble
 
       evt.preventDefault();
 
-      var select = form.querySelector("select[name='target_status']");
+      var select = /** @type {HTMLSelectElement} */ (form.querySelector("select[name='target_status']"));
       if (!select) { return; }
 
       var targetStatus = select.value;
       if (!targetStatus) { return; } // placeholder "Move to…" selected
 
-      var cardEl = form.closest(".board-card");
+      var cardEl = /** @type {HTMLElement} */ (form.closest(".board-card"));
       if (!cardEl) { return; }
 
       var cardId = cardEl.getAttribute("data-card-id");
       if (!cardId) { return; }
 
-      var errorEl = form.querySelector(".board-move-error");
+      var errorEl = /** @type {HTMLElement} */ (form.querySelector(".board-move-error"));
 
       performMove(cardId, cardEl, form, select, errorEl);
     });
@@ -607,11 +648,12 @@
 
     board.addEventListener("click", function (evt) {
       // Ignore clicks on or inside the move form
-      if (evt.target.closest(".board-card-move")) {
+      if (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move")) {
         return;
       }
 
-      var cardEl = evt.target.closest(".board-card");
+      var target = /** @type {HTMLElement} */ (evt.target);
+      var cardEl = /** @type {HTMLElement} */ (target.closest(".board-card"));
       if (!cardEl) { return; }
 
       openDrawer(cardEl);
@@ -622,7 +664,7 @@
     if (!drawer) { return; }
 
     drawer.addEventListener("click", function (evt) {
-      if (evt.target.closest(".drawer-close")) {
+      if (/** @type {HTMLElement} */ (evt.target).closest(".drawer-close")) {
         closeDrawer();
       }
     });
@@ -690,12 +732,16 @@
     // Backdrop click: clicking the drawer itself (outside
     // .drawer-content) closes it.  We attach a one-shot handler
     // that is removed on close.
-    drawer._closeOnBackdrop = function (evt) {
-      if (!evt.target.closest(".drawer-content")) {
+    /**
+     * @param {MouseEvent} evt - The click event on the drawer backdrop.
+     */
+    var onBackdrop = function (evt) {
+      if (!(/** @type {HTMLElement} */ (evt.target).closest(".drawer-content"))) {
         closeDrawer();
       }
     };
-    drawer.addEventListener("click", drawer._closeOnBackdrop);
+    /** @type {*} */ (drawer)._closeOnBackdrop = onBackdrop;
+    drawer.addEventListener("click", onBackdrop);
   }
 
   /**
@@ -707,9 +753,10 @@
 
     drawer.classList.add("hidden");
 
-    if (drawer._closeOnBackdrop) {
-      drawer.removeEventListener("click", drawer._closeOnBackdrop);
-      drawer._closeOnBackdrop = null;
+    var onBackdrop = /** @type {*} */ (drawer)._closeOnBackdrop;
+    if (onBackdrop) {
+      drawer.removeEventListener("click", onBackdrop);
+      /** @type {*} */ (drawer)._closeOnBackdrop = null;
     }
   }
 
@@ -747,13 +794,14 @@
    * check.  If no valid cache exists and a gate endpoint is
    * configured, an async fetch is triggered (results available on the
    * next call).  Returns the current best-known data (possibly empty).
-   * @returns {object} Gate data with blocked_columns array.
+   * @returns {GateData} Gate data with blocked_columns array.
    */
   function getGateData() {
     // Try to read from cache
     try {
       var raw = sessionStorage.getItem(GATE_CACHE_KEY);
       if (raw) {
+        /** @type {GateData|null} */
         var parsed = JSON.parse(raw);
         if (
           parsed &&
@@ -810,7 +858,7 @@
    * Store gate data in sessionStorage.  Callable externally via
    * ``window.robotsixBoardSetGate()`` so server-rendered pages can
    * prime the gate cache without an extra round-trip.
-   * @param {object} data  — { blocked_columns: string[], ... }
+   * @param {GateData} data  — { blocked_columns: string[], ... }
    */
   function robotsixBoardSetGate(data) {
     try {
@@ -868,6 +916,7 @@
     label.appendChild(document.createTextNode(" Show closed"));
 
     container.appendChild(label);
+    if (!board.parentNode) { return; }
     board.parentNode.insertBefore(container, board);
 
     // Apply initial visibility
@@ -909,10 +958,9 @@
    */
   function applyClosedToggle(show) {
     if (!CLOSED_KEY) { return; }
-    var col = findColumnByStatus(
-      document.getElementById("board"),
-      CLOSED_KEY
-    );
+    var board = document.getElementById("board");
+    if (!board) { return; }
+    var col = findColumnByStatus(board, CLOSED_KEY);
     if (!col) { return; }
 
     if (show) {
@@ -1003,15 +1051,16 @@
   }
 
   // ── Expose public API on window ──────────────────────────────────
-  window.robotsixBoardRefresh = robotsixBoardRefresh;
-  window.robotsixBoardStopRefresh = robotsixBoardStopRefresh;
-  window.robotsixBoardSetGate = robotsixBoardSetGate;
-  window.robotsixBoardSetGateEndpoint = robotsixBoardSetGateEndpoint;
-  window.robotsixBoardSetRefreshUrl = robotsixBoardSetRefreshUrl;
-  window.robotsixBoardSetRefreshInterval = robotsixBoardSetRefreshInterval;
+  var w = /** @type {any} */ (window);
+  w["robotsixBoardRefresh"] = robotsixBoardRefresh;
+  w["robotsixBoardStopRefresh"] = robotsixBoardStopRefresh;
+  w["robotsixBoardSetGate"] = robotsixBoardSetGate;
+  w["robotsixBoardSetGateEndpoint"] = robotsixBoardSetGateEndpoint;
+  w["robotsixBoardSetRefreshUrl"] = robotsixBoardSetRefreshUrl;
+  w["robotsixBoardSetRefreshInterval"] = robotsixBoardSetRefreshInterval;
 
   // Expose pure IIFE-private helpers so they can be unit-tested.
-  window.robotsixBoardInternals = {
+  w["robotsixBoardInternals"] = {
     esc: esc,
     bootConfig: bootConfig,
     buildSelectOptions: buildSelectOptions,

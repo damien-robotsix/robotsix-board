@@ -27,7 +27,7 @@ describe("export surface convention", () => {
   }
 
   // Extract function names from window.robotsixBoard* = <name>; assignments.
-  const publicApiRe = /window\.robotsixBoard\w+\s*=\s*(\w+);/g;
+  const publicApiRe = /w\["robotsixBoard\w+"\]\s*=\s*(\w+);/g;
   const publicApiFuncs = new Set();
   while ((m = publicApiRe.exec(src)) !== null) {
     publicApiFuncs.add(m[1]);
@@ -35,7 +35,7 @@ describe("export surface convention", () => {
 
   // Isolate the Internals object literal and extract its keys.
   const internalsBlockMatch = src.match(
-    /window\.robotsixBoardInternals\s*=\s*\{([^}]+)\}/s,
+    /w\["robotsixBoardInternals"\]\s*=\s*\{([^}]+)\}/s,
   );
   const internalsKeys = new Set();
   if (internalsBlockMatch) {
