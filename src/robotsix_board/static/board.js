@@ -199,8 +199,10 @@
     div.appendChild(titleEl);
 
     // ── Badges (generic, agent, source) ──
-    var hasGeneric = Array.isArray(card.badges) && card.badges.length > 0;
-    var hasAgent = Array.isArray(card.agent_badges) && card.agent_badges.length > 0;
+    var badges = card.badges;
+    var hasGeneric = Array.isArray(badges) && badges.length > 0;
+    var agentBadges = card.agent_badges;
+    var hasAgent = Array.isArray(agentBadges) && agentBadges.length > 0;
     var hasSource = typeof card.source_badge === "string" && card.source_badge !== "";
 
     if (hasGeneric || hasAgent || hasSource) {
@@ -209,25 +211,25 @@
 
       // Generic badges
       if (hasGeneric) {
-        for (var b = 0; b < card.badges.length; b++) {
+        for (var b = 0; b < badges.length; b++) {
           var span = document.createElement("span");
           span.className = "board-badge";
-          span.textContent = card.badges[b];
+          span.textContent = badges[b];
           badgeRow.appendChild(span);
         }
       }
 
       // Agent badges (with deterministic colour)
       if (hasAgent) {
-        for (var a = 0; a < card.agent_badges.length; a++) {
+        for (var a = 0; a < agentBadges.length; a++) {
           var agentSpan = document.createElement("span");
           agentSpan.className = "board-badge";
-          agentSpan.setAttribute("data-agent", card.agent_badges[a]);
+          agentSpan.setAttribute("data-agent", agentBadges[a]);
           agentSpan.style.setProperty(
             "--badge-color",
-            agentColor(card.agent_badges[a])
+            agentColor(agentBadges[a])
           );
-          agentSpan.textContent = card.agent_badges[a];
+          agentSpan.textContent = agentBadges[a];
           badgeRow.appendChild(agentSpan);
         }
       }
@@ -236,7 +238,7 @@
       if (hasSource) {
         var srcSpan = document.createElement("span");
         srcSpan.className = "board-badge src-badge";
-        srcSpan.textContent = card.source_badge;
+        srcSpan.textContent = card.source_badge || null;
         badgeRow.appendChild(srcSpan);
       }
 
@@ -459,7 +461,7 @@
       var el = currentEls[j];
       var cid = el.getAttribute("data-card-id");
       if (cid) {
-        var col = el.closest(".board-column");
+        var col = /** @type {HTMLElement} */ (el).closest(".board-column");
         currentMap[cid] = {
           el: el,
           columnStatus: col ? col.getAttribute("data-status") : null,
@@ -613,19 +615,19 @@
 
       evt.preventDefault();
 
-      var select = form.querySelector("select[name='target_status']");
+      var select = /** @type {HTMLSelectElement} */ (form.querySelector("select[name='target_status']"));
       if (!select) { return; }
 
       var targetStatus = select.value;
       if (!targetStatus) { return; } // placeholder "Move to…" selected
 
-      var cardEl = form.closest(".board-card");
+      var cardEl = /** @type {HTMLElement} */ (form.closest(".board-card"));
       if (!cardEl) { return; }
 
       var cardId = cardEl.getAttribute("data-card-id");
       if (!cardId) { return; }
 
-      var errorEl = form.querySelector(".board-move-error");
+      var errorEl = /** @type {HTMLElement} */ (form.querySelector(".board-move-error"));
 
       performMove(cardId, cardEl, form, select, errorEl);
     });
@@ -650,7 +652,8 @@
         return;
       }
 
-      var cardEl = /** @type {HTMLElement} */ (evt.target).closest(".board-card");
+      var target = /** @type {HTMLElement} */ (evt.target);
+      var cardEl = /** @type {HTMLElement} */ (target.closest(".board-card"));
       if (!cardEl) { return; }
 
       openDrawer(cardEl);
@@ -1048,15 +1051,16 @@
   }
 
   // ── Expose public API on window ──────────────────────────────────
-  window["robotsixBoardRefresh"] = robotsixBoardRefresh;
-  window["robotsixBoardStopRefresh"] = robotsixBoardStopRefresh;
-  window["robotsixBoardSetGate"] = robotsixBoardSetGate;
-  window["robotsixBoardSetGateEndpoint"] = robotsixBoardSetGateEndpoint;
-  window["robotsixBoardSetRefreshUrl"] = robotsixBoardSetRefreshUrl;
-  window["robotsixBoardSetRefreshInterval"] = robotsixBoardSetRefreshInterval;
+  var w = /** @type {any} */ (window);
+  w["robotsixBoardRefresh"] = robotsixBoardRefresh;
+  w["robotsixBoardStopRefresh"] = robotsixBoardStopRefresh;
+  w["robotsixBoardSetGate"] = robotsixBoardSetGate;
+  w["robotsixBoardSetGateEndpoint"] = robotsixBoardSetGateEndpoint;
+  w["robotsixBoardSetRefreshUrl"] = robotsixBoardSetRefreshUrl;
+  w["robotsixBoardSetRefreshInterval"] = robotsixBoardSetRefreshInterval;
 
   // Expose pure IIFE-private helpers so they can be unit-tested.
-  window["robotsixBoardInternals"] = {
+  w["robotsixBoardInternals"] = {
     esc: esc,
     bootConfig: bootConfig,
     buildSelectOptions: buildSelectOptions,
