@@ -38,5 +38,5 @@ jobs:
     # and provenance are maintained in a single place.  Dependabot is configured
     # for github-actions and will propose SHA bumps as the upstream evolves.
     # TODO: update SHA periodically (Dependabot auto-proposes bumps weekly).
-    uses: damien-robotsix/robotsix-mill/.github/workflows/python-release.yml@bb5396a62ef96f5808f6e74a4c0035e9cfe4d65a
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-release.yml@5cd8c1facb02299da618979e7a55f1953f9c075a
     secrets: inherit
