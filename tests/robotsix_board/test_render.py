@@ -7,7 +7,7 @@ import re
 from typing import Any, cast
 
 from robotsix_board import BoardAdapter
-from robotsix_board._render import esc, render_board, render_config_script
+from robotsix_board._render import _render_card, esc, render_board, render_config_script
 
 # ── mock adapter ──────────────────────────────────────────────────────
 
@@ -108,6 +108,227 @@ class TestEsc:
 
     def test_esc_noop_on_safe_string(self) -> None:
         assert esc("hello world") == "hello world"
+
+
+class TestRenderCard:
+    """Tests for _render_card helper."""
+
+    def _adapter(self) -> MockAdapter:
+        return MockAdapter()
+
+    def _other_keys_labels(self) -> tuple[list[str], dict[str, str]]:
+        adapter = self._adapter()
+        columns = adapter.columns()
+        # Use first column ("todo") as current, the rest as other.
+        other_keys = [k for k, _ in columns if k != "todo"]
+        other_labels = dict(columns)
+        return other_keys, other_labels
+
+    # ── title rendering ──
+
+    def test_title_rendered(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "c1", "title": "Fix bug", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "Fix bug" in html
+        assert 'class="board-card-title"' in html
+
+    # ── badge rendering ──
+
+    def test_badges_rendered(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {
+            "id": "c2",
+            "title": "Task",
+            "badges": ["bug", "high"],
+            "timestamps": {},
+        }
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "bug" in html
+        assert "high" in html
+        assert html.count('class="board-badge"') == 2
+
+    def test_no_badges(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "c3", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "board-card-badges" in html
+        assert 'class="board-badge"' not in html
+
+    # ── timestamp rendering ──
+
+    def test_timestamps_rendered(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {
+            "id": "c4",
+            "title": "Task",
+            "badges": [],
+            "timestamps": {"created": "2025-01-01", "updated": "2025-06-01"},
+        }
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "created: 2025-01-01" in html
+        assert "updated: 2025-06-01" in html
+        assert 'class="board-card-timestamps"' in html
+
+    def test_empty_timestamps(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "c5", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "board-card-timestamps" not in html
+
+    # ── move-form rendering ──
+
+    def test_move_form_present(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "c6", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert 'class="board-card-move"' in html
+        assert "Move to…" in html
+        assert "Move</button>" in html
+
+    def test_move_form_lists_other_columns(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "c7", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        # Current column "todo"; other columns "in_progress", "done"
+        assert "In Progress" in html
+        assert "Done" in html
+        assert "To Do" not in html  # current column not listed as target
+
+    # ── HTML escaping ──
+
+    def test_html_escaped_in_title(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {
+            "id": "xss-1",
+            "title": "<script>alert(1)</script>",
+            "badges": [],
+            "timestamps": {},
+        }
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert "<script>alert(1)</script>" not in html
+        assert "&lt;script&gt;" in html
+
+    def test_html_escaped_in_card_id(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {
+            "id": 'x" onmouseover="alert(1)',
+            "title": "Safe",
+            "badges": [],
+            "timestamps": {},
+        }
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        # Double-quotes in the id are escaped, preventing attribute injection.
+        assert 'onmouseover="alert(1)"' not in html
+        assert "&quot;" in html
+
+    # ── adapter error handling ──
+
+    def test_exception_in_card_property_skips_card(self) -> None:
+        class FailingAdapter(MockAdapter):
+            def card_title(self, card: object) -> str:
+                raise RuntimeError("boom")
+
+        adapter = FailingAdapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "fail-1", "title": "irrelevant"}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        assert parts == []
+
+    # ── card_extra_html injection ──
+
+    def test_card_extra_html_injected_verbatim(self) -> None:
+        class HookAdapter(MockAdapter):
+            def card_extra_html(self, card: object) -> str:
+                return '<button class="x-delete">Del</button>'
+
+        adapter = HookAdapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "h1", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert '<button class="x-delete">Del</button>' in html
+
+    def test_card_extra_html_hook_exception_omits_output(self) -> None:
+        class FailingHookAdapter(MockAdapter):
+            def card_extra_html(self, card: object) -> str:
+                raise RuntimeError("hook boom")
+
+        adapter = FailingHookAdapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "h2", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        # Card is still rendered; extra output is just omitted.
+        assert "Task" in html
+
+    def test_no_card_extra_html_on_adapter_without_hook(self) -> None:
+        adapter = self._adapter()  # MockAdapter has no card_extra_html
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "h3", "title": "Task", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert 'class="x-delete"' not in html
+
+    # ── empty card fields ──
+
+    def test_empty_title_still_renders(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "e1", "title": "", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert 'id="card-e1"' in html
+        assert "board-card-title" in html
+
+    def test_card_id_data_attribute(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "my-card-42", "title": "T", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        html = "".join(parts)
+        assert 'id="card-my-card-42"' in html
+        assert 'data-card-id="my-card-42"' in html
+
+    # ── structural attributes ──
+
+    def test_returns_list_of_strings(self) -> None:
+        adapter = self._adapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "s1", "title": "T", "badges": [], "timestamps": {}}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        assert isinstance(parts, list)
+        assert all(isinstance(p, str) for p in parts)
+
+    def test_returns_empty_list_on_skip(self) -> None:
+        class BoomAdapter(MockAdapter):
+            def card_id(self, card: object) -> str:
+                raise ValueError("nope")
+
+        adapter = BoomAdapter()
+        other_keys, other_labels = self._other_keys_labels()
+        card = {"id": "b1", "title": "T"}
+        parts = _render_card(adapter, card, other_keys, other_labels)
+        assert parts == []
+        assert isinstance(parts, list)
 
 
 class TestRenderBoard:
