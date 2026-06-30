@@ -44,6 +44,7 @@ jobs:
           - detect-secrets
           - vulture
           - mypy-tests
+          - deptry
     permissions:
       contents: read
     steps:
@@ -60,6 +61,7 @@ jobs:
             detect-secrets) uv run detect-secrets scan --baseline .secrets.baseline ;;
             vulture) uv run vulture src/ vulture_whitelist.py ;;
             mypy-tests) uv run mypy tests ;;
+            deptry) uv run deptry . ;;
           esac
 
   js:
