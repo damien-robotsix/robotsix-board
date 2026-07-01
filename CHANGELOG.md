@@ -2,7 +2,7 @@
 
 - Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs
 - Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
-
+- Bump vitest and @vitest/coverage-v8 from ^3 to ^4 (PR #87)
 # Changelog
 
 <!-- towncrier release notes start -->
