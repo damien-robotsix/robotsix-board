@@ -6,6 +6,7 @@
 - **Note:** `@vitest/spy` v4 drops `tinyspy` — the spy is now a re-export from vitest
   internals rather than depending on `tinyspy`. This is correct for vitest 4 but won't
   work if any code indirectly relied on `tinyspy`'s API.
+
 # Changelog
 
 <!-- towncrier release notes start -->
