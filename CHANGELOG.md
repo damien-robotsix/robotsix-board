@@ -1,3 +1,6 @@
+## 0.0.0 (unreleased)
+
+- Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
 # Changelog
 
 <!-- towncrier release notes start -->
