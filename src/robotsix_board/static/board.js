@@ -740,7 +740,7 @@
         closeDrawer();
       }
     };
-    /** @type {*} */ (drawer)._closeOnBackdrop = onBackdrop;
+    /** @type {Function} */ (drawer)._closeOnBackdrop = onBackdrop;
     drawer.addEventListener("click", onBackdrop);
   }
 
@@ -753,10 +753,10 @@
 
     drawer.classList.add("hidden");
 
-    var onBackdrop = /** @type {*} */ (drawer)._closeOnBackdrop;
+    var onBackdrop = /** @type {Function} */ (drawer)._closeOnBackdrop;
     if (onBackdrop) {
       drawer.removeEventListener("click", onBackdrop);
-      /** @type {*} */ (drawer)._closeOnBackdrop = null;
+      /** @type {Function} */ (drawer)._closeOnBackdrop = null;
     }
   }
 
@@ -1051,7 +1051,7 @@
   }
 
   // ── Expose public API on window ──────────────────────────────────
-  var w = /** @type {any} */ (window);
+  var w = /** @type {Object} */ (window);
   w["robotsixBoardRefresh"] = robotsixBoardRefresh;
   w["robotsixBoardStopRefresh"] = robotsixBoardStopRefresh;
   w["robotsixBoardSetGate"] = robotsixBoardSetGate;
