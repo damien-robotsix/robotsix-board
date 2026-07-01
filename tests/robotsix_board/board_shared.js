@@ -32,7 +32,7 @@ export function setBoardConfig(json) {
   // entire body — callers may have already built DOM like #board that
   // must survive for init() tests.)
   const existing = document.getElementById("board-config");
-  if (existing) existing.remove();
+  if (existing) { existing.remove(); }
 
   const el = document.createElement("script");
   el.id = "board-config";
