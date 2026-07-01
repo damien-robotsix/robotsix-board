@@ -43,10 +43,10 @@
   --board-badge-src-border: #4a3a6a;
 
   /* Shadows */
-  --board-shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --board-shadow-focus: 0 0 0 2px rgba(74, 111, 165, 0.4);
-  --board-shadow-focus-select: 0 0 0 2px rgba(74, 111, 165, 0.3);
-  --board-shadow-drawer: -4px 0 16px rgba(0, 0, 0, 0.4);
+  --board-shadow-card-hover: 0 2px 8px rgb(0 0 0 / 0.3);
+  --board-shadow-focus: 0 0 0 2px rgb(74 111 165 / 0.4);
+  --board-shadow-focus-select: 0 0 0 2px rgb(74 111 165 / 0.3);
+  --board-shadow-drawer: -4px 0 16px rgb(0 0 0 / 0.4);
 }
 
 /* ── reset / base ─────────────────────────────────────────────────── */
@@ -160,12 +160,12 @@
 
 .board-card:hover {
   border-color: var(--board-border-hover, #3a3a6a);
-  box-shadow: var(--board-shadow-card-hover, 0 2px 8px rgba(0, 0, 0, 0.3));
+  box-shadow: var(--board-shadow-card-hover, 0 2px 8px rgb(0 0 0 / 0.3));
 }
 
 .board-card:focus-within {
   border-color: var(--board-focus-ring, #4a6fa5);
-  box-shadow: var(--board-shadow-focus, 0 0 0 2px rgba(74, 111, 165, 0.4));
+  box-shadow: var(--board-shadow-focus, 0 0 0 2px rgb(74 111 165 / 0.4));
 }
 
 /* ── merged card indicator ───────────────────────────────────────── */
@@ -259,7 +259,7 @@
 .board-move-select:focus {
   outline: none;
   border-color: var(--board-focus-ring, #4a6fa5);
-  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgba(74, 111, 165, 0.3));
+  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
 .board-move-submit {
@@ -298,7 +298,7 @@
   height: 100vh;
   background: var(--board-column-bg, #16213e);
   border-left: 1px solid var(--board-border-color, #2a2a4a);
-  box-shadow: var(--board-shadow-drawer, -4px 0 16px rgba(0, 0, 0, 0.4));
+  box-shadow: var(--board-shadow-drawer, -4px 0 16px rgb(0 0 0 / 0.4));
   z-index: 1000;
   overflow-y: auto;
   transition: transform 0.25s ease;
