@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "eslint": "^9",
+    "eslint": "^10",
     "@eslint/js": "^9",
     "globals": "^15",
     "stylelint": "^16",
