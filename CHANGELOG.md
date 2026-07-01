@@ -1,3 +1,6 @@
+## 0.0.0 (unreleased)
+
+- Bump eslint from ^9 to ^10, @eslint/js from ^9 to ^10, and eslint-plugin-jsdoc from ^50 to ^62 for ESLint 10 compatibility.
 # Changelog
 
 <!-- towncrier release notes start -->
