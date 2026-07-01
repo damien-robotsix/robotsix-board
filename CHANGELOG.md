@@ -3,6 +3,9 @@
 - Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs
 - Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
 - Bump vitest and @vitest/coverage-v8 from ^3 to ^4 (PR #87)
+- **Note:** `@vitest/spy` v4 drops `tinyspy` — the spy is now a re-export from vitest
+  internals rather than depending on `tinyspy`. This is correct for vitest 4 but won't
+  work if any code indirectly relied on `tinyspy`'s API.
 # Changelog
 
 <!-- towncrier release notes start -->
