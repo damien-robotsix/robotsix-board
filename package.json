@@ -16,7 +16,7 @@
     "eslint": "^9",
     "@eslint/js": "^9",
     "globals": "^15",
-    "stylelint": "^16",
+    "stylelint": "^17",
     "stylelint-config-standard": "^36",
     "@vitest/eslint-plugin": "^1",
     "eslint-plugin-jsdoc": "^50",
