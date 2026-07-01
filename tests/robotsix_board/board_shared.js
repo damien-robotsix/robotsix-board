@@ -5,7 +5,7 @@ import { beforeEach, afterEach, vi } from "vitest";
 import "../../src/robotsix_board/static/board.js";
 
 // Polyfill CSS.escape for happy-dom (not yet implemented in all versions).
-if (!globalThis.CSS) globalThis.CSS = {};
+if (!globalThis.CSS) { globalThis.CSS = {}; }
 if (!CSS.escape) {
   CSS.escape = function (value) {
     return String(value);
