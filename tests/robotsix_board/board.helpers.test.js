@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import "../../src/robotsix_board/static/board.js";
-import { SAMPLE_CONFIG, setBoardConfig, setupBoardTest } from "./board_shared.js";
+import { setupBoardTest } from "./board_shared.js";
 
 const {
   esc,
