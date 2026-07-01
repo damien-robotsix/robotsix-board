@@ -17,7 +17,7 @@
     "@eslint/js": "^9",
     "globals": "^15",
     "stylelint": "^16",
-    "stylelint-config-standard": "^36",
+    "stylelint-config-standard": "^40",
     "@vitest/eslint-plugin": "^1",
     "eslint-plugin-jsdoc": "^50",
     "happy-dom": "^20",
