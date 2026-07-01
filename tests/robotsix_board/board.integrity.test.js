@@ -19,7 +19,7 @@ describe("export surface convention", () => {
   const src = readFileSync(boardJsPath, "utf-8");
 
   // Extract every module-level function name (^  function <name>).
-  const funcDeclRe = /^  function (\w+)/gm;
+  const funcDeclRe = /^ {2}function (\w+)/gm;
   const declaredFuncs = new Set();
   let m;
   while ((m = funcDeclRe.exec(src)) !== null) {
@@ -99,7 +99,7 @@ describe("CSS class name cross-file consistency", () => {
   const classNameRe = /\.className\s*=\s*"([^"]+)"/g;
   while ((m = classNameRe.exec(jsSrc)) !== null) {
     for (const cls of m[1].split(/\s+/)) {
-      if (cls) jsClasses.add(cls);
+      if (cls) { jsClasses.add(cls); }
     }
   }
 
@@ -127,7 +127,7 @@ describe("CSS class name cross-file consistency", () => {
   const htmlClassRe = /class="([^"]+)"/g;
   while ((m = htmlClassRe.exec(jsSrc)) !== null) {
     for (const cls of m[1].split(/\s+/)) {
-      if (cls) jsClasses.add(cls);
+      if (cls) { jsClasses.add(cls); }
     }
   }
 

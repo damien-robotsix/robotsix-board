@@ -29,7 +29,7 @@ export default [
     },
   },
   {
-    files: ["tests/**/*.test.js", "vitest.config.mjs"],
+    files: ["tests/**/*.test.js", "tests/**/board_shared.js", "vitest.config.mjs"],
     plugins: { vitest },
     languageOptions: {
       ecmaVersion: "latest",
@@ -38,6 +38,14 @@ export default [
     },
     rules: {
       ...vitest.configs.recommended.rules,
+    },
+  },
+  {
+    files: ["eslint.config.mjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node },
     },
   },
 ];

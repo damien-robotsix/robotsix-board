@@ -5,7 +5,7 @@ import { beforeEach, afterEach, vi } from "vitest";
 import "../../src/robotsix_board/static/board.js";
 
 // Polyfill CSS.escape for happy-dom (not yet implemented in all versions).
-if (!globalThis.CSS) globalThis.CSS = {};
+if (!globalThis.CSS) { globalThis.CSS = {}; }
 if (!CSS.escape) {
   CSS.escape = function (value) {
     return String(value);
@@ -32,7 +32,7 @@ export function setBoardConfig(json) {
   // entire body — callers may have already built DOM like #board that
   // must survive for init() tests.)
   const existing = document.getElementById("board-config");
-  if (existing) existing.remove();
+  if (existing) { existing.remove(); }
 
   const el = document.createElement("script");
   el.id = "board-config";

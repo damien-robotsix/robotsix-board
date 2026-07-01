@@ -75,7 +75,7 @@ describe("applyClosedToggle()", () => {
     const board = document.getElementById("board");
     // Remove the "done" column so findColumnByStatus returns null.
     const doneCol = findColumnByStatus(board, "done");
-    if (doneCol) doneCol.remove();
+    if (doneCol) { doneCol.remove(); }
 
     expect(() => applyClosedToggle(false)).not.toThrow();
   });

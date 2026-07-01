@@ -26,3 +26,17 @@ PR, using `towncrier check --compare-with origin/main`.
 **Skipping the check:** Trivial, non-user-facing PRs (e.g. CI tweaks,
 dev-dependency bumps) can skip the gate by adding the `skip-changelog`
 label to the pull request. Dependabot PRs are also excluded automatically.
+
+## Pre-commit hooks
+
+This repository uses [pre-commit](https://pre-commit.com) to enforce
+formatting, structural, and linting checks. After cloning and installing
+dependencies:
+
+```bash
+uv sync --extra dev
+uv run pre-commit install
+```
+
+The configured hooks run automatically on every `git commit`. CI enforces
+all hooks via `pre-commit run --all-files`.
