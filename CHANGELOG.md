@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- build(deps): Bump the pre-commit group with 6 updates (pre-commit-hooks v5.0.0→v6.0.0, ruff v0.15.15→v0.15.20, markdownlint-cli2 v0.22.1→v0.23.0, bandit 1.8.3→1.9.4, check-jsonschema 0.37.2→0.37.4, actionlint v1.7.7→v1.7.12)
 - Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
