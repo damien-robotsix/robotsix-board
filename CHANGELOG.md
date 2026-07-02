@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
 - Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs

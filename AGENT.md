@@ -1,3 +1,5 @@
+This repo follows the [robotsix stack standards](https://github.com/damien-robotsix/robotsix-standards).
+
 ## Pre-commit
 
 `.pre-commit-config.yaml` must contain these hooks:
