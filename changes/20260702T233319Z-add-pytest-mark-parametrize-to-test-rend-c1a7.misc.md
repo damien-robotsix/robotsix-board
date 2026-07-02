@@ -1,0 +1,1 @@
+Add pytest.mark.parametrize to test_render.py for test coverage breadth and maintainability

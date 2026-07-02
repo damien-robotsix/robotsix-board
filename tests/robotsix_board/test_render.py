@@ -6,6 +6,8 @@ import json
 import re
 from typing import Any, cast
 
+import pytest
+
 from robotsix_board import BoardAdapter
 from robotsix_board._render import _render_card, esc, render_board, render_config_script
 
@@ -93,116 +95,111 @@ def _extract_script_json(result: str) -> dict[str, Any]:
 
 
 class TestEsc:
-    def test_esc_escapes_html(self) -> None:
-        s = "<script>alert(\"&\" 'x')</script>"
+    @pytest.mark.parametrize(
+        ("s", "expected_in", "expected_not_in"),
+        [
+            pytest.param(
+                "<script>alert(1)</script>",
+                ["&lt;", "&gt;"],
+                ["<script>"],
+                id="html_special_chars",
+            ),
+            pytest.param("hello world", ["hello world"], [], id="safe_string"),
+            pytest.param("", [""], [], id="empty_string"),
+            pytest.param("cafe", ["cafe"], [], id="unicode"),
+        ],
+    )
+    def test_esc(
+        self, s: str, expected_in: list[str], expected_not_in: list[str]
+    ) -> None:
         result = esc(s)
-        assert "&lt;" in result
-        assert "&gt;" in result
-        assert "&amp;" in result
-        assert "&quot;" in result
-        assert "&#x27;" in result
-        # The original dangerous chars should be gone
-        assert "<" not in result
-        assert ">" not in result
-        assert '"' not in result
-
-    def test_esc_noop_on_safe_string(self) -> None:
-        assert esc("hello world") == "hello world"
+        for text in expected_in:
+            assert text in result
+        for text in expected_not_in:
+            assert text not in result
 
 
 class TestRenderCard:
     """Tests for _render_card helper."""
 
-    def _adapter(self) -> MockAdapter:
-        return MockAdapter()
+    @pytest.fixture(autouse=True)
+    def _setup(self) -> None:
+        self.adapter = MockAdapter()
+        columns = self.adapter.columns()
+        self.other_keys = [k for k, _ in columns if k != "todo"]
+        self.other_labels = dict(columns)
 
-    def _other_keys_labels(self) -> tuple[list[str], dict[str, str]]:
-        adapter = self._adapter()
-        columns = adapter.columns()
-        # Use first column ("todo") as current, the rest as other.
-        other_keys = [k for k, _ in columns if k != "todo"]
-        other_labels = dict(columns)
-        return other_keys, other_labels
-
-    # ── title rendering ──
-
-    def test_title_rendered(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
-        card = {"id": "c1", "title": "Fix bug", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+    @pytest.mark.parametrize(
+        ("card", "expected_in", "expected_not_in"),
+        [
+            pytest.param(
+                {"id": "c1", "title": "Fix bug", "badges": [], "timestamps": {}},
+                ["Fix bug", 'class="board-card-title"'],
+                [],
+                id="basic_title",
+            ),
+            pytest.param(
+                {
+                    "id": "c2",
+                    "title": "Task",
+                    "badges": ["bug", "high"],
+                    "timestamps": {},
+                },
+                ["bug", "high"],
+                [],
+                id="badges_rendered",
+            ),
+            pytest.param(
+                {"id": "c3", "title": "Task", "badges": [], "timestamps": {}},
+                ["board-card-badges"],
+                ['class="board-badge"'],
+                id="no_badges",
+            ),
+            pytest.param(
+                {
+                    "id": "c4",
+                    "title": "Task",
+                    "badges": [],
+                    "timestamps": {"created": "2025-01-01"},
+                },
+                ["created: 2025-01-01", 'class="board-card-timestamps"'],
+                [],
+                id="timestamps_rendered",
+            ),
+            pytest.param(
+                {"id": "c5", "title": "Task", "badges": [], "timestamps": {}},
+                [],
+                ["board-card-timestamps"],
+                id="empty_timestamps",
+            ),
+        ],
+    )
+    def test_card_rendering(
+        self,
+        card: dict[str, object],
+        expected_in: list[str],
+        expected_not_in: list[str],
+    ) -> None:
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
-        assert "Fix bug" in html
-        assert 'class="board-card-title"' in html
-
-    # ── badge rendering ──
-
-    def test_badges_rendered(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
-        card = {
-            "id": "c2",
-            "title": "Task",
-            "badges": ["bug", "high"],
-            "timestamps": {},
-        }
-        parts = _render_card(adapter, card, other_keys, other_labels)
-        html = "".join(parts)
-        assert "bug" in html
-        assert "high" in html
-        assert html.count('class="board-badge"') == 2
-
-    def test_no_badges(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
-        card = {"id": "c3", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
-        html = "".join(parts)
-        assert "board-card-badges" in html
-        assert 'class="board-badge"' not in html
-
-    # ── timestamp rendering ──
-
-    def test_timestamps_rendered(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
-        card = {
-            "id": "c4",
-            "title": "Task",
-            "badges": [],
-            "timestamps": {"created": "2025-01-01", "updated": "2025-06-01"},
-        }
-        parts = _render_card(adapter, card, other_keys, other_labels)
-        html = "".join(parts)
-        assert "created: 2025-01-01" in html
-        assert "updated: 2025-06-01" in html
-        assert 'class="board-card-timestamps"' in html
-
-    def test_empty_timestamps(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
-        card = {"id": "c5", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
-        html = "".join(parts)
-        assert "board-card-timestamps" not in html
+        for text in expected_in:
+            assert text in html
+        for text in expected_not_in:
+            assert text not in html
 
     # ── move-form rendering ──
 
     def test_move_form_present(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "c6", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert 'class="board-card-move"' in html
         assert "Move to…" in html
         assert "Move</button>" in html
 
     def test_move_form_lists_other_columns(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "c7", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         # Current column "todo"; other columns "in_progress", "done"
         assert "In Progress" in html
@@ -212,29 +209,25 @@ class TestRenderCard:
     # ── HTML escaping ──
 
     def test_html_escaped_in_title(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {
             "id": "xss-1",
             "title": "<script>alert(1)</script>",
             "badges": [],
             "timestamps": {},
         }
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert "<script>alert(1)</script>" not in html
         assert "&lt;script&gt;" in html
 
     def test_html_escaped_in_card_id(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {
             "id": 'x" onmouseover="alert(1)',
             "title": "Safe",
             "badges": [],
             "timestamps": {},
         }
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         # Double-quotes in the id are escaped, preventing attribute injection.
         assert 'onmouseover="alert(1)"' not in html
@@ -248,9 +241,8 @@ class TestRenderCard:
                 raise RuntimeError("boom")
 
         adapter = FailingAdapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "fail-1", "title": "irrelevant"}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
         assert parts == []
 
     # ── card_extra_html injection ──
@@ -261,9 +253,8 @@ class TestRenderCard:
                 return '<button class="x-delete">Del</button>'
 
         adapter = HookAdapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "h1", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert '<button class="x-delete">Del</button>' in html
 
@@ -273,37 +264,30 @@ class TestRenderCard:
                 raise RuntimeError("hook boom")
 
         adapter = FailingHookAdapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "h2", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         # Card is still rendered; extra output is just omitted.
         assert "Task" in html
 
     def test_no_card_extra_html_on_adapter_without_hook(self) -> None:
-        adapter = self._adapter()  # MockAdapter has no card_extra_html
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "h3", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert 'class="x-delete"' not in html
 
     # ── empty card fields ──
 
     def test_empty_title_still_renders(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "e1", "title": "", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert 'id="card-e1"' in html
         assert "board-card-title" in html
 
     def test_card_id_data_attribute(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "my-card-42", "title": "T", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
         assert 'id="card-my-card-42"' in html
         assert 'data-card-id="my-card-42"' in html
@@ -311,10 +295,8 @@ class TestRenderCard:
     # ── structural attributes ──
 
     def test_returns_list_of_strings(self) -> None:
-        adapter = self._adapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "s1", "title": "T", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         assert isinstance(parts, list)
         assert all(isinstance(p, str) for p in parts)
 
@@ -324,9 +306,8 @@ class TestRenderCard:
                 raise ValueError("nope")
 
         adapter = BoomAdapter()
-        other_keys, other_labels = self._other_keys_labels()
         card = {"id": "b1", "title": "T"}
-        parts = _render_card(adapter, card, other_keys, other_labels)
+        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
         assert parts == []
         assert isinstance(parts, list)
 
@@ -605,22 +586,24 @@ class TestRenderBoard:
         assert "refresh_interval_ms" in parsed
         assert parsed["refresh_interval_ms"] == 30000
 
-    def test_render_config_script_includes_refresh_url_when_set(self) -> None:
+    @pytest.mark.parametrize(
+        ("refresh_url", "expected_present"),
+        [
+            pytest.param("/api/board/cards", True, id="refresh_url_set"),
+            pytest.param(None, False, id="refresh_url_none"),
+        ],
+    )
+    def test_render_config_script_refresh_url(
+        self, refresh_url: str | None, expected_present: bool
+    ) -> None:
         adapter = _adapter()
-        result = render_config_script(adapter, refresh_url="/api/board/cards")
-
+        result = render_config_script(adapter, refresh_url=refresh_url)
         parsed = _extract_script_json(result)
-
-        assert "refresh_url" in parsed
-        assert parsed["refresh_url"] == "/api/board/cards"
-
-    def test_render_config_script_omits_refresh_url_when_none(self) -> None:
-        adapter = _adapter()
-        result = render_config_script(adapter, refresh_url=None)
-
-        parsed = _extract_script_json(result)
-
-        assert "refresh_url" not in parsed
+        if expected_present:
+            assert "refresh_url" in parsed
+            assert parsed["refresh_url"] == refresh_url
+        else:
+            assert "refresh_url" not in parsed
 
     def test_render_config_script_uses_adapter_move_endpoint_template(self) -> None:
         """A custom template from the adapter must appear in the emitted config."""
@@ -632,19 +615,21 @@ class TestRenderBoard:
 
         assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"
 
-    def test_render_config_script_includes_gate_endpoint_when_set(self) -> None:
+    @pytest.mark.parametrize(
+        ("gate_endpoint", "expected_present"),
+        [
+            pytest.param("/api/gate", True, id="gate_endpoint_set"),
+            pytest.param(None, False, id="gate_endpoint_none"),
+        ],
+    )
+    def test_render_config_script_gate_endpoint(
+        self, gate_endpoint: str | None, expected_present: bool
+    ) -> None:
         adapter = _adapter()
-        result = render_config_script(adapter, gate_endpoint="/api/gate")
-
+        result = render_config_script(adapter, gate_endpoint=gate_endpoint)
         parsed = _extract_script_json(result)
-
-        assert "gate_endpoint" in parsed
-        assert parsed["gate_endpoint"] == "/api/gate"
-
-    def test_render_config_script_omits_gate_endpoint_when_none(self) -> None:
-        adapter = _adapter()
-        result = render_config_script(adapter, gate_endpoint=None)
-
-        parsed = _extract_script_json(result)
-
-        assert "gate_endpoint" not in parsed
+        if expected_present:
+            assert "gate_endpoint" in parsed
+            assert parsed["gate_endpoint"] == gate_endpoint
+        else:
+            assert "gate_endpoint" not in parsed
