@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- build(deps-dev): Bump eslint-plugin-jsdoc from 50.8.0 to 63.0.10 (#167)
 - Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
