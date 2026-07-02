@@ -175,7 +175,10 @@ class TestRenderCard:
         ],
     )
     def test_card_rendering(
-        self, card: dict, expected_in: list[str], expected_not_in: list[str]
+        self,
+        card: dict[str, object],
+        expected_in: list[str],
+        expected_not_in: list[str],
     ) -> None:
         parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
         html = "".join(parts)
