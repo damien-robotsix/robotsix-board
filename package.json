@@ -19,7 +19,7 @@
     "stylelint": "^17",
     "stylelint-config-standard": "^40",
     "@vitest/eslint-plugin": "^1",
-    "eslint-plugin-jsdoc": "^50",
+    "eslint-plugin-jsdoc": "^63",
     "happy-dom": "^20",
     "vitest": "^4",
     "@vitest/coverage-v8": "^4",
