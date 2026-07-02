@@ -23,7 +23,7 @@
     "happy-dom": "^20",
     "vitest": "^4",
     "@vitest/coverage-v8": "^4",
-    "markdownlint-cli2": "^0.22",
+    "markdownlint-cli2": "^0.23",
     "typescript": "^6.0"
   }
 }
