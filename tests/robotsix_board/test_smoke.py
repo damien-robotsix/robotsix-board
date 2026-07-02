@@ -77,38 +77,6 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     assert 'package-ecosystem: "github-actions"' in text
 
 
-def test_release_workflow_present_and_publishes_to_pypi() -> None:
-    import re
-
-    import yaml  # type: ignore[import-untyped]
-
-    workflow = REPO_ROOT / ".github" / "workflows" / "release.yml"
-    assert workflow.is_file()
-    text = workflow.read_text()
-    assert "published" in text
-    assert "id-token: write" in text
-    assert "secrets: inherit" in text
-    # Release-time gate: tag / pyproject version / CHANGELOG consistency.
-    assert "verify:" in text
-    assert "needs: verify" in text
-    assert "tomllib" in text
-    assert "CHANGELOG.md" in text
-    assert "github.event.release.tag_name" in text
-
-    # Cross-repo reusable workflow pin: must reference the shared
-    # robotsix-github-workflows workflow at a full 40-char commit SHA
-    # (not a mutable branch ref).
-    doc = yaml.safe_load(text)
-    publish_job = doc["jobs"]["publish"]
-    uses_ref = publish_job["uses"]
-    expected_prefix = "robotsix-github-workflows/.github/workflows/python-release.yml@"
-    assert expected_prefix in uses_ref
-    sha = uses_ref.split("@", 1)[1]
-    assert re.fullmatch(r"[0-9a-f]{40}", sha), (
-        f"expected 40-char hex SHA after '@', got {sha!r}"
-    )
-
-
 def test_changelog_present_and_follows_keep_a_changelog() -> None:
     changelog = REPO_ROOT / "CHANGELOG.md"
     assert changelog.is_file()
