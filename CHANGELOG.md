@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
 - Remove PyPI publish workflow (`.github/workflows/release.yml`); this library is consumed via git source, not PyPI.
 - Adopt eslint 10, eslint-plugin-jsdoc 63, and markdownlint-cli2 0.23 (dev deps).
   Replaced four `{*}`/`{any}` JSDoc casts in `board.js` with specific types to
