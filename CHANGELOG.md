@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add Dependabot auto-merge caller workflow.
 - Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
 - Register `docs/modules.yaml` as a path under the `robotsix_board` module in the module taxonomy.
 - Remove PyPI publish workflow (`.github/workflows/release.yml`); this library is consumed via git source, not PyPI.
