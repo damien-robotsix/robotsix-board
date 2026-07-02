@@ -229,3 +229,45 @@ def test_json_hydration_string_consistent_across_python_and_js() -> None:
         f"Enum value {expected!r} not found in board.js — "
         "JS bail-out checks would silently fail"
     )
+
+
+def test_board_config_id_consistent_across_python_and_js() -> None:
+    """The #board-config script element ID must be identical across all files.
+
+    ``_render.py`` emits ``<script id="board-config" …>``,
+    ``board.js`` reads it with ``getElementById("board-config")``,
+    and ``board_shared.js`` creates test elements with ``el.id = "board-config"``.
+    If any of these three occurrences drift, the JS client silently
+    fails to find the config element and ``bootConfig()`` returns false.
+    """
+    import re
+
+    from robotsix_board._render import render_config_script
+
+    # 1. Extract the id from the <script> tag rendered by _render.py
+    from tests.robotsix_board.test_render import _adapter
+
+    rendered = render_config_script(_adapter())
+    py_match = re.search(r'id="([^"]+)"', rendered)
+    assert py_match is not None, "Could not find id attribute in rendered script tag"
+    py_id = py_match.group(1)
+
+    # 2. Extract the getElementById argument from board.js
+    js_source = (robotsix_board.static_dir() / "board.js").read_text()
+    js_match = re.search(r'getElementById\("([^"]+)"\)', js_source)
+    assert js_match is not None, "Could not find getElementById call in board.js"
+    js_id = js_match.group(1)
+
+    # 3. Extract the el.id assignment from the JS test helper
+    board_shared = REPO_ROOT / "tests" / "robotsix_board" / "board_shared.js"
+    shared_source = board_shared.read_text()
+    shared_match = re.search(r'\.id\s*=\s*"([^"]+)"', shared_source)
+    assert shared_match is not None, "Could not find .id assignment in board_shared.js"
+    shared_id = shared_match.group(1)
+
+    assert py_id == js_id == shared_id, (
+        f"board-config script ID mismatch: "
+        f"_render.py={py_id!r}, "
+        f"board.js={js_id!r}, "
+        f"board_shared.js={shared_id!r}"
+    )
