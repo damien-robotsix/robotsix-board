@@ -1,6 +1,7 @@
 ## 0.0.0 (unreleased)
 
 - build(deps-dev): Bump eslint-plugin-jsdoc from 50.8.0 to 63.0.10 (#167)
+- Update `.nvmrc` from 20 to 22 and `package.json`/`package-lock.json` engines from `>=20.0.0` to `>=22.13.0` to satisfy eslint-plugin-jsdoc v63's Node.js engine requirement (`^22.13.0 || >=24`)
 - Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
