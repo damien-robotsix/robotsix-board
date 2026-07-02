@@ -1,5 +1,8 @@
 ## 0.0.0 (unreleased)
 
+- Adopt eslint 10, eslint-plugin-jsdoc 63, and markdownlint-cli2 0.23 (dev deps).
+  Replaced four `{*}`/`{any}` JSDoc casts in `board.js` with specific types to
+  satisfy the new `jsdoc/reject-any-type` rule (lint, typecheck, and 106 vitest tests pass).
 - Bump `.nvmrc` to node 22 (required by the bumped `markdownlint-cli2` pre-commit hook).
 - Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
