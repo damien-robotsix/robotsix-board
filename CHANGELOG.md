@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- build(deps-dev): Bump eslint from 9.39.4 to 10.6.0 (#166)
 - Add link to robotsix-standards repo in README.md and AGENT.md.
 - Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
