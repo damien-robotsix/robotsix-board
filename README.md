@@ -201,6 +201,10 @@ proposals/runs panels all stay in robotsix-mill. Only the `#board`
 columns/cards/move control, the `#drawer`/detail panel, and the refresh loop
 are shared here.
 
+## Standards
+
+This repo follows the [robotsix stack standards](https://github.com/damien-robotsix/robotsix-standards).
+
 ## License
 
 MIT — see the [LICENSE](LICENSE) file.
