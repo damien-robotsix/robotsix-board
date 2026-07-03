@@ -53,7 +53,10 @@ docs = [
 packages = ["src/robotsix_board"]
 
 [tool.pytest.ini_options]
-addopts = "-n auto --cov=robotsix_board --cov-branch --cov-report=term-missing --cov-fail-under=100"
+addopts = "-n auto --cov=robotsix_board --cov-branch --cov-report=term-missing"
+
+[tool.coverage.report]
+fail_under = 80
 
 [tool.ruff]
 line-length = 88

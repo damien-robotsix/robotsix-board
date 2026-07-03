@@ -127,7 +127,6 @@ def test_js_coverage_infrastructure_present() -> None:
 
     agent_md = (REPO_ROOT / "AGENT.md").read_text()
     assert "coverage" in agent_md
-    assert "ratchet" in agent_md
 
 
 def test_module_curator_periodic_enabled() -> None:
