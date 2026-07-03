@@ -15,7 +15,7 @@
 - Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
 - Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs
 - Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
-
+- Remove redundant `## Pre-commit` section from `AGENT.md` (the fleet-wide robotsix-standards document already owns this list) and prune the hand-written `## 0.0.0 (unreleased)` block from `CHANGELOG.md` (towncrier now manages the changelog).
 # Changelog
 
 <!-- towncrier release notes start -->
