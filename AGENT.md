@@ -31,9 +31,9 @@ For a new optional capability, add a **duck-typed hook** instead: do NOT declare
 
 **Rationale:** Recurring pattern in this codebase — `.hidden`, `.board-card--merged`, drawer classes, `.board-move-error`. Keeping appearance in CSS preserves separation of concerns and eases styling maintenance; inline styles also override the stylesheet, making class-based theming impossible.
 
-### JavaScript test coverage ratchet
+### JavaScript test coverage floor
 
-**Rule:** JS coverage is measured by `@vitest/coverage-v8` and enforced in CI via `vitest run --coverage` (the `coverage` block in `vitest.config.mjs`). The `thresholds` in `vitest.config.mjs` are a **ratchet floor that must only ever increase** toward 100% — parity with the Python `--cov-fail-under=100` gate. Never lower a threshold to make a PR pass; add tests to raise coverage instead. After CI prints the real percentages (`text-summary` reporter), a maintainer ratchets the floors up to just under the reported values.
+**Rule:** JS coverage is measured by `@vitest/coverage-v8` and enforced in CI via `vitest run --coverage` (the `coverage` block in `vitest.config.mjs`). The `thresholds` in `vitest.config.mjs` are set to a fleet-wide **80** coverage floor (lines, functions, branches, statements). This aligns with the Python coverage floor: `[tool.coverage.report] fail_under = 80` in `pyproject.toml` and `coverage-threshold: 80` in `.github/workflows/ci.yml`. Never lower a threshold below 80 to make a PR pass; add tests to raise coverage instead.
 
 ### Export surfaces in board.js
 

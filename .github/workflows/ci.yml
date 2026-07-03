@@ -18,7 +18,7 @@ jobs:
     with:
       python-version: "3.14"
       cov-package: "robotsix_board"
-      coverage-threshold: "70"
+      coverage-threshold: "80"
       run-bandit: true
       install-extras: "dev"
     permissions:

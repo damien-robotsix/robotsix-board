@@ -8,13 +8,12 @@ export default defineConfig({
       provider: "v8",
       include: ["src/robotsix_board/static/board.js"],
       reporter: ["text", "text-summary"],
-      // Ratcheting baseline floor — raise toward 100% over time.
-      // The ratchet must only ever increase. See AGENT.md.
+      // Fleet-wide 80 coverage floor — see AGENT.md.
       thresholds: {
-        lines: 70,
-        functions: 60,
-        branches: 50,
-        statements: 70,
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
       },
     },
   },
