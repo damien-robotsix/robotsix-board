@@ -67,7 +67,7 @@ def test_check_jsonschema_workflows_hook_configured() -> None:
     assert '"check-jsonschema"' in pyproject
 
 
-def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
+def test_dependabot_config_present_and_covers_all_ecosystems() -> None:
     cfg = REPO_ROOT / ".github" / "dependabot.yml"
     assert cfg.is_file()
     text = cfg.read_text()
@@ -75,6 +75,7 @@ def test_dependabot_config_present_and_covers_three_ecosystems() -> None:
     assert 'package-ecosystem: "uv"' in text
     assert 'package-ecosystem: "npm"' in text
     assert 'package-ecosystem: "github-actions"' in text
+    assert 'package-ecosystem: "pre-commit"' in text
 
 
 def test_changelog_present_and_follows_keep_a_changelog() -> None:
