@@ -1,0 +1,1 @@
+Add OpenSSF Scorecard CI workflow for supply-chain security posture
