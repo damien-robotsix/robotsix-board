@@ -1,3 +1,7 @@
+## 0.0.0 (unreleased)
+
+- Add `triage_boilerplate` periodic workflow config (`.robotsix-mill/periodic/triage_boilerplate.yaml`).
+
 # Changelog
 
 <!-- towncrier release notes start -->
