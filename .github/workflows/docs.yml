@@ -15,10 +15,9 @@ concurrency:
 jobs:
   deploy:
     permissions:
-      pages: write
-      id-token: write
+      pages: write  # required for GitHub Pages deployment
+      id-token: write  # required for OIDC-based Pages auth
     # TODO: update SHA periodically (Dependabot auto-proposes bumps weekly).
     uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-docs.yml@5cd8c1facb02299da618979e7a55f1953f9c075a
     with:
       docs-install-args: "--extra docs"
-    secrets: inherit
