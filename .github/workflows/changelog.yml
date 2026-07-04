@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   check:
+    name: Check changelog
     if: |
       github.actor != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
