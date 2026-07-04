@@ -1,21 +1,3 @@
-## 0.0.0 (unreleased)
-
-- Add lint-workflows.yml delegating to `robotsix-github-workflows/.github/workflows/lint-workflows.yml` with `run-actionlint: true` and `run-zizmor: true`
-- Add CodeQL workflow delegating to `robotsix-github-workflows/.github/workflows/codeql.yml` with python,javascript language matrix
-- Add Dependabot auto-merge caller workflow.
-- Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
-- Register `docs/modules.yaml` as a path under the `robotsix_board` module in the module taxonomy.
-- Remove PyPI publish workflow (`.github/workflows/release.yml`); this library is consumed via git source, not PyPI.
-- Adopt eslint 10, eslint-plugin-jsdoc 63, and markdownlint-cli2 0.23 (dev deps).
-  Replaced four `{*}`/`{any}` JSDoc casts in `board.js` with specific types to
-  satisfy the new `jsdoc/reject-any-type` rule (lint, typecheck, and 106 vitest tests pass).
-- Bump `.nvmrc` to node 22 (required by the bumped `markdownlint-cli2` pre-commit hook).
-- Add link to robotsix-standards repo in README.md and AGENT.md.
-- Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
-- Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
-- Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs
-- Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
-- Remove redundant `## Pre-commit` section from `AGENT.md` (the fleet-wide robotsix-standards document already owns this list) and prune the hand-written `## 0.0.0 (unreleased)` block from `CHANGELOG.md` (towncrier now manages the changelog).
 # Changelog
 
 <!-- towncrier release notes start -->
