@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add CodeQL workflow delegating to `robotsix-github-workflows/.github/workflows/codeql.yml` with python,javascript language matrix
 - Add Dependabot auto-merge caller workflow.
 - Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
 - Register `docs/modules.yaml` as a path under the `robotsix_board` module in the module taxonomy.
