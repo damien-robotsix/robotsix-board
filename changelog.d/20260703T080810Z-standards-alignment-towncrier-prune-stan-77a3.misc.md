@@ -1,0 +1,1 @@
+Standards alignment: towncrier + prune standard-duplicating AGENT.md sections

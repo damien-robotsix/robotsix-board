@@ -16,19 +16,4 @@ jobs:
     if: |
       github.actor != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
-        with:
-          enable-cache: true
-      - name: Set up Python
-        run: uv python install 3.14
-      - name: Install dependencies
-        run: uv sync --locked --extra dev
-      - name: Check changelog fragment
-        run: uv run towncrier check --compare-with origin/main
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/changelog-check.yml@7314c9b6c2b536ca81023e8841f272b72733262e

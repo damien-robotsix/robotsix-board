@@ -1,0 +1,19 @@
+name: Baseline check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    name: Baseline
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/baseline-check.yml@7314c9b6c2b536ca81023e8841f272b72733262e
+    with:
+      has-board: true
+      python-version: "3.14"

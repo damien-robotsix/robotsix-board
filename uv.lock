@@ -1106,6 +1106,9 @@ wheels = [
 name = "robotsix-board"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "robotsix-modules" },
+]
 
 [package.optional-dependencies]
 dev = [
@@ -1144,11 +1147,21 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pytest-xdist", marker = "extra == 'dev'" },
+    { name = "robotsix-modules", git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=d56fd5d0ae36e2226a471ef276a38faa5d611e6b" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.15.20" },
     { name = "towncrier", marker = "extra == 'dev'" },
     { name = "vulture", marker = "extra == 'dev'" },
 ]
 provides-extras = ["dev", "docs"]
+
+[[package]]
+name = "robotsix-modules"
+version = "0.2.0"
+source = { git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=d56fd5d0ae36e2226a471ef276a38faa5d611e6b#d56fd5d0ae36e2226a471ef276a38faa5d611e6b" }
+dependencies = [
+    { name = "jsonschema" },
+    { name = "pyyaml" },
+]
 
 [[package]]
 name = "rpds-py"
