@@ -2,6 +2,25 @@
 
 - Extract agent-badges rendering from `buildCardElement` into private helper `_buildAgentBadgeElements`, reducing nesting depth.
 - Add `triage_boilerplate` periodic workflow config (`.robotsix-mill/periodic/triage_boilerplate.yaml`).
+- Replace Docker-based `actionlint-docker` pre-commit hook (`.pre-commit-config.yaml`) with a local `actionlint` system hook, eliminating transient Docker Hub 503 failures during `pre-commit` CI. The pre-commit job now installs the actionlint binary directly (v1.7.12, matching the dedicated `actionlint` job which is also bumped to v1.7.12).
+- Replace reusable `python-ci.yml` call in CI with native steps (checkout → setup-uv → uv sync → pytest), eliminating the last Docker-dependent external workflow call and its transient Docker Hub 503 failures. Move `bandit` into the `python-lint` matrix alongside the other lint tools.
+- Replace Docker-based `security` job (reusable `python-security.yml`) with a native trufflehog binary invocation to eliminate transient Docker Hub 503 failures.
+- Switched dependency security scanning from `pip-audit` to `uv audit`, which natively reads `uv.lock` without requiring a `requirements.txt` export step.
+- Add lint-workflows.yml delegating to `robotsix-github-workflows/.github/workflows/lint-workflows.yml` with `run-actionlint: true` and `run-zizmor: true`
+- Add CodeQL workflow delegating to `robotsix-github-workflows/.github/workflows/codeql.yml` with python,javascript language matrix
+- Add Dependabot auto-merge caller workflow.
+- Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
+- Register `docs/modules.yaml` as a path under the `robotsix_board` module in the module taxonomy.
+- Remove PyPI publish workflow (`.github/workflows/release.yml`); this library is consumed via git source, not PyPI.
+- Adopt eslint 10, eslint-plugin-jsdoc 63, and markdownlint-cli2 0.23 (dev deps).
+  Replaced four `{*}`/`{any}` JSDoc casts in `board.js` with specific types to
+  satisfy the new `jsdoc/reject-any-type` rule (lint, typecheck, and 106 vitest tests pass).
+- Bump `.nvmrc` to node 22 (required by the bumped `markdownlint-cli2` pre-commit hook).
+- Add link to robotsix-standards repo in README.md and AGENT.md.
+- Add `pre-commit` to dev dependencies and enforce all pre-commit hooks in CI via `pre-commit run --all-files`
+- Add `state_sync` periodic workflow to proactively scan for `StrEnum`/`Enum` string-value staleness across the repo.
+- Bump `actions/checkout` from v4 to v7, `actions/setup-node` from v4 to v6, and update `astral-sh/setup-uv` and `dorny/paths-filter` pinned SHAs
+- Bump `stylelint` from ^16 to ^17 and `stylelint-config-standard` from ^36 to ^40
 
 # Changelog
 
