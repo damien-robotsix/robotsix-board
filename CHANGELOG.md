@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add lint-workflows.yml delegating to `robotsix-github-workflows/.github/workflows/lint-workflows.yml` with `run-actionlint: true` and `run-zizmor: true`
 - Add CodeQL workflow delegating to `robotsix-github-workflows/.github/workflows/codeql.yml` with python,javascript language matrix
 - Add Dependabot auto-merge caller workflow.
 - Register `tests/__init__.py` under the `robotsix_board` module in docs/modules.yaml.
