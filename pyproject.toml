@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
-dependencies = []
+dependencies = ["robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d56fd5d0ae36e2226a471ef276a38faa5d611e6b"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -49,6 +49,9 @@ docs = [
     "mkdocstrings[python]",
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotsix_board"]
 
@@ -81,7 +84,7 @@ optional_dependencies_dev_groups = ["dev"]
 DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "towncrier", "vulture", "check-jsonschema", "pytest-xdist"]  # CLI tools used via workflows, not imported
 
 [tool.towncrier]
-directory = "changes"
+directory = "changelog.d"
 filename = "CHANGELOG.md"
 package = "robotsix_board"
 start_string = "<!-- towncrier release notes start -->"
