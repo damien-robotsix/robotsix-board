@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -16,6 +14,9 @@ concurrency:
 
 jobs:
   deploy:
+    permissions:
+      pages: write
+      id-token: write
     # TODO: update SHA periodically (Dependabot auto-proposes bumps weekly).
     uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-docs.yml@5cd8c1facb02299da618979e7a55f1953f9c075a
     with:
