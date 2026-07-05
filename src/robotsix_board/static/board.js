@@ -182,6 +182,26 @@
    * @param {BoardCard} card - The card data object.
    * @returns {HTMLElement} The built card element.
    */
+  /**
+   * Build agent badge span elements with deterministic colour.
+   * @param {Array<string>} agentBadges - Agent names.
+   * @returns {DocumentFragment} The badge elements in a fragment.
+   */
+  function _buildAgentBadgeElements(agentBadges) {
+    var frag = document.createDocumentFragment();
+    if (Array.isArray(agentBadges) && agentBadges.length > 0) {
+      for (var a = 0; a < agentBadges.length; a++) {
+        var span = document.createElement("span");
+        span.className = "board-badge";
+        span.setAttribute("data-agent", agentBadges[a]);
+        span.style.setProperty("--badge-color", agentColor(agentBadges[a]));
+        span.textContent = agentBadges[a];
+        frag.appendChild(span);
+      }
+    }
+    return frag;
+  }
+
   function buildCardElement(card) {
     var div = document.createElement("div");
     div.className = "board-card";
@@ -220,19 +240,7 @@
       }
 
       // Agent badges (with deterministic colour)
-      if (Array.isArray(agentBadges) && agentBadges.length > 0) {
-        for (var a = 0; a < agentBadges.length; a++) {
-          var agentSpan = document.createElement("span");
-          agentSpan.className = "board-badge";
-          agentSpan.setAttribute("data-agent", agentBadges[a]);
-          agentSpan.style.setProperty(
-            "--badge-color",
-            agentColor(agentBadges[a])
-          );
-          agentSpan.textContent = agentBadges[a];
-          badgeRow.appendChild(agentSpan);
-        }
-      }
+      badgeRow.appendChild(_buildAgentBadgeElements(agentBadges));
 
       // Source badge (uses .src-badge variant)
       if (hasSource) {

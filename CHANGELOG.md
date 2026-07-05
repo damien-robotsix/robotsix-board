@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Extract agent-badges rendering from `buildCardElement` into private helper `_buildAgentBadgeElements`, reducing nesting depth.
 - Add `triage_boilerplate` periodic workflow config (`.robotsix-mill/periodic/triage_boilerplate.yaml`).
 
 # Changelog

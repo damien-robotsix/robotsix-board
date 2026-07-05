@@ -1,0 +1,1 @@
+Extract agent-badges rendering from buildCardElement into a helper function
