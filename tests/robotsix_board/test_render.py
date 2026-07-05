@@ -10,74 +10,7 @@ import pytest
 
 from robotsix_board import BoardAdapter
 from robotsix_board._render import _render_card, esc, render_board, render_config_script
-
-# ── mock adapter ──────────────────────────────────────────────────────
-
-
-class MockAdapter(BoardAdapter):
-    """Minimal BoardAdapter implementation for testing."""
-
-    def columns(self) -> list[tuple[str, str]]:
-        return [
-            ("todo", "To Do"),
-            ("in_progress", "In Progress"),
-            ("done", "Done"),
-        ]
-
-    def card_id(self, c: object) -> str:
-        assert isinstance(c, dict)
-        return c["id"]  # type: ignore[no-any-return]
-
-    def card_title(self, c: object) -> str:
-        assert isinstance(c, dict)
-        return c["title"]  # type: ignore[no-any-return]
-
-    def card_badges(self, c: object) -> list[str]:
-        assert isinstance(c, dict)
-        return c.get("badges", [])  # type: ignore[no-any-return]
-
-    def card_timestamps(self, c: object) -> dict[str, str]:
-        assert isinstance(c, dict)
-        return c.get("timestamps", {})  # type: ignore[no-any-return]
-
-    def move_endpoint(self, c: object) -> tuple[str, str]:
-        assert isinstance(c, dict)
-        return (f"/move/{c['id']}", "POST")
-
-    def move_endpoint_template(self) -> str:
-        return "/move/{card_id}/{target_status}"
-
-
-# ── helpers ───────────────────────────────────────────────────────────
-
-
-def _sample_cards() -> dict[str, list[dict[str, object]]]:
-    """Return cards grouped by status for use with render_board."""
-    return {
-        "todo": [
-            {
-                "id": "card-1",
-                "title": "Fix login bug",
-                "badges": ["bug", "high"],
-                "timestamps": {"created": "2025-01-01", "updated": "2025-01-02"},
-            },
-            {
-                "id": "card-2",
-                "title": "Add <script> sanitizer",
-                "badges": ["feature"],
-                "timestamps": {},
-            },
-        ],
-        "in_progress": [
-            {
-                "id": "card-3",
-                "title": 'Refactor "core" module',
-                "badges": [],
-                "timestamps": {"created": "2025-01-03"},
-            },
-        ],
-        "done": [],
-    }
+from tests.conftest import MockAdapter, sample_cards
 
 
 def _adapter() -> MockAdapter:
@@ -315,7 +248,7 @@ class TestRenderCard:
 class TestRenderBoard:
     def test_render_board_has_columns(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         assert 'id="board"' in html
@@ -326,7 +259,7 @@ class TestRenderBoard:
 
     def test_render_card_includes_fields(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         # Title
@@ -355,7 +288,7 @@ class TestRenderBoard:
 
     def test_render_move_control_lists_other_columns(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         # Cards in "todo" column should have move options for
@@ -379,7 +312,7 @@ class TestRenderBoard:
 
     def test_render_board_includes_drawer_shell(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         assert 'id="drawer"' in html
@@ -388,7 +321,7 @@ class TestRenderBoard:
 
     def test_render_board_css_classes_present(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         expected_classes = [
@@ -427,7 +360,7 @@ class TestRenderBoard:
 
         # Collect every class="..." value from render_board() output.
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         render_classes: set[str] = set()
@@ -455,7 +388,7 @@ class TestRenderBoard:
 
     def test_render_board_card_count_badge(self) -> None:
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         # todo: 2 cards, in_progress: 1, done: 0
@@ -466,7 +399,7 @@ class TestRenderBoard:
         # MockAdapter does not define the hooks; the getattr fallback must
         # render without injecting any sentinel content.
         adapter = _adapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         assert 'class="x-delete"' not in html
@@ -515,7 +448,7 @@ class TestRenderBoard:
                 )
 
         adapter = CardHookAdapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         sentinel = '<button class="x-delete" data-id="card-1">Del</button>'
@@ -536,7 +469,7 @@ class TestRenderBoard:
                 return f'<div class="col-extra" data-col="{esc(status_key)}">x</div>'
 
         adapter = ColumnHookAdapter()
-        cards = _sample_cards()
+        cards = sample_cards()
         html = render_board(adapter, cards)
 
         for status_key in ("todo", "in_progress", "done"):
@@ -553,7 +486,7 @@ class TestRenderBoard:
                 return "<script>danger()</script>"
 
         adapter = ScriptHookAdapter()
-        html = render_board(adapter, _sample_cards())
+        html = render_board(adapter, sample_cards())
         # The consumer owns escaping; output is emitted verbatim.
         assert "<script>danger()</script>" in html
 
