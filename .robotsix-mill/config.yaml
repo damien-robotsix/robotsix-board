@@ -1,2 +1,6 @@
 test_command: pytest -q
 languages: [python]
+extra_sandbox_packages:
+  - pip:pytest
+  - pip:pytest-xdist
+  - pip:pytest-cov

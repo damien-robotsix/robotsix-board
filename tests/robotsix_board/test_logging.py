@@ -10,6 +10,7 @@ import pytest
 import robotsix_board
 import robotsix_board._render
 from robotsix_board._render import render_board, render_config_script
+from tests.conftest import FailingAdapter
 
 
 class TestNullHandler:
@@ -35,36 +36,11 @@ class TestNullHandler:
         assert "No handler" not in captured.err, f"Unexpected stderr: {captured.err!r}"
 
 
-class _FailingAdapter:
-    """Adapter that raises on every method call for error-resilience testing."""
-
-    def columns(self) -> list[tuple[str, str]]:
-        raise RuntimeError("columns failed")
-
-    def card_id(self, card: object) -> str:
-        raise RuntimeError("card_id failed")
-
-    def card_title(self, card: object) -> str:
-        raise RuntimeError("card_title failed")
-
-    def card_badges(self, card: object) -> list[str]:
-        raise RuntimeError("card_badges failed")
-
-    def card_timestamps(self, card: object) -> dict[str, str]:
-        raise RuntimeError("card_timestamps failed")
-
-    def move_endpoint(self, card: object) -> tuple[str, str]:
-        raise RuntimeError("move_endpoint failed")
-
-    def move_endpoint_template(self) -> str:
-        raise RuntimeError("move_endpoint_template failed")
-
-
 class TestRenderBoardErrorResilience:
     def test_render_board_logs_warning_on_columns_failure(
         self, caplog: pytest.LogCaptureFixture
     ) -> None:
-        adapter = _FailingAdapter()
+        adapter = FailingAdapter()
         with caplog.at_level(logging.WARNING, logger="robotsix_board._render"):
             result = render_board(adapter, {"todo": []})
 
@@ -77,7 +53,7 @@ class TestRenderBoardErrorResilience:
     ) -> None:
         """When a card's adapter calls raise, the card is skipped with a warning."""
 
-        class SemiFailingAdapter(_FailingAdapter):
+        class SemiFailingAdapter(FailingAdapter):
             def columns(self) -> list[tuple[str, str]]:
                 return [("todo", "To Do")]
 
@@ -227,7 +203,7 @@ class TestRenderConfigScriptErrorResilience:
     def test_render_config_script_columns_failure(
         self, caplog: pytest.LogCaptureFixture
     ) -> None:
-        adapter = _FailingAdapter()
+        adapter = FailingAdapter()
         with caplog.at_level(logging.WARNING, logger="robotsix_board._render"):
             result = render_config_script(adapter)
 
@@ -238,7 +214,7 @@ class TestRenderConfigScriptErrorResilience:
     def test_render_config_script_move_endpoint_template_failure(
         self, caplog: pytest.LogCaptureFixture
     ) -> None:
-        class SemiFailingAdapter(_FailingAdapter):
+        class SemiFailingAdapter(FailingAdapter):
             def columns(self) -> list[tuple[str, str]]:
                 return [("todo", "To Do")]
 
