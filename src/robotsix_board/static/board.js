@@ -166,25 +166,8 @@
    * ================================================================ */
 
   /**
-   * Build a .board-card element from a card data object.
-   *
-   * Expected card shape (from refresh endpoint):
-   *   {
-   *     id: string,
-   *     title: string,
-   *     status: string,          // must match a column status_key
-   *     badges: string[],        // optional – generic badge strings
-   *     timestamps: object,      // optional – { label: value, ... }
-   *     merged: boolean,         // optional – merge indicator
-   *     agent_badges: string[],  // optional – rendered with agent colour
-   *     source_badge: string,    // optional – gets .src-badge class
-   *   }
-   * @param {BoardCard} card - The card data object.
-   * @returns {HTMLElement} The built card element.
-   */
-  /**
    * Build agent badge span elements with deterministic colour.
-   * @param {Array<string>} agentBadges - Agent names.
+   * @param {Array<string>=} agentBadges - Agent names (optional).
    * @returns {DocumentFragment} The badge elements in a fragment.
    */
   function _buildAgentBadgeElements(agentBadges) {
@@ -202,6 +185,23 @@
     return frag;
   }
 
+  /**
+   * Build a .board-card element from a card data object.
+   *
+   * Expected card shape (from refresh endpoint):
+   *   {
+   *     id: string,
+   *     title: string,
+   *     status: string,          // must match a column status_key
+   *     badges: string[],        // optional – generic badge strings
+   *     timestamps: object,      // optional – { label: value, ... }
+   *     merged: boolean,         // optional – merge indicator
+   *     agent_badges: string[],  // optional – rendered with agent colour
+   *     source_badge: string,    // optional – gets .src-badge class
+   *   }
+   * @param {BoardCard} card - The card data object.
+   * @returns {HTMLElement} The built card element.
+   */
   function buildCardElement(card) {
     var div = document.createElement("div");
     div.className = "board-card";
@@ -1085,6 +1085,7 @@
     setClosedToggleState: setClosedToggleState,
     applyClosedToggle: applyClosedToggle,
     buildCardElement: buildCardElement,
+    _buildAgentBadgeElements: _buildAgentBadgeElements,
     applyCardDiff: applyCardDiff,
     openDrawer: openDrawer,
     closeDrawer: closeDrawer,
