@@ -6,9 +6,10 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "lint:js": "eslint src/robotsix_board/static/board.js",
+    "audit": "npm audit --audit-level=high",
+    "lint:js": "eslint --max-warnings 0 src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
-    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changes'",
+    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d'",
     "test:js": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
