@@ -1,13 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import "../../src/robotsix_board/static/board.js";
-import { SAMPLE_CONFIG, setBoardConfig, buildBoardDOM, setupBoardTest } from "./board_shared.js";
+import { SAMPLE_CONFIG, setBoardConfig, buildBoardDOM } from "./board_shared.js";
 
 const {
   startRefreshLoop,
   bootConfig,
 } = window.robotsixBoardInternals;
-
-setupBoardTest();
 
 /* ==================================================================
  * 9.  Public API: window.robotsixBoardRefresh

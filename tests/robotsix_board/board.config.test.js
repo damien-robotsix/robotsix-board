@@ -1,12 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import "../../src/robotsix_board/static/board.js";
-import { SAMPLE_CONFIG, setBoardConfig, setupBoardTest } from "./board_shared.js";
+import { SAMPLE_CONFIG, setBoardConfig } from "./board_shared.js";
 
 const {
   bootConfig,
 } = window.robotsixBoardInternals;
-
-setupBoardTest();
 
 /* ==================================================================
  * 1.  bootConfig

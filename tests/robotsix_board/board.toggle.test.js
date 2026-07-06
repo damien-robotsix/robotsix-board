@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import "../../src/robotsix_board/static/board.js";
-import { SAMPLE_CONFIG, setBoardConfig, buildBoardDOM, setupBoardTest } from "./board_shared.js";
+import { SAMPLE_CONFIG, setBoardConfig, buildBoardDOM } from "./board_shared.js";
 
 const {
   getClosedToggleState,
@@ -10,8 +9,6 @@ const {
   findColumnByStatus,
   bootConfig,
 } = window.robotsixBoardInternals;
-
-setupBoardTest();
 
 /* ==================================================================
  * 8.  getClosedToggleState / setClosedToggleState

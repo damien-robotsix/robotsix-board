@@ -1,6 +1,4 @@
 import { describe, it, expect, vi } from "vitest";
-import "../../src/robotsix_board/static/board.js";
-import { setupBoardTest } from "./board_shared.js";
 
 const {
   getGateData,
@@ -8,7 +6,6 @@ const {
   fetchGateDataAsync,
 } = window.robotsixBoardInternals;
 
-setupBoardTest();
 
 /* ==================================================================
  * 7.  getGateData
