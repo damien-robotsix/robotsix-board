@@ -130,10 +130,12 @@ def test_js_coverage_infrastructure_present() -> None:
     assert "coverage" in agent_md
 
 
-def test_module_curator_periodic_enabled() -> None:
-    cfg = REPO_ROOT / ".robotsix-mill" / "periodic" / "module_curator.yaml"
-    assert cfg.is_file()
-    assert "name: module_curator" in cfg.read_text()
+def test_no_periodic_workflows_enabled() -> None:
+    """All periodic mill workflows are deactivated — no YAML configs remain."""
+    periodic_dir = REPO_ROOT / ".robotsix-mill" / "periodic"
+    assert periodic_dir.is_dir()
+    yaml_files = sorted(periodic_dir.glob("*.yaml"))
+    assert not yaml_files, f"Expected no periodic configs, found: {yaml_files}"
 
 
 def test_pyproject_has_urls_and_classifiers() -> None:
