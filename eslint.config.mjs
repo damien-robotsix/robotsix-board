@@ -29,7 +29,7 @@ export default [
     },
   },
   {
-    files: ["tests/**/*.test.js", "tests/**/board_shared.js", "vitest.config.mjs"],
+    files: ["tests/**/*.test.js", "tests/**/board_shared.js", "tests/**/setup.js", "vitest.config.mjs"],
     plugins: { vitest },
     languageOptions: {
       ecmaVersion: "latest",
