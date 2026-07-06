@@ -7,12 +7,19 @@ on:
 
 permissions:
   contents: read
-  security-events: write  # needed for SARIF upload
-  id-token: write         # needed for publish-results
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analysis:
+    name: Scorecard analysis
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # needed for SARIF upload
+      id-token: write         # needed for publish-results
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
