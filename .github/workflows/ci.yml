@@ -89,7 +89,7 @@ jobs:
             lint)
               npm run audit
               npm run lint:js
-              npm run lint:css
+              npm run lint:css  # stylelint
               npm run lint:md
               npm run typecheck
               ;;
