@@ -5,13 +5,18 @@ on:
     - cron: '0 6 * * 1'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   bump-robotsix-modules:
+    name: Bump robotsix-modules
     runs-on: ubuntu-latest
+    permissions:
+      # Needed to push the bump branch and create the PR
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
@@ -34,9 +39,11 @@ jobs:
 
       - name: Create bump PR if outdated
         if: steps.check.outputs.current != steps.check.outputs.latest
+        env:
+          CUR: ${{ steps.check.outputs.current }}
+          LATEST: ${{ steps.check.outputs.latest }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          CUR="${{ steps.check.outputs.current }}"
-          LATEST="${{ steps.check.outputs.latest }}"
           BRANCH="bump/robotsix-modules-${LATEST:0:12}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -50,5 +57,3 @@ jobs:
             --title "chore: bump robotsix-modules git pin to ${LATEST:0:12}" \
             --body "Automated bump of the git-pinned robotsix-modules dependency from ${CUR:0:12} to ${LATEST:0:12}." \
             --label dependencies
-        env:
-          GH_TOKEN: ${{ github.token }}
