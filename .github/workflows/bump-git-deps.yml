@@ -1,0 +1,54 @@
+name: Bump git-pinned deps
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-robotsix-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
+        with:
+          enable-cache: true
+
+      - name: Check robotsix-modules pin
+        id: check
+        run: |
+          PKG="robotsix-modules"
+          URL="https://github.com/damien-robotsix/robotsix-modules.git"
+          LINE=$(grep "$PKG @ git+$URL@" pyproject.toml)
+          CUR=$(echo "$LINE" | sed 's/.*@\([0-9a-f]\{40\}\).*/\1/')
+          echo "current=$CUR" >> "$GITHUB_OUTPUT"
+          LATEST=$(gh api repos/damien-robotsix/robotsix-modules/git/ref/heads/main --jq '.object.sha')
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Create bump PR if outdated
+        if: steps.check.outputs.current != steps.check.outputs.latest
+        run: |
+          CUR="${{ steps.check.outputs.current }}"
+          LATEST="${{ steps.check.outputs.latest }}"
+          BRANCH="bump/robotsix-modules-${LATEST:0:12}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          sed -i "s/$CUR/$LATEST/" pyproject.toml
+          uv lock
+          git add pyproject.toml uv.lock
+          git commit -m "chore: bump robotsix-modules pin to ${LATEST:0:12}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore: bump robotsix-modules git pin to ${LATEST:0:12}" \
+            --body "Automated bump of the git-pinned robotsix-modules dependency from ${CUR:0:12} to ${LATEST:0:12}." \
+            --label dependencies
+        env:
+          GH_TOKEN: ${{ github.token }}
