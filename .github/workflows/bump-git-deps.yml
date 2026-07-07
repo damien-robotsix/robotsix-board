@@ -1,5 +1,7 @@
 name: Bump git-pinned deps
 
+permissions: {}
+
 on:
   schedule:
     - cron: '0 6 * * 1'
@@ -14,9 +16,8 @@ jobs:
     name: Bump robotsix-modules
     runs-on: ubuntu-latest
     permissions:
-      # Needed to push the bump branch and create the PR
-      contents: write
-      pull-requests: write
+      contents: write  # Needed to push the bump branch
+      pull-requests: write  # Needed to create the PR
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
