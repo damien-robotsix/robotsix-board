@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Disable the dependency-review workflow (`if: false`) because the Dependency graph API is not available on this private repository, causing spurious CI failures on every PR.
 - Extract agent-badges rendering from `buildCardElement` into private helper `_buildAgentBadgeElements`, reducing nesting depth.
 - Add `triage_boilerplate` periodic workflow config (`.robotsix-mill/periodic/triage_boilerplate.yaml`).
 

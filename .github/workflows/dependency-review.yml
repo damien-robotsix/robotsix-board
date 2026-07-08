@@ -15,6 +15,11 @@ jobs:
   review:
     name: Dependency review
     runs-on: ubuntu-latest
+    # Disabled: Dependency graph is not enabled on this private repository.
+    # The dependency-review-action requires the Dependency graph API which
+    # is unavailable here, causing "Dependency review is not supported on
+    # this repository" failures on every PR.
+    if: false
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
