@@ -1,0 +1,1 @@
+Fix docs/robotsix_board/index.md: BoardAdapter Protocol has 7 methods, not 8

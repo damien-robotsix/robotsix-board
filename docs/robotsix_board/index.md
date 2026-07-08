@@ -50,7 +50,7 @@ top-level package:
 from robotsix_board import BoardAdapter
 ```
 
-The protocol declares **eight methods**. The library calls these methods
+The protocol declares **seven methods**. The library calls these methods
 during rendering; the consumer provides the implementations.
 
 ### `columns()`
