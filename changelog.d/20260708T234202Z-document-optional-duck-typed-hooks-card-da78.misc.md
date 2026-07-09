@@ -1,0 +1,1 @@
+Document optional duck-typed hooks (card_extra_html, column_extra_html) in the docs site BoardAdapter contract reference
