@@ -67,7 +67,10 @@ repos:
     rev: 0.37.4
     hooks:
       - id: check-github-workflows
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
+  - repo: local
     hooks:
-      - id: actionlint-docker
+      - id: actionlint
+        name: actionlint
+        entry: actionlint -color
+        language: system
+        files: '^\.github/workflows/.*\.ya?ml$'
