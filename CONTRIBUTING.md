@@ -5,11 +5,11 @@ Looking for support instead of contributing? See [SUPPORT.md](.github/SUPPORT.md
 ## Changelog fragments
 
 Every user-facing pull request must include a changelog fragment — a short
-Markdown file describing the change — placed in the `changes/` directory.
+Markdown file describing the change — placed in the `changelog.d/` directory.
 The file naming convention is:
 
 ```text
-changes/<PR_NUMBER>.<type>.md
+changelog.d/<PR_NUMBER>.<type>.md
 ```
 
 Where `<type>` is one of:
