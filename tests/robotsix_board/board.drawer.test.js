@@ -1,14 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import "../../src/robotsix_board/static/board.js";
-import { buildBoardDOM, setupBoardTest } from "./board_shared.js";
+import { buildBoardDOM } from "./board_shared.js";
 
 const {
   openDrawer,
   closeDrawer,
   attachDrawerDelegation,
 } = window.robotsixBoardInternals;
-
-setupBoardTest();
 
 /* ==================================================================
  * 6.  openDrawer / closeDrawer

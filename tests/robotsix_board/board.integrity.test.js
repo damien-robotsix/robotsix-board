@@ -2,10 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import "../../src/robotsix_board/static/board.js";
-import { setupBoardTest } from "./board_shared.js";
 
-setupBoardTest();
 
 /* ==================================================================
  * 20.  Export-surface convention audit (AGENT.md lines 36-40)
