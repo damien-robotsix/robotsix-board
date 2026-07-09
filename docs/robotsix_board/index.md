@@ -147,6 +147,39 @@ request, so the server only needs to expose a single parameterized route.
 This method is **not** called in `SERVER_FRAGMENTS` mode — only
 `JSON_HYDRATION` mode uses the template.
 
+### Structural HTML hooks (optional)
+
+Two **optional** duck-typed hooks allow a consumer to inject trusted raw
+HTML into the server-rendered markup. These hooks are deliberately **not**
+part of the `BoardAdapter` runtime-checkable Protocol — adding a required
+method to the Protocol would break `isinstance()` for every existing
+structural implementer. Instead, `render_board()` looks them up via
+`getattr(adapter, ..., None)`, skipping them when absent.
+
+Both hooks are only called in `SERVER_FRAGMENTS` mode.
+
+#### `card_extra_html(card)`
+
+```python
+def card_extra_html(self, card: object) -> str:
+```
+
+Return a raw HTML string to inject **inside `.board-card`**, immediately
+after the per-card move form. Defaults to `""` when not implemented.
+
+#### `column_extra_html(status_key)`
+
+```python
+def column_extra_html(self, status_key: str) -> str:
+```
+
+Return a raw HTML string to inject **inside `.board-column`**, after the
+`.board-column-cards` list. Defaults to `""` when not implemented.
+
+**Trust boundary:** Hook output is emitted **verbatim**, bypassing `esc()`.
+The consumer owns escaping of any dynamic text it embeds — use `esc()` for
+any user-supplied strings interpolated into the hook output to prevent XSS.
+
 ---
 
 ## RenderMode enum
