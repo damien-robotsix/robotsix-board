@@ -1,0 +1,2 @@
+# Preserve this directory so it exists even when all periodic workflow YAML
+# configs have been deleted (git does not track empty directories).

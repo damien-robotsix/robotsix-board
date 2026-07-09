@@ -1,3 +1,0 @@
-# Per-repo periodic workflow: presence enables it for this repo.
-# Name-only → inherits the built-in changelog_autofill params.
-name: changelog_autofill
