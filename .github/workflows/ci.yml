@@ -87,14 +87,14 @@ jobs:
       - run: |
           case "$TOOL" in
             lint)
-              npm audit --audit-level=high
-              npx eslint --max-warnings 0 src/robotsix_board/static/board.js
-              npx stylelint src/robotsix_board/static/board.css
-              npx markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d'
-              npx tsc --noEmit
+              npm run audit
+              npm run lint:js
+              npm run lint:css  # stylelint
+              npm run lint:md
+              npm run typecheck
               ;;
             test)
-              npx vitest run --coverage
+              npm run test:js
               ;;
           esac
         env:

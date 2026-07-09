@@ -109,7 +109,7 @@ def test_js_unit_test_infrastructure_present() -> None:
     assert 'w["robotsixBoardInternals"]' in board_js
 
     ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
-    assert "npx vitest run" in ci
+    assert "npm run test:js" in ci
 
 
 def test_js_coverage_infrastructure_present() -> None:
@@ -124,7 +124,7 @@ def test_js_coverage_infrastructure_present() -> None:
     assert "thresholds" in vitest_cfg
 
     ci = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text()
-    assert "npx vitest run --coverage" in ci
+    assert "npm run test:js" in ci
 
     agent_md = (REPO_ROOT / "AGENT.md").read_text()
     assert "coverage" in agent_md
