@@ -1,5 +1,11 @@
 This repo follows the [robotsix stack standards](https://github.com/damien-robotsix/robotsix-standards).
 
+## Repository scope
+
+**Rule:** This repository (`robotsix-board`) implements the shared Kanban board rendering library (`src/robotsix_board/`), the `BoardAdapter` protocol, tests, and frontend conventions. Tickets that describe application-layer UX features (session management, prompt submission, chat panels, subsession panels) or CI/DevOps configuration belong to consumer repositories such as `robotsix-auto-mail` or `robotsix-mill`. If you are unsure whether a ticket belongs here, verify that the fix would change a file under `src/robotsix_board/` or `tests/` before filing.
+
+**Rationale:** Multiple mis-routed tickets (2026-07-06 'Prompt and answer lost when switching session', 2026-07-06 'Subsession panel auto-scrolls up', 2026-07-12 'Subsession panel preserve scroll position') were filed to robotsix-board describing features that do not exist in this codebase. Each mis-routing wastes refine-stage resources ($0.0013, ~38s) before being caught at the implement stage. A scope rule at the top of AGENT.md helps both human contributors and mill agents recognize out-of-scope tickets earlier.
+
 ## BoardAdapter Protocol stability
 
 **Rule:** Never add a *required* member to the runtime-checkable `BoardAdapter` Protocol (`src/robotsix_board/__init__.py`). Because the Protocol is `@runtime_checkable`, every existing **structural** implementer (a consumer that does NOT subclass `BoardAdapter`, e.g. robotsix-auto-mail) must define *every* member to satisfy `isinstance()` — Protocol-body method defaults apply only to subclassers, never to structural implementers. Adding a required member silently breaks `isinstance()` for all of them.

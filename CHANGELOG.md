@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add `## Repository scope` section to AGENT.md to help identify mis-routed tickets before they reach the implement stage.
 - Pin npm commands in CI workflow by replacing bare `npm audit` and `npx` calls with `npm run` scripts from `package.json`, resolving a Scorecard "npmCommand not pinned by hash" warning.
 - Fixed CONTRIBUTING.md to reference the correct `changelog.d/` directory (was incorrectly `changes/`)
 - Added weekly cron workflow (`.github/workflows/bump-git-deps.yml`) to auto-bump the git-pinned `robotsix-modules` dependency, with manual `workflow_dispatch` trigger.
