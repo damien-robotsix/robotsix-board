@@ -29,6 +29,8 @@ jobs:
 
       - name: Check robotsix-modules pin
         id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           PKG="robotsix-modules"
           URL="https://github.com/damien-robotsix/robotsix-modules.git"
