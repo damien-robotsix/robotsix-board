@@ -130,12 +130,14 @@ def test_js_coverage_infrastructure_present() -> None:
     assert "coverage" in agent_md
 
 
-def test_no_periodic_workflows_enabled() -> None:
-    """All periodic mill workflows are deactivated — no YAML configs remain."""
+def test_periodic_workflows_enabled() -> None:
+    """Baseline periodic agents are enabled (test_gap, bc_check, security_posture)."""
     periodic_dir = REPO_ROOT / ".robotsix-mill" / "periodic"
     assert periodic_dir.is_dir()
     yaml_files = sorted(periodic_dir.glob("*.yaml"))
-    assert not yaml_files, f"Expected no periodic configs, found: {yaml_files}"
+    expected = {"bc_check.yaml", "security_posture.yaml", "test_gap.yaml"}
+    actual = {p.name for p in yaml_files}
+    assert actual == expected, f"Expected {expected}, found: {actual}"
 
 
 def test_pyproject_has_urls_and_classifiers() -> None:
