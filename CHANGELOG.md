@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Enable `module_curator` periodic agent to keep `docs/modules.yaml` taxonomy accurate.
 - Enable baseline periodic mill agents (`test_gap`, `bc_check`, `security_posture`) with minimal presence YAML configs under `.robotsix-mill/periodic/`.
 - Add `robotsix-modules-validate` pre-commit hook and CI step to keep `docs/modules.yaml` in sync with the source tree.
 - Add `## Repository scope` section to AGENT.md to help identify mis-routed tickets before they reach the implement stage.
