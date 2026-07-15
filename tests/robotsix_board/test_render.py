@@ -10,7 +10,7 @@ import pytest
 
 from robotsix_board import BoardAdapter
 from robotsix_board._render import _render_card, esc, render_board, render_config_script
-from tests.conftest import MockAdapter, sample_cards
+from tests.robotsix_board.conftest import MockAdapter, sample_cards
 
 
 def _adapter() -> MockAdapter:
