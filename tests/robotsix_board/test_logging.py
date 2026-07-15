@@ -10,7 +10,7 @@ import pytest
 import robotsix_board
 import robotsix_board._render
 from robotsix_board._render import render_board, render_config_script
-from tests.conftest import FailingAdapter
+from tests.robotsix_board.conftest import FailingAdapter
 
 
 class TestNullHandler:
