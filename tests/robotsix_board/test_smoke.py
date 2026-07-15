@@ -131,11 +131,11 @@ def test_js_coverage_infrastructure_present() -> None:
 
 
 def test_periodic_workflows_enabled() -> None:
-    """Baseline periodic agents are enabled (test_gap, bc_check, security_posture)."""
+    """Baseline periodic agents are enabled (test_gap, bc_check, security_posture, module_curator)."""
     periodic_dir = REPO_ROOT / ".robotsix-mill" / "periodic"
     assert periodic_dir.is_dir()
     yaml_files = sorted(periodic_dir.glob("*.yaml"))
-    expected = {"bc_check.yaml", "security_posture.yaml", "test_gap.yaml"}
+    expected = {"bc_check.yaml", "module_curator.yaml", "security_posture.yaml", "test_gap.yaml"}
     actual = {p.name for p in yaml_files}
     assert actual == expected, f"Expected {expected}, found: {actual}"
 
