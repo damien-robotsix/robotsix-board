@@ -1,0 +1,1 @@
+robotsix-board: Enable completeness_check periodic workflow
