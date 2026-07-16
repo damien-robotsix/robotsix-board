@@ -1,6 +1,7 @@
 ## 0.0.0 (unreleased)
 
 - cleanup: remove stale empty tests/__init__.py and tests/robotsix_board/__init__.py (no longer needed as package markers under Python 3.3+ implicit namespace packages)
+- Enable `completeness_check` periodic agent to catch protocol, rendering, and asset regressions before they reach consumers
 - Enable `module_curator` periodic agent to keep `docs/modules.yaml` taxonomy accurate.
 - Enable baseline periodic mill agents (`test_gap`, `bc_check`, `security_posture`) with minimal presence YAML configs under `.robotsix-mill/periodic/`.
 - Add `robotsix-modules-validate` pre-commit hook and CI step to keep `docs/modules.yaml` in sync with the source tree.
