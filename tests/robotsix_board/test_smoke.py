@@ -131,12 +131,13 @@ def test_js_coverage_infrastructure_present() -> None:
 
 
 def test_periodic_workflows_enabled() -> None:
-    """Smoke: periodic agents test_gap, bc_check, security_posture, module_curator."""
+    """Smoke: periodic agents are enabled."""
     periodic_dir = REPO_ROOT / ".robotsix-mill" / "periodic"
     assert periodic_dir.is_dir()
     yaml_files = sorted(periodic_dir.glob("*.yaml"))
     expected = {
         "bc_check.yaml",
+        "completeness_check.yaml",
         "module_curator.yaml",
         "security_posture.yaml",
         "test_gap.yaml",
