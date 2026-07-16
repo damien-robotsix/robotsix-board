@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Enable `audit` periodic workflow in `.robotsix-mill/periodic/audit.yaml`
 - cleanup: remove stale empty tests/__init__.py left behind after PR #217 reorg
 - Enable `completeness_check` periodic agent to catch protocol, rendering, and asset regressions before they reach consumers
 - Enable `module_curator` periodic agent to keep `docs/modules.yaml` taxonomy accurate.
