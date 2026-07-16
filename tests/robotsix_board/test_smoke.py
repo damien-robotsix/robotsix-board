@@ -136,6 +136,7 @@ def test_periodic_workflows_enabled() -> None:
     assert periodic_dir.is_dir()
     yaml_files = sorted(periodic_dir.glob("*.yaml"))
     expected = {
+        "audit.yaml",
         "bc_check.yaml",
         "completeness_check.yaml",
         "module_curator.yaml",
