@@ -1,0 +1,1 @@
+Fix CHANGELOG.md entry to describe removal, not restoration
