@@ -1,1 +1,0 @@
-Update stale Dependabot smoke test name and assertions to match four ecosystems

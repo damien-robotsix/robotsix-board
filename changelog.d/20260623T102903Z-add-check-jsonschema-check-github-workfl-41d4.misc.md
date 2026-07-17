@@ -1,1 +1,0 @@
-Add check-jsonschema (check-github-workflows) to pre-commit for workflow schema validation

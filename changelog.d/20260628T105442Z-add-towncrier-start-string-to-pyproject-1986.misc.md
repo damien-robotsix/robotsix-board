@@ -1,1 +1,0 @@
-Add towncrier start_string to pyproject.toml and CHANGELOG.md for correct changelog insertion anchor

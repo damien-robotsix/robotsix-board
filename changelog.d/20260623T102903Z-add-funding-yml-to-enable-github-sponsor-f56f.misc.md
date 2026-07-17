@@ -1,1 +1,0 @@
-Add FUNDING.yml to enable GitHub Sponsors button on repo sidebar

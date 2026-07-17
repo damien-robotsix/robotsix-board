@@ -1,1 +1,0 @@
-Fix changelog snippet: enable pymdownx.snippets in mkdocs.yml

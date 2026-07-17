@@ -1,1 +1,0 @@
-ci_fix: out-of-scope CI failure — npm audit --audit-level=high (critical CVE in happy-dom) in package.json / package-lock.json — update happy-dom from ^15 to ^20 (or ^20.10.6) to resolve GHSA-37j7-fg3j-429f, GHSA-w4gp-fjgq-3q4g, GHSA-6q6h-j7hj-3r64

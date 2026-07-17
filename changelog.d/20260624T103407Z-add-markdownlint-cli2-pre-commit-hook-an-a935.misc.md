@@ -1,1 +1,0 @@
-Add markdownlint-cli2 pre-commit hook and CI step for Markdown formatting consistency

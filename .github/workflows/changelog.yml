@@ -17,3 +17,23 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
     uses: damien-robotsix/robotsix-github-workflows/.github/workflows/changelog-check.yml@7314c9b6c2b536ca81023e8841f272b72733262e
+
+  fragment-count:
+    name: Check fragment count
+    runs-on: ubuntu-latest
+    if: |
+      github.actor != 'dependabot[bot]' &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-changelog')
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Count changelog fragments
+        run: |
+          count=$(find changelog.d -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)
+          echo "Fragment count: $count"
+          if [ "$count" -gt 50 ]; then
+            echo "::warning::changelog.d/ has $count fragments (>50 threshold). Consider running 'towncrier build' to collect them into CHANGELOG.md."
+          fi

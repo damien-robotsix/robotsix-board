@@ -1,1 +1,0 @@
-ci_fix: out-of-scope CI failure — lint-workflows / zizmor in .github/workflows/{changelog.yml, ci.yml, codeql.yml, dependabot-auto-merge.yml, docs.yml}

@@ -1,1 +1,0 @@
-Add README badges: CI status, PyPI version, Python versions, and License
