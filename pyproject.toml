@@ -32,7 +32,6 @@ dev = [
     "pytest",
     "deptry",
     "mypy",
-    "pip-audit",
     "pytest-cov",
     "pytest-xdist",
     "bandit",

@@ -1,6 +1,7 @@
 ## 0.0.0 (unreleased)
 
 - Collected 97 accumulated towncrier fragments into CHANGELOG.md under `## robotsix_board 0.2.0` and added a CI fragment-count check (`.github/workflows/changelog.yml`) that warns when `changelog.d/` exceeds 50 fragments.
+- Migrate from pip-audit to `uv audit` for vulnerability scanning: remove `pip-audit` dev dependency, replace `run-pip-audit: true` in CI with a dedicated `uv audit --frozen` job, and add `UV_MALWARE_CHECK=1` to all `uv sync` steps for defense-in-depth.
 - Enable `audit` periodic workflow in `.robotsix-mill/periodic/audit.yaml`
 - cleanup: remove stale empty tests/__init__.py left behind after PR #217 reorg
 - Enable `completeness_check` periodic agent to catch protocol, rendering, and asset regressions before they reach consumers
