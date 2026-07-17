@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
       - name: Count changelog fragments
         run: |
-          count=$(ls changelog.d/*.md 2>/dev/null | wc -l)
+          count=$(find changelog.d -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)
           echo "Fragment count: $count"
           if [ "$count" -gt 50 ]; then
             echo "::warning::changelog.d/ has $count fragments (>50 threshold). Consider running 'towncrier build' to collect them into CHANGELOG.md."
