@@ -1,1 +1,0 @@
-Reorganize module robotsix-board: align to per-module layout (src/docs/tests)

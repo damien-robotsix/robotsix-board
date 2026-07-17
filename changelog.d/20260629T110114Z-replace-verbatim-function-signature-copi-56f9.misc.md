@@ -1,1 +1,0 @@
-Replace verbatim function-signature copies in docs/index.md with mkdocstrings auto-generated API references

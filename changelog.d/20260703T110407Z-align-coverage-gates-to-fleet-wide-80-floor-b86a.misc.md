@@ -1,1 +1,0 @@
-Align all coverage gates to the fleet-wide 80 floor and retire the only-ever-increases ratchet.

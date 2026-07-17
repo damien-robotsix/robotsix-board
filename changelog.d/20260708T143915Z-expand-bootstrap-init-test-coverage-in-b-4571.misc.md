@@ -1,1 +1,0 @@
-Expand bootstrap init() test coverage in board.init.test.js

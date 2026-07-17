@@ -1,1 +1,0 @@
-ci_fix: out-of-scope CI failure — lint-workflows / zizmor (error[excessive-permissions]) in .github/workflows/docs.yml — move pages: write and id-token: write from workflow-level permissions to job-level permissions (or add an explanatory comment if the reusable workflow's pedantic persona permits it)

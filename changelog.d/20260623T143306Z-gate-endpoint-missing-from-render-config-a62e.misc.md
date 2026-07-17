@@ -1,1 +1,0 @@
-gate_endpoint: missing from render_config_script and BoardAdapter protocol — JS gate-blocking machinery is dead at runtime

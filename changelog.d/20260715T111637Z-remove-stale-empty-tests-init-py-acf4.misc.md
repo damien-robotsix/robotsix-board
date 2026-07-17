@@ -1,1 +1,0 @@
-Remove stale empty tests/__init__.py and tests/robotsix_board/__init__.py

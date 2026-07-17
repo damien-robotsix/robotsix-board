@@ -1,1 +1,0 @@
-Add Dependabot pre-commit ecosystem to automatically keep .pre-commit-config.yaml hook versions up to date

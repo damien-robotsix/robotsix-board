@@ -1,1 +1,0 @@
-robotsix-board: Add robotsix-modules validation pipeline (pre-commit + CI)

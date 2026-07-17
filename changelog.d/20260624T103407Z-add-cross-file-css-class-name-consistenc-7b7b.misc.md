@@ -1,1 +1,0 @@
-Add cross-file CSS class name consistency test to prevent drift between Python renderer, JS, and CSS

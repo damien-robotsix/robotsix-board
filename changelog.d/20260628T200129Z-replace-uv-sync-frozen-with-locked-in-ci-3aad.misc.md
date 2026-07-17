@@ -1,1 +1,0 @@
-Replace `uv sync --frozen` with `--locked` in CI to catch stale lockfiles
