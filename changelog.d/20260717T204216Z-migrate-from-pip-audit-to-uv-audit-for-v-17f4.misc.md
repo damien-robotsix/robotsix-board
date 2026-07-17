@@ -1,0 +1,1 @@
+Migrate from pip-audit to uv audit for vulnerability scanning
