@@ -143,6 +143,7 @@ def test_periodic_workflows_enabled() -> None:
         "module_curator.yaml",
         "repo_description_sync.yaml",
         "security_posture.yaml",
+        "state_sync.yaml",
         "test_gap.yaml",
     }
     actual = {p.name for p in yaml_files}
