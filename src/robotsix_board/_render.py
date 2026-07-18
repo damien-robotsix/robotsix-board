@@ -133,6 +133,7 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         return '<div id="board" class="board"></div>'
 
     parts: list[str] = ['<div id="board" class="board">']
+    other_labels = dict(columns)
 
     for status_key, label in columns:
         column_cards = cards.get(status_key, [])
@@ -147,8 +148,7 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         # ── card list ──
         parts.append('<div class="board-column-cards">')
 
-        other_keys = [k for k, _ in columns if k != status_key]
-        other_labels = dict(columns)
+        other_keys = [k for k in other_labels if k != status_key]
 
         for card in column_cards:
             parts.extend(_render_card(adapter, card, other_keys, other_labels))

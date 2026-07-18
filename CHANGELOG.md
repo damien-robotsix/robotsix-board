@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Hoist `other_labels = dict(columns)` out of the column loop in `render_board()`, eliminating redundant dict construction on every iteration.
 - Add `repo_description_sync` periodic workflow to keep forge description aligned with README.
 - Enable `copy_paste` periodic workflow for jscpd duplication scanning.)
 - Collected 97 accumulated towncrier fragments into CHANGELOG.md under `## robotsix_board 0.2.0` and added a CI fragment-count check (`.github/workflows/changelog.yml`) that warns when `changelog.d/` exceeds 50 fragments.
