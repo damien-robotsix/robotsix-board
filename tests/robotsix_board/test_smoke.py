@@ -140,6 +140,7 @@ def test_periodic_workflows_enabled() -> None:
         "bc_check.yaml",
         "completeness_check.yaml",
         "module_curator.yaml",
+        "repo_description_sync.yaml",
         "security_posture.yaml",
         "test_gap.yaml",
     }
