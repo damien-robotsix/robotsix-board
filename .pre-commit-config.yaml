@@ -12,7 +12,7 @@ repos:
       - id: detect-private-key
       - id: check-json
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.21
+    rev: v0.15.22
     hooks:
       - id: ruff
         args: [--fix]
@@ -26,7 +26,7 @@ repos:
         types: [python]
         pass_filenames: false
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.23.0
+    rev: v0.23.1
     hooks:
       - id: markdownlint-cli2
         args: ["--fix"]
