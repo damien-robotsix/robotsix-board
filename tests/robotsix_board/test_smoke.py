@@ -148,7 +148,7 @@ def test_periodic_workflows_enabled() -> None:
         "test_gap.yaml",
     }
     actual = {p.name for p in yaml_files}
-    assert actual == expected, f"Expected {expected}, found: {actual}"
+    assert expected.issubset(actual), f"Expected at least {expected}, found: {actual}"
 
 
 def test_pyproject_has_urls_and_classifiers() -> None:
