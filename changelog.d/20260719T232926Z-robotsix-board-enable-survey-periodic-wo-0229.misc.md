@@ -1,0 +1,1 @@
+robotsix-board: Enable survey periodic workflow
