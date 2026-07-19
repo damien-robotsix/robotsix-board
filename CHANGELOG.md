@@ -1,6 +1,7 @@
 ## 0.0.0 (unreleased)
 
 - Add `docstring_coverage` periodic task config (`.robotsix-mill/periodic/docstring_coverage.yaml`) to enable automated docstring coverage scanning of the public Python API.
+- Enable periodic health check via `.robotsix-mill/periodic/health.yaml`
 - Hoist `other_labels = dict(columns)` out of the column loop in `render_board()`, eliminating redundant dict construction on every iteration.
 - Add `repo_description_sync` periodic workflow to keep forge description aligned with README.
 - Enable `copy_paste` periodic workflow for jscpd duplication scanning.)
