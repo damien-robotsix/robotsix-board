@@ -141,6 +141,7 @@ def test_periodic_workflows_enabled() -> None:
         "completeness_check.yaml",
         "copy_paste.yaml",
         "docstring_coverage.yaml",
+        "health.yaml",
         "module_curator.yaml",
         "repo_description_sync.yaml",
         "security_posture.yaml",
