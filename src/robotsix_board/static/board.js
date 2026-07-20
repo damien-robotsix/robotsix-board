@@ -799,7 +799,7 @@
       }
       // Focus trap: keep Tab within the drawer
       if (evt.key === "Tab") {
-        var focusable = drawer.querySelectorAll(
+        var focusable = /** @type {HTMLElement} */ (drawer).querySelectorAll(
           'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
         );
         if (focusable.length === 0) { return; }

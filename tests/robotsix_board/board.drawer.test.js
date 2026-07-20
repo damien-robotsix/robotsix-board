@@ -190,6 +190,54 @@ describe("openDrawer() / closeDrawer()", () => {
     expect(content.innerHTML).toContain("created: 2025-01-01");
   });
 
+  it("traps focus: Tab from last focusable wraps to first", () => {
+    const cardEl = makeCardEl("99", "Focus Trap");
+    openDrawer(cardEl);
+
+    const drawer = document.getElementById("drawer");
+    // The drawer should have a .drawer-close button (first focusable)
+    const closeBtn = drawer.querySelector(".drawer-close");
+    // And some other focusable — the drawer-content itself is not focusable
+    // but the close button is. We need at least 2 focusable elements.
+    // Add a dummy link inside the drawer content for testing
+    const content = drawer.querySelector(".drawer-content");
+    const dummyLink = document.createElement("a");
+    dummyLink.href = "#";
+    dummyLink.textContent = "dummy";
+    content.appendChild(dummyLink);
+
+    // Focus the last focusable element (dummyLink)
+    dummyLink.focus();
+    expect(document.activeElement).toBe(dummyLink);
+
+    // Dispatch Tab (no shift) on the document — should wrap to first (closeBtn)
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+
+    expect(document.activeElement).toBe(closeBtn);
+  });
+
+  it("traps focus: Shift+Tab from first focusable wraps to last", () => {
+    const cardEl = makeCardEl("99", "Focus Trap Shift");
+    openDrawer(cardEl);
+
+    const drawer = document.getElementById("drawer");
+    const closeBtn = drawer.querySelector(".drawer-close");
+    const content = drawer.querySelector(".drawer-content");
+    const dummyLink = document.createElement("a");
+    dummyLink.href = "#";
+    dummyLink.textContent = "dummy";
+    content.appendChild(dummyLink);
+
+    // Focus the first focusable element (closeBtn)
+    closeBtn.focus();
+    expect(document.activeElement).toBe(closeBtn);
+
+    // Dispatch Shift+Tab on the document — should wrap to last (dummyLink)
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
+
+    expect(document.activeElement).toBe(dummyLink);
+  });
+
   it("is a no-op when #drawer is absent", () => {
     document.body.innerHTML = "";
     const cardEl = makeCardEl("x", "X");
@@ -242,6 +290,95 @@ describe("attachDrawerDelegation()", () => {
     attachDrawerDelegation();
 
     moveForm.dispatchEvent(new Event("click", { bubbles: true }));
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.classList.contains("hidden")).toBe(true);
+  });
+
+  it("opens the drawer on Enter keydown on a .board-card", () => {
+    const board = buildBoardDOM();
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "kbd-enter");
+    const titleEl = document.createElement("div");
+    titleEl.className = "board-card-title";
+    titleEl.textContent = "Keyboard Enter";
+    cardEl.appendChild(titleEl);
+    todoCards.appendChild(cardEl);
+
+    attachDrawerDelegation();
+
+    cardEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.classList.contains("hidden")).toBe(false);
+    expect(drawer.querySelector(".drawer-content").innerHTML).toContain("Keyboard Enter");
+  });
+
+  it("opens the drawer on Space keydown on a .board-card", () => {
+    const board = buildBoardDOM();
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "kbd-space");
+    const titleEl = document.createElement("div");
+    titleEl.className = "board-card-title";
+    titleEl.textContent = "Keyboard Space";
+    cardEl.appendChild(titleEl);
+    todoCards.appendChild(cardEl);
+
+    attachDrawerDelegation();
+
+    cardEl.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.classList.contains("hidden")).toBe(false);
+    expect(drawer.querySelector(".drawer-content").innerHTML).toContain("Keyboard Space");
+  });
+
+  it("does not open the drawer on non-Enter/Space keydown", () => {
+    const board = buildBoardDOM();
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "kbd-other");
+    const titleEl = document.createElement("div");
+    titleEl.className = "board-card-title";
+    titleEl.textContent = "Other Key";
+    cardEl.appendChild(titleEl);
+    todoCards.appendChild(cardEl);
+
+    attachDrawerDelegation();
+
+    cardEl.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.classList.contains("hidden")).toBe(true);
+  });
+
+  it("does not open the drawer on Enter keydown inside .board-card-move", () => {
+    const board = buildBoardDOM();
+    const todoCards = board.querySelector(
+      '.board-column[data-status="todo"] .board-column-cards'
+    );
+    const cardEl = document.createElement("div");
+    cardEl.className = "board-card";
+    cardEl.setAttribute("data-card-id", "no-kbd-drawer");
+    const moveForm = document.createElement("form");
+    moveForm.className = "board-card-move";
+    cardEl.appendChild(moveForm);
+    todoCards.appendChild(cardEl);
+
+    attachDrawerDelegation();
+
+    moveForm.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
 
     const drawer = document.getElementById("drawer");
     expect(drawer.classList.contains("hidden")).toBe(true);
