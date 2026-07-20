@@ -61,7 +61,8 @@ def _render_card(
 
     parts.append(
         f'<div class="board-card" id="card-{esc(cid)}" data-card-id="{esc(cid)}"'
-        f' role="listitem" tabindex="0" aria-haspopup="dialog">'
+        f' role="listitem" tabindex="0" aria-haspopup="dialog"'
+        f' aria-expanded="false">'
     )
 
     # title
