@@ -279,6 +279,56 @@ into the board markup to prevent XSS.
 
 ---
 
+## Accessibility (a11y) contract
+
+The board ships with ARIA semantics and keyboard interaction in both
+`SERVER_FRAGMENTS` and `JSON_HYDRATION` transports.  Consumers inherit
+these guarantees without extra work.
+
+### Semantics
+
+| Element | Role / attribute | Purpose |
+|---|---|---|
+| `.board-column` | `aria-labelledby="col-heading-<key>"` | Landmark region tied to column heading |
+| `.board-column-label` (`<h2>`) | `id="col-heading-<key>"` | Heading anchor for `aria-labelledby` |
+| `.board-column-cards` | `role="list"` | Card container with list semantics |
+| `.board-card` | `role="listitem" tabindex="0" aria-haspopup="dialog"` | Focusable list item that opens a dialog |
+| Move `<select>` | `aria-label="Move <title> to column"` | Contextual label for screen readers |
+| Move `<button>` | `aria-label="Move <title>"` | Contextual label for screen readers |
+| `.board-move-error` | `role="alert"` | Assertive live region for move failures |
+| `#drawer` | `role="dialog" aria-modal="true" aria-labelledby="drawer-title"` | Modal dialog landmark |
+
+### Keyboard interaction
+
+- **Open drawer:** focus a card with <kbd>Tab</kbd>, then press
+  <kbd>Enter</kbd> or <kbd>Space</kbd>.
+- **Close drawer:** press <kbd>Escape</kbd>, click the *Close* button, or
+  click the backdrop outside the drawer content.
+- **Focus on open:** focus moves to the *Close* button inside the drawer.
+- **Focus on close:** focus returns to the triggering card.
+- **Focus trap:** while the drawer is open, <kbd>Tab</kbd> and
+  <kbd>Shift</kbd>+<kbd>Tab</kbd> cycle between the drawer's focusable
+  elements without escaping to the underlying page.
+
+### CSS utility
+
+A `.visually-hidden` / `.sr-only` utility class is available in
+`board.css` for screen-reader-only text that consumers may need:
+
+```css
+.visually-hidden, .sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+```
+
+---
+
 ## Markup contract
 
 Both `SERVER_FRAGMENTS` and `JSON_HYDRATION` transports produce the same
@@ -296,24 +346,29 @@ A single `#board` element wraps all columns.
 ### Column
 
 ```html
-<div class="board-column" data-status="<status_key>">
+<div class="board-column" data-status="<status_key>" aria-labelledby="col-heading-<status_key>">
   <div class="board-column-header">
-    <h2 class="board-column-label"><label></h2>
+    <h2 class="board-column-label" id="col-heading-<status_key>"><label></h2>
     <span class="board-column-count"><count></span>
   </div>
-  <div class="board-column-cards">
+  <div class="board-column-cards" role="list">
     <!-- cards -->
   </div>
 </div>
 ```
 
 One `.board-column` per entry in `adapter.columns()`, in order. The
-`data-status` attribute holds the machine-readable status key.
+`data-status` attribute holds the machine-readable status key.  The
+`aria-labelledby` attribute links the column region to its `<h2>` heading
+so screen readers announce the column name when navigating by landmark.
+The `.board-column-cards` container has `role="list"` to convey card-list
+semantics.
 
 ### Card
 
 ```html
-<div class="board-card" id="card-<id>" data-card-id="<id>">
+<div class="board-card" id="card-<id>" data-card-id="<id>"
+     role="listitem" tabindex="0" aria-haspopup="dialog">
   <div class="board-card-title"><title></div>
   <div class="board-card-badges">
     <span class="board-badge"><badge></span>  <!-- zero or more -->
@@ -322,24 +377,35 @@ One `.board-column` per entry in `adapter.columns()`, in order. The
     <span class="board-timestamp"><key>: <value></span>  <!-- zero or more -->
   </div>
   <form class="board-card-move" method="<method>" action="<url>">
-    <select name="target_status" class="board-move-select">
+    <select name="target_status" class="board-move-select"
+            aria-label="Move <title> to column">
       <option value="">Move to…</option>
       <option value="<other_key>"><other_label></option>  <!-- one per other column -->
     </select>
-    <button type="submit" class="board-move-submit">Move</button>
+    <button type="submit" class="board-move-submit"
+            aria-label="Move <title>">Move</button>
   </form>
 </div>
 ```
 
 Each card is keyed by its stable `card_id` via both the `id` attribute and
-`data-card-id`.
+`data-card-id`.  Cards carry `role="listitem"` (inside the `role="list"`
+container), `tabindex="0"` (keyboard-focusable), and
+`aria-haspopup="dialog"` (announces the drawer popup).  The move
+`<select>` and `<button>` include `aria-label` attributes that embed the
+card title for screen-reader context.
 
 ### Move control
 
 The per-card move form includes:
 
-- A `<select>` listing every **other** column as a target option.
-- A `<button type="submit">` labelled "Move".
+- A `<select>` listing every **other** column as a target option, with an
+  `aria-label` that includes the card title (e.g. `"Move Fix login bug to
+  column"`).
+- A `<button type="submit">` labelled "Move", with an `aria-label` that
+  includes the card title (e.g. `"Move Fix login bug"`).
+- An inline `<span class="board-move-error" role="alert">` for
+  screen-reader announcement of move failures.
 - The form `action` and `method` come from `adapter.move_endpoint(card)`.
 
 In `JSON_HYDRATION` mode, `board.js` generates equivalent interactive
@@ -348,11 +414,16 @@ controls from the config; the server does not produce any `<form>` markup.
 ### Drawer shell
 
 ```html
-<div id="drawer" class="drawer hidden">
+<div id="drawer" class="drawer hidden"
+     role="dialog" aria-modal="true" aria-labelledby="drawer-title">
   <div class="drawer-content"></div>
 </div>
 ```
 
 The `#drawer` is an off-screen detail panel. It starts with the CSS class
-`hidden`; `board.js` toggles visibility when a card is clicked. Consumer
-code populates `.drawer-content` with card-detail markup.
+`hidden`; `board.js` toggles visibility when a card is clicked or activated
+via keyboard (Enter / Space).  The dialog carries `role="dialog"`,
+`aria-modal="true"`, and `aria-labelledby="drawer-title"` so screen readers
+announce it as a modal.  On open, focus moves into the drawer; on close,
+focus is restored to the triggering card.  Pressing Escape closes the
+drawer.  Tab focus is trapped within the drawer while it is open.

@@ -207,6 +207,9 @@
     div.className = "board-card";
     div.id = "card-" + esc(String(card.id));
     div.setAttribute("data-card-id", String(card.id));
+    div.setAttribute("role", "listitem");
+    div.setAttribute("tabindex", "0");
+    div.setAttribute("aria-haspopup", "dialog");
 
     if (card.merged) {
       div.classList.add("board-card--merged");
@@ -325,6 +328,7 @@
     var select = document.createElement("select");
     select.name = "target_status";
     select.className = "board-move-select";
+    select.setAttribute("aria-label", "Move " + (card.title || "") + " to column");
     buildSelectOptions(select, card.status, getGateBlockedColumns());
     form.appendChild(select);
 
@@ -333,11 +337,13 @@
     btn.type = "submit";
     btn.className = "board-move-submit";
     btn.textContent = "Move";
+    btn.setAttribute("aria-label", "Move " + (card.title || ""));
     form.appendChild(btn);
 
     // ── Inline error placeholder ──
     var errEl = document.createElement("span");
     errEl.className = "board-move-error";
+    errEl.setAttribute("role", "alert");
     form.appendChild(errEl);
 
     return form;
@@ -667,6 +673,23 @@
       openDrawer(cardEl);
     });
 
+    // Keyboard activation: Enter / Space on a .board-card opens the drawer
+    board.addEventListener("keydown", function (evt) {
+      if (evt.key !== "Enter" && evt.key !== " ") { return; }
+
+      // Ignore key events on or inside the move form
+      if (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move")) {
+        return;
+      }
+
+      var target = /** @type {HTMLElement} */ (evt.target);
+      var cardEl = /** @type {HTMLElement} */ (target.closest(".board-card"));
+      if (!cardEl) { return; }
+
+      evt.preventDefault();
+      openDrawer(cardEl);
+    });
+
     // Close button delegation on #drawer
     var drawer = document.getElementById("drawer");
     if (!drawer) { return; }
@@ -688,6 +711,14 @@
 
     var content = drawer.querySelector(".drawer-content");
     if (!content) { return; }
+
+    // Store triggering card for focus restoration on close
+    /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard = cardEl;
+
+    // Set dialog ARIA attributes
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-labelledby", "drawer-title");
 
     // Gather data from the card's DOM structure
     var cardId = cardEl.getAttribute("data-card-id") || "";
@@ -712,7 +743,7 @@
     }
 
     // ── Build drawer HTML ──
-    var html = '<h2 class="drawer-card-title">' + esc(title) + "</h2>";
+    var html = '<h2 class="drawer-card-title" id="drawer-title">' + esc(title) + "</h2>";
     html += '<p class="drawer-card-id">ID: ' + esc(cardId) + "</p>";
 
     if (badges.length > 0) {
@@ -737,6 +768,12 @@
     content.innerHTML = html;
     drawer.classList.remove("hidden");
 
+    // Move focus to the close button inside the drawer
+    var closeBtn = /** @type {HTMLElement} */ (drawer.querySelector(".drawer-close"));
+    if (closeBtn) {
+      closeBtn.focus();
+    }
+
     // Backdrop click: clicking the drawer itself (outside
     // .drawer-content) closes it.  We attach a one-shot handler
     // that is removed on close.
@@ -750,6 +787,39 @@
     };
     /** @type {HTMLElement & {_closeOnBackdrop: ((evt: MouseEvent) => void) | null}} */ (drawer)._closeOnBackdrop = onBackdrop;
     drawer.addEventListener("click", onBackdrop);
+
+    // Escape key to close the drawer
+    /**
+     * @param {KeyboardEvent} evt - The keydown event.
+     */
+    var onKeyDown = function (evt) {
+      if (evt.key === "Escape") {
+        evt.preventDefault();
+        closeDrawer();
+      }
+      // Focus trap: keep Tab within the drawer
+      if (evt.key === "Tab") {
+        var focusable = drawer.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) { return; }
+        var first = /** @type {HTMLElement} */ (focusable[0]);
+        var last = /** @type {HTMLElement} */ (focusable[focusable.length - 1]);
+        if (evt.shiftKey) {
+          if (document.activeElement === first) {
+            evt.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            evt.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+    /** @type {HTMLElement & {_onKeyDown: ((evt: KeyboardEvent) => void) | null}} */ (drawer)._onKeyDown = onKeyDown;
+    document.addEventListener("keydown", onKeyDown);
   }
 
   /**
@@ -761,10 +831,25 @@
 
     drawer.classList.add("hidden");
 
+    // Remove backdrop click handler
     var onBackdrop = /** @type {HTMLElement & {_closeOnBackdrop: ((evt: MouseEvent) => void) | null}} */ (drawer)._closeOnBackdrop;
     if (onBackdrop) {
       drawer.removeEventListener("click", onBackdrop);
       /** @type {HTMLElement & {_closeOnBackdrop: ((evt: MouseEvent) => void) | null}} */ (drawer)._closeOnBackdrop = null;
+    }
+
+    // Remove Escape key / focus-trap handler
+    var onKeyDown = /** @type {HTMLElement & {_onKeyDown: ((evt: KeyboardEvent) => void) | null}} */ (drawer)._onKeyDown;
+    if (onKeyDown) {
+      document.removeEventListener("keydown", onKeyDown);
+      /** @type {HTMLElement & {_onKeyDown: ((evt: KeyboardEvent) => void) | null}} */ (drawer)._onKeyDown = null;
+    }
+
+    // Restore focus to the triggering card
+    var triggeringCard = /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard;
+    if (triggeringCard) {
+      triggeringCard.focus();
+      /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard = null;
     }
   }
 
@@ -1032,6 +1117,41 @@
     startRefreshLoop();  // clears old timer, starts new one at updated interval
   }
 
+  /**
+   * Apply column-level ARIA attributes to the pre-rendered board DOM.
+   * Ensures every .board-column-cards has role="list" and every
+   * .board-column has aria-labelledby pointing to its <h2> heading.
+   */
+  function applyColumnA11y() {
+    var board = document.getElementById("board");
+    if (!board) { return; }
+
+    var columns = board.querySelectorAll(".board-column");
+    for (var i = 0; i < columns.length; i++) {
+      var col = columns[i];
+
+      // Ensure .board-column-cards has role="list"
+      var cardsList = col.querySelector(".board-column-cards");
+      if (cardsList && !cardsList.hasAttribute("role")) {
+        cardsList.setAttribute("role", "list");
+      }
+
+      // Ensure .board-column has aria-labelledby pointing to its <h2>
+      var h2 = col.querySelector(".board-column-label");
+      if (h2) {
+        var headingId = h2.getAttribute("id");
+        if (!headingId) {
+          var statusKey = col.getAttribute("data-status") || "col-" + i;
+          headingId = "col-heading-" + statusKey;
+          h2.setAttribute("id", headingId);
+        }
+        if (!col.hasAttribute("aria-labelledby")) {
+          col.setAttribute("aria-labelledby", headingId);
+        }
+      }
+    }
+  }
+
   /* ==================================================================
    * 10.  Bootstrap
    * ================================================================ */
@@ -1048,6 +1168,7 @@
     attachMoveDelegation();
     attachDrawerDelegation();
     attachClosedToggle();
+    applyColumnA11y();
     startRefreshLoop();
   }
 
@@ -1097,6 +1218,7 @@
     performMove: performMove,
     attachMoveDelegation: attachMoveDelegation,
     attachDrawerDelegation: attachDrawerDelegation,
+    applyColumnA11y: applyColumnA11y,
     init: init,
   };
 })();

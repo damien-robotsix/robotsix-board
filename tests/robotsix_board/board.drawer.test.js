@@ -36,6 +36,71 @@ describe("openDrawer() / closeDrawer()", () => {
     return el;
   }
 
+  it("sets dialog ARIA attributes on the drawer", () => {
+    const cardEl = makeCardEl("42", "Hello World");
+    openDrawer(cardEl);
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.getAttribute("role")).toBe("dialog");
+    expect(drawer.getAttribute("aria-modal")).toBe("true");
+    expect(drawer.getAttribute("aria-labelledby")).toBe("drawer-title");
+  });
+
+  it("adds id='drawer-title' to the drawer heading", () => {
+    const cardEl = makeCardEl("42", "Hello World");
+    openDrawer(cardEl);
+
+    const heading = document.getElementById("drawer-title");
+    expect(heading).not.toBeNull();
+    expect(heading.tagName).toBe("H2");
+    expect(heading.textContent).toBe("Hello World");
+  });
+
+  it("moves focus to the close button on open", () => {
+    const cardEl = makeCardEl("42", "Hello World");
+    document.body.appendChild(cardEl);
+    cardEl.focus();
+    expect(document.activeElement).toBe(cardEl);
+
+    openDrawer(cardEl);
+
+    const closeBtn = document.querySelector(".drawer-close");
+    expect(document.activeElement).toBe(closeBtn);
+  });
+
+  it("restores focus to the triggering card on close", () => {
+    const cardEl = makeCardEl("42", "Hello World");
+    document.body.appendChild(cardEl);
+
+    openDrawer(cardEl);
+    closeDrawer();
+
+    expect(document.activeElement).toBe(cardEl);
+  });
+
+  it("closes the drawer on Escape key", () => {
+    const cardEl = makeCardEl("1", "Test");
+    openDrawer(cardEl);
+
+    const drawer = document.getElementById("drawer");
+    expect(drawer.classList.contains("hidden")).toBe(false);
+
+    const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true });
+    document.dispatchEvent(event);
+
+    expect(drawer.classList.contains("hidden")).toBe(true);
+  });
+
+  it("removes the Escape key handler on close", () => {
+    const cardEl = makeCardEl("1", "Test");
+    openDrawer(cardEl);
+    const drawer = document.getElementById("drawer");
+    expect(drawer._onKeyDown).not.toBeNull();
+
+    closeDrawer();
+    expect(drawer._onKeyDown).toBeNull();
+  });
+
   it("populates drawer content and removes .hidden", () => {
     const cardEl = makeCardEl("42", "Hello World");
     openDrawer(cardEl);

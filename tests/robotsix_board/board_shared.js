@@ -59,6 +59,11 @@ export function buildBoardDOM() {
     const header = document.createElement("div");
     header.className = "board-column-header";
 
+    const h2 = document.createElement("h2");
+    h2.className = "board-column-label";
+    h2.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+    header.appendChild(h2);
+
     const countEl = document.createElement("span");
     countEl.className = "board-column-count";
     countEl.textContent = "0";

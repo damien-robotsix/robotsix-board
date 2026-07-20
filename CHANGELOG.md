@@ -1,5 +1,15 @@
 ## 0.0.0 (unreleased)
 
+- Add ARIA semantics and keyboard interaction throughout the board:
+  - `.board-column-cards` gets `role="list"`, `.board-card` gets `role="listitem" tabindex="0" aria-haspopup="dialog"`
+  - Columns get `aria-labelledby` pointing to their `<h2>` heading
+  - Move `<select>` and `<button>` get contextual `aria-label` attributes
+  - Move error `<span>` gets `role="alert"` for screen-reader announcement
+  - Drawer gets `role="dialog" aria-modal="true" aria-labelledby="drawer-title"`, focus moves into the drawer on open, focus is restored to the triggering card on close, Escape closes the drawer, and Tab is trapped within
+  - Keyboard activation: Enter / Space on a `.board-card` opens the drawer
+  - Server-fragment (`_render.py`) and JSON-hydration (`board.js`) transports updated at parity
+  - `.visually-hidden` / `.sr-only` utility class added to `board.css`
+  - Documented a11y contract in `docs/robotsix_board/index.md`
 - Enable `changelog_autofill` periodic workflow to auto-generate changelog entries from merged PRs.
 - Add `docstring_coverage` periodic task config (`.robotsix-mill/periodic/docstring_coverage.yaml`) to enable automated docstring coverage scanning of the public Python API.
 - Enable periodic health check via `.robotsix-mill/periodic/health.yaml`

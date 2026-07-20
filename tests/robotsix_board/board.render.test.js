@@ -10,6 +10,7 @@ const {
   updateColumnCounts,
   buildCardElement,
   bootConfig,
+  applyColumnA11y,
 } = window.robotsixBoardInternals;
 
 /* ==================================================================
@@ -47,14 +48,22 @@ describe("buildMoveForm()", () => {
     setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
     bootConfig();
 
-    const form = buildMoveForm({ id: "c1", status: "todo" });
+    const form = buildMoveForm({ id: "c1", title: "Test Title", status: "todo" });
     expect(form.tagName).toBe("FORM");
     expect(form.className).toBe("board-card-move");
     expect(form.getAttribute("method")).toBe("POST");
 
-    expect(form.querySelector("select[name='target_status']")).not.toBeNull();
-    expect(form.querySelector("button.board-move-submit")).not.toBeNull();
-    expect(form.querySelector(".board-move-error")).not.toBeNull();
+    const select = form.querySelector("select[name='target_status']");
+    expect(select).not.toBeNull();
+    expect(select.getAttribute("aria-label")).toBe("Move Test Title to column");
+
+    const btn = form.querySelector("button.board-move-submit");
+    expect(btn).not.toBeNull();
+    expect(btn.getAttribute("aria-label")).toBe("Move Test Title");
+
+    const errEl = form.querySelector(".board-move-error");
+    expect(errEl).not.toBeNull();
+    expect(errEl.getAttribute("role")).toBe("alert");
   });
 });
 
@@ -229,6 +238,11 @@ describe("buildCardElement()", () => {
     expect(el.id).toBe("card-c1");
     expect(el.getAttribute("data-card-id")).toBe("c1");
 
+    // a11y: card listitem attributes
+    expect(el.getAttribute("role")).toBe("listitem");
+    expect(el.getAttribute("tabindex")).toBe("0");
+    expect(el.getAttribute("aria-haspopup")).toBe("dialog");
+
     const titleEl = el.querySelector(".board-card-title");
     expect(titleEl).not.toBeNull();
     expect(titleEl.textContent).toBe("Test card");
@@ -316,5 +330,48 @@ describe("buildCardElement()", () => {
       timestamps: {},
     });
     expect(el.querySelector(".board-card-timestamps")).toBeNull();
+  });
+});
+
+/* ==================================================================
+ * 3c.  applyColumnA11y
+ * ================================================================ */
+
+describe("applyColumnA11y()", () => {
+  it("adds role='list' to .board-column-cards and aria-labelledby to .board-column", () => {
+    const board = buildBoardDOM();
+
+    applyColumnA11y();
+
+    const columns = board.querySelectorAll(".board-column");
+    columns.forEach((col) => {
+      const cardsList = col.querySelector(".board-column-cards");
+      expect(cardsList.getAttribute("role")).toBe("list");
+
+      expect(col.hasAttribute("aria-labelledby")).toBe(true);
+      const labelledById = col.getAttribute("aria-labelledby");
+      const h2 = col.querySelector(".board-column-label");
+      expect(h2.getAttribute("id")).toBe(labelledById);
+    });
+  });
+
+  it("does not overwrite existing role and aria-labelledby", () => {
+    const board = buildBoardDOM();
+    const col = board.querySelector('.board-column[data-status="todo"]');
+    const cardsList = col.querySelector(".board-column-cards");
+    cardsList.setAttribute("role", "grid");
+    col.setAttribute("aria-labelledby", "custom-id");
+
+    const header = col.querySelector(".board-column-header");
+    const h2 = document.createElement("h2");
+    h2.className = "board-column-label";
+    h2.setAttribute("id", "custom-id");
+    h2.textContent = "Custom";
+    header.insertBefore(h2, header.firstChild);
+
+    applyColumnA11y();
+
+    expect(cardsList.getAttribute("role")).toBe("grid");
+    expect(col.getAttribute("aria-labelledby")).toBe("custom-id");
   });
 });
