@@ -319,6 +319,54 @@ class TestRenderBoard:
         assert "drawer hidden" in html
         assert "drawer-content" in html
 
+    # ── a11y: ARIA attributes ───────────────────────────────────────
+
+    def test_render_board_column_aria_labelledby(self) -> None:
+        adapter = _adapter()
+        cards = sample_cards()
+        html = render_board(adapter, cards)
+
+        # Each column should have aria-labelledby pointing to its h2 id
+        for status_key in ("todo", "in_progress", "done"):
+            heading_id = f"col-heading-{status_key}"
+            assert f'id="{heading_id}"' in html
+            assert f'aria-labelledby="{heading_id}"' in html
+
+    def test_render_board_card_list_role(self) -> None:
+        adapter = _adapter()
+        cards = sample_cards()
+        html = render_board(adapter, cards)
+
+        assert 'role="list"' in html
+        assert 'role="listitem"' in html
+
+    def test_render_board_card_button_a11y(self) -> None:
+        adapter = _adapter()
+        cards = sample_cards()
+        html = render_board(adapter, cards)
+
+        # Cards should have tabindex and aria-haspopup
+        assert 'tabindex="0"' in html
+        assert 'aria-haspopup="dialog"' in html
+
+    def test_render_board_move_select_aria_label(self) -> None:
+        adapter = _adapter()
+        cards = sample_cards()
+        html = render_board(adapter, cards)
+
+        # The select should have an aria-label referencing the card title
+        assert 'aria-label="Move Fix login bug to column"' in html
+        assert 'aria-label="Move Fix login bug"' in html
+
+    def test_render_board_drawer_dialog_attrs(self) -> None:
+        adapter = _adapter()
+        cards = sample_cards()
+        html = render_board(adapter, cards)
+
+        assert 'role="dialog"' in html
+        assert 'aria-modal="true"' in html
+        assert 'aria-labelledby="drawer-title"' in html
+
     def test_render_board_css_classes_present(self) -> None:
         adapter = _adapter()
         cards = sample_cards()

@@ -90,6 +90,9 @@ describe("performMove()", () => {
       expect(errorEl.textContent).toContain("Move failed");
     });
 
+    // The error element should have role="alert" for screen readers
+    expect(errorEl.getAttribute("role")).toBe("alert");
+
     // Select should be reverted to original value
     expect(select.value).toBe("doing");
   });
@@ -238,6 +241,7 @@ describe("attachMoveDelegation()", () => {
       const errorEl = form.querySelector(".board-move-error");
       expect(errorEl.style.display).toBe("inline");
       expect(errorEl.textContent).toContain("Move failed");
+      expect(errorEl.getAttribute("role")).toBe("alert");
     });
   });
 

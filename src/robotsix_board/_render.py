@@ -60,7 +60,8 @@ def _render_card(
     parts: list[str] = []
 
     parts.append(
-        f'<div class="board-card" id="card-{esc(cid)}" data-card-id="{esc(cid)}">'
+        f'<div class="board-card" id="card-{esc(cid)}" data-card-id="{esc(cid)}"'
+        f' role="listitem" tabindex="0" aria-haspopup="dialog">'
     )
 
     # title
@@ -85,14 +86,20 @@ def _render_card(
         f'<form class="board-card-move" method="{esc(move_method)}"'
         f' action="{esc(move_url)}">'
     )
-    parts.append('<select name="target_status" class="board-move-select">')
+    parts.append(
+        f'<select name="target_status" class="board-move-select"'
+        f' aria-label="Move {esc(title)} to column">'
+    )
     parts.append('<option value="">Move to…</option>')
     parts.extend(
         f'<option value="{esc(other_key)}">{esc(other_labels[other_key])}</option>'
         for other_key in other_keys
     )
     parts.append("</select>")
-    parts.append('<button type="submit" class="board-move-submit">Move</button>')
+    parts.append(
+        f'<button type="submit" class="board-move-submit"'
+        f' aria-label="Move {esc(title)}">Move</button>'
+    )
     parts.append("</form>")  # .board-card-move
 
     # ── optional duck-typed hook: card_extra_html(card) ──
@@ -137,16 +144,22 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
 
     for status_key, label in columns:
         column_cards = cards.get(status_key, [])
-        parts.append(f'<div class="board-column" data-status="{esc(status_key)}">')
+        col_heading_id = f"col-heading-{esc(status_key)}"
+        parts.append(
+            f'<div class="board-column" data-status="{esc(status_key)}"'
+            f' aria-labelledby="{col_heading_id}">'
+        )
 
         # ── header ──
         parts.append('<div class="board-column-header">')
-        parts.append(f'<h2 class="board-column-label">{esc(label)}</h2>')
+        parts.append(
+            f'<h2 class="board-column-label" id="{col_heading_id}">{esc(label)}</h2>'
+        )
         parts.append(f'<span class="board-column-count">{len(column_cards)}</span>')
         parts.append("</div>")  # .board-column-header
 
         # ── card list ──
-        parts.append('<div class="board-column-cards">')
+        parts.append('<div class="board-column-cards" role="list">')
 
         other_keys = [k for k in other_labels if k != status_key]
 
@@ -178,7 +191,8 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
 
     # ── drawer shell ──
     parts.append(
-        '<div id="drawer" class="drawer hidden">'
+        '<div id="drawer" class="drawer hidden"'
+        ' role="dialog" aria-modal="true" aria-labelledby="drawer-title">'
         '<div class="drawer-content"></div>'
         "</div>"
     )
