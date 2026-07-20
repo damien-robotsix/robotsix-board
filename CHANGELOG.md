@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add `aria-expanded` attribute toggle on `.board-card` elements when the detail drawer opens/closes, complementing the existing `aria-haspopup="dialog"` for screen reader support.
 - Add ARIA semantics and keyboard interaction throughout the board:
   - `.board-column-cards` gets `role="list"`, `.board-card` gets `role="listitem" tabindex="0" aria-haspopup="dialog"`
   - Columns get `aria-labelledby` pointing to their `<h2>` heading

@@ -210,6 +210,7 @@
     div.setAttribute("role", "listitem");
     div.setAttribute("tabindex", "0");
     div.setAttribute("aria-haspopup", "dialog");
+    div.setAttribute("aria-expanded", "false");
 
     if (card.merged) {
       div.classList.add("board-card--merged");
@@ -768,6 +769,8 @@
     content.innerHTML = html;
     drawer.classList.remove("hidden");
 
+    cardEl.setAttribute("aria-expanded", "true");
+
     // Move focus to the close button inside the drawer
     var closeBtn = /** @type {HTMLElement} */ (drawer.querySelector(".drawer-close"));
     if (closeBtn) {
@@ -848,6 +851,7 @@
     // Restore focus to the triggering card
     var triggeringCard = /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard;
     if (triggeringCard) {
+      triggeringCard.setAttribute("aria-expanded", "false");
       triggeringCard.focus();
       /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard = null;
     }

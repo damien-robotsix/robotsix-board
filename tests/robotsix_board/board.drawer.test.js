@@ -44,6 +44,7 @@ describe("openDrawer() / closeDrawer()", () => {
     expect(drawer.getAttribute("role")).toBe("dialog");
     expect(drawer.getAttribute("aria-modal")).toBe("true");
     expect(drawer.getAttribute("aria-labelledby")).toBe("drawer-title");
+    expect(cardEl.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("adds id='drawer-title' to the drawer heading", () => {
@@ -76,6 +77,7 @@ describe("openDrawer() / closeDrawer()", () => {
     closeDrawer();
 
     expect(document.activeElement).toBe(cardEl);
+    expect(cardEl.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("closes the drawer on Escape key", () => {
@@ -316,6 +318,7 @@ describe("attachDrawerDelegation()", () => {
     const drawer = document.getElementById("drawer");
     expect(drawer.classList.contains("hidden")).toBe(false);
     expect(drawer.querySelector(".drawer-content").innerHTML).toContain("Keyboard Enter");
+    expect(cardEl.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("opens the drawer on Space keydown on a .board-card", () => {
@@ -339,6 +342,7 @@ describe("attachDrawerDelegation()", () => {
     const drawer = document.getElementById("drawer");
     expect(drawer.classList.contains("hidden")).toBe(false);
     expect(drawer.querySelector(".drawer-content").innerHTML).toContain("Keyboard Space");
+    expect(cardEl.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("does not open the drawer on non-Enter/Space keydown", () => {
