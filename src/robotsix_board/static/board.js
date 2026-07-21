@@ -703,47 +703,15 @@
   }
 
   /**
-   * Populate and open the detail drawer for *cardEl*.
-   * @param {HTMLElement} cardEl  — the .board-card DOM element
+   * Build the drawer content HTML string.
+   * Pure function — no DOM side effects.
+   * @param {string} title - Card title
+   * @param {string} cardId - Card ID
+   * @param {string[]} badges - Badge strings
+   * @param {string[]} timestamps - Timestamp strings
+   * @returns {string} HTML for the drawer content.
    */
-  function openDrawer(cardEl) {
-    var drawer = document.getElementById("drawer");
-    if (!drawer) { return; }
-
-    var content = drawer.querySelector(".drawer-content");
-    if (!content) { return; }
-
-    // Store triggering card for focus restoration on close
-    /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard = cardEl;
-
-    // Set dialog ARIA attributes
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-modal", "true");
-    drawer.setAttribute("aria-labelledby", "drawer-title");
-
-    // Gather data from the card's DOM structure
-    var cardId = cardEl.getAttribute("data-card-id") || "";
-
-    var titleEl = cardEl.querySelector(".board-card-title");
-    var title = titleEl ? titleEl.textContent : "";
-
-    var badgeEls = cardEl.querySelectorAll(
-      ".board-card-badges .board-badge"
-    );
-    var badges = [];
-    for (var i = 0; i < badgeEls.length; i++) {
-      badges.push(badgeEls[i].textContent || "");
-    }
-
-    var tsEls = cardEl.querySelectorAll(
-      ".board-card-timestamps .board-timestamp"
-    );
-    var timestamps = [];
-    for (var j = 0; j < tsEls.length; j++) {
-      timestamps.push(tsEls[j].textContent || "");
-    }
-
-    // ── Build drawer HTML ──
+  function _buildDrawerHtml(title, cardId, badges, timestamps) {
     var html = '<h2 class="drawer-card-title" id="drawer-title">' + esc(title) + "</h2>";
     html += '<p class="drawer-card-id">ID: ' + esc(cardId) + "</p>";
 
@@ -766,17 +734,38 @@
     html +=
       '<button class="drawer-close" type="button">Close</button>';
 
-    content.innerHTML = html;
-    drawer.classList.remove("hidden");
+    return html;
+  }
+
+  /**
+   * Set ARIA attributes and manage focus for the drawer dialog.
+   * @param {HTMLElement} drawer - The drawer element.
+   * @param {HTMLElement} cardEl - The triggering card element.
+   * @param {HTMLElement|null} closeBtn - The close button inside the drawer.
+   */
+  function _setupDrawerA11y(drawer, cardEl, closeBtn) {
+    // Store triggering card for focus restoration on close
+    /** @type {HTMLElement & {_triggeringCard: HTMLElement | null}} */ (drawer)._triggeringCard = cardEl;
+
+    // Set dialog ARIA attributes
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-labelledby", "drawer-title");
 
     cardEl.setAttribute("aria-expanded", "true");
 
     // Move focus to the close button inside the drawer
-    var closeBtn = /** @type {HTMLElement} */ (drawer.querySelector(".drawer-close"));
     if (closeBtn) {
       closeBtn.focus();
     }
+  }
 
+  /**
+   * Attach backdrop click and keydown handlers to the drawer.
+   * Stores cleanup references on the drawer element.
+   * @param {HTMLElement} drawer - The drawer element.
+   */
+  function _attachDrawerHandlers(drawer) {
     // Backdrop click: clicking the drawer itself (outside
     // .drawer-content) closes it.  We attach a one-shot handler
     // that is removed on close.
@@ -823,6 +812,46 @@
     };
     /** @type {HTMLElement & {_onKeyDown: ((evt: KeyboardEvent) => void) | null}} */ (drawer)._onKeyDown = onKeyDown;
     document.addEventListener("keydown", onKeyDown);
+  }
+
+  /**
+   * Populate and open the detail drawer for *cardEl*.
+   * @param {HTMLElement} cardEl  — the .board-card DOM element
+   */
+  function openDrawer(cardEl) {
+    var drawer = document.getElementById("drawer");
+    if (!drawer) { return; }
+
+    var content = drawer.querySelector(".drawer-content");
+    if (!content) { return; }
+
+    // Gather data from the card's DOM structure
+    var cardId = cardEl.getAttribute("data-card-id") || "";
+
+    var titleEl = cardEl.querySelector(".board-card-title");
+    var title = titleEl ? titleEl.textContent : "";
+
+    var badgeEls = cardEl.querySelectorAll(
+      ".board-card-badges .board-badge"
+    );
+    var badges = [];
+    for (var i = 0; i < badgeEls.length; i++) {
+      badges.push(badgeEls[i].textContent || "");
+    }
+
+    var tsEls = cardEl.querySelectorAll(
+      ".board-card-timestamps .board-timestamp"
+    );
+    var timestamps = [];
+    for (var j = 0; j < tsEls.length; j++) {
+      timestamps.push(tsEls[j].textContent || "");
+    }
+
+    content.innerHTML = _buildDrawerHtml(title, cardId, badges, timestamps);
+    drawer.classList.remove("hidden");
+
+    _setupDrawerA11y(drawer, cardEl, content.querySelector(".drawer-close"));
+    _attachDrawerHandlers(drawer);
   }
 
   /**
@@ -1199,6 +1228,7 @@
     buildSelectOptions: buildSelectOptions,
     buildMoveForm: buildMoveForm,
     rebuildMoveSelect: rebuildMoveSelect,
+    _setupDrawerA11y: _setupDrawerA11y,
     hashStr: hashStr,
     agentColor: agentColor,
     updateColumnCounts: updateColumnCounts,
@@ -1210,7 +1240,9 @@
     setClosedToggleState: setClosedToggleState,
     applyClosedToggle: applyClosedToggle,
     buildCardElement: buildCardElement,
+    _attachDrawerHandlers: _attachDrawerHandlers,
     _buildAgentBadgeElements: _buildAgentBadgeElements,
+    _buildDrawerHtml: _buildDrawerHtml,
     applyCardDiff: applyCardDiff,
     openDrawer: openDrawer,
     closeDrawer: closeDrawer,
