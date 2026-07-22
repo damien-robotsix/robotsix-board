@@ -1,5 +1,7 @@
 ## 0.0.0 (unreleased)
 
+- Add npm override for ``fast-uri >=3.1.4`` to fix a pre-existing transitive-dependency
+  vulnerability flagged by ``npm audit --audit-level=high``.
 - Switch ruff pre-commit hooks from remote `astral-sh/ruff-pre-commit` to local hooks using `uv run`, making `uv.lock` the single source of truth for ruff's version.
 - Refactor `openDrawer()`: extract `_buildDrawerHtml()`, `_setupDrawerA11y()`, and `_attachDrawerHandlers()` helpers to reduce function complexity from ~117 lines to ~20 lines.
 - Add `aria-expanded` attribute toggle on `.board-card` elements when the detail drawer opens/closes, complementing the existing `aria-haspopup="dialog"` for screen reader support.
