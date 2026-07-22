@@ -14,6 +14,18 @@ def test_version_is_non_empty_string() -> None:
     assert robotsix_board.__version__
 
 
+def test_version_matches_pyproject() -> None:
+    """``__version__`` must match ``[project].version`` in pyproject.toml."""
+    import tomllib
+
+    pyproject = (REPO_ROOT / "pyproject.toml").read_text()
+    expected = tomllib.loads(pyproject)["project"]["version"]
+    assert robotsix_board.__version__ == expected, (
+        f"__version__ is {robotsix_board.__version__!r}, "
+        f"but pyproject.toml has {expected!r}"
+    )
+
+
 def test_static_dir_contains_assets() -> None:
     static = robotsix_board.static_dir()
     assert static.is_dir()
