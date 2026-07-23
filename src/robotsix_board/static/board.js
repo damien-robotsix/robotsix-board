@@ -761,6 +761,34 @@
   }
 
   /**
+   * Focus trap for the drawer: wraps Tab / Shift+Tab within focusable
+   * elements inside *drawer* so focus never leaves the dialog.
+   * @param {HTMLElement} drawer - The drawer element.
+   * @param {KeyboardEvent} evt  - The keydown event (assumed key === "Tab").
+   */
+  function _trapFocus(drawer, evt) {
+    var focusable = drawer.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), '
+      + 'select:not([disabled]), textarea:not([disabled]), '
+      + '[tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) { return; }
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (evt.shiftKey) {
+      if (document.activeElement === first) {
+        evt.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        evt.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  /**
    * Attach backdrop click and keydown handlers to the drawer.
    * Stores cleanup references on the drawer element.
    * @param {HTMLElement} drawer - The drawer element.
@@ -791,23 +819,7 @@
       }
       // Focus trap: keep Tab within the drawer
       if (evt.key === "Tab") {
-        var focusable = /** @type {HTMLElement} */ (drawer).querySelectorAll(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) { return; }
-        var first = /** @type {HTMLElement} */ (focusable[0]);
-        var last = /** @type {HTMLElement} */ (focusable[focusable.length - 1]);
-        if (evt.shiftKey) {
-          if (document.activeElement === first) {
-            evt.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            evt.preventDefault();
-            first.focus();
-          }
-        }
+        _trapFocus(drawer, evt);
       }
     };
     /** @type {HTMLElement & {_onKeyDown: ((evt: KeyboardEvent) => void) | null}} */ (drawer)._onKeyDown = onKeyDown;
@@ -1241,6 +1253,7 @@
     applyClosedToggle: applyClosedToggle,
     buildCardElement: buildCardElement,
     _attachDrawerHandlers: _attachDrawerHandlers,
+    _trapFocus: _trapFocus,
     _buildAgentBadgeElements: _buildAgentBadgeElements,
     _buildDrawerHtml: _buildDrawerHtml,
     applyCardDiff: applyCardDiff,
