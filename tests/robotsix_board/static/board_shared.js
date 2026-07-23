@@ -2,7 +2,7 @@ import { beforeEach, afterEach, vi } from "vitest";
 
 // Importing board.js runs its IIFE under the happy-dom environment,
 // which populates window.robotsixBoardInternals with the pure helpers.
-import "../../src/robotsix_board/static/board.js";
+import "../../../src/robotsix_board/static/board.js";
 
 // Polyfill CSS.escape for happy-dom (not yet implemented in all versions).
 if (!globalThis.CSS) { globalThis.CSS = {}; }

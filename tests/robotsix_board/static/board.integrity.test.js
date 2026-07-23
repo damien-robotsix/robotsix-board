@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 describe("export surface convention", () => {
   const boardJsPath = resolve(
     dirname(fileURLToPath(import.meta.url)),
-    "../../src/robotsix_board/static/board.js",
+    "../../../src/robotsix_board/static/board.js",
   );
   const src = readFileSync(boardJsPath, "utf-8");
 
@@ -61,11 +61,11 @@ describe("export surface convention", () => {
 describe("CSS class name cross-file consistency", () => {
   const boardCssPath = resolve(
     dirname(fileURLToPath(import.meta.url)),
-    "../../src/robotsix_board/static/board.css",
+    "../../../src/robotsix_board/static/board.css",
   );
   const boardJsPath = resolve(
     dirname(fileURLToPath(import.meta.url)),
-    "../../src/robotsix_board/static/board.js",
+    "../../../src/robotsix_board/static/board.js",
   );
 
   const cssSrc = readFileSync(boardCssPath, "utf-8");
