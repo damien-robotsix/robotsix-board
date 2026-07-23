@@ -773,8 +773,8 @@
       + '[tabindex]:not([tabindex="-1"])'
     );
     if (focusable.length === 0) { return; }
-    var first = focusable[0];
-    var last = focusable[focusable.length - 1];
+    var first = /** @type {HTMLElement} */ (focusable[0]);
+    var last = /** @type {HTMLElement} */ (focusable[focusable.length - 1]);
     if (evt.shiftKey) {
       if (document.activeElement === first) {
         evt.preventDefault();
