@@ -3,6 +3,7 @@
 - Extract `_trapFocus()` helper from `_attachDrawerHandlers()` to reduce nesting depth and make focus-trap logic independently testable (PR #4bb7 follow-up).
 - Moved JS test files from `tests/robotsix_board/` into `tests/robotsix_board/static/` to mirror the source tree structure.
 - Bump version from 0.1.0 to 0.2.0 in `pyproject.toml` and `src/robotsix_board/__init__.py` to match the 0.2.0 release recorded in CHANGELOG.md, and add a cross-reference test (`test_version_matches_pyproject`) to prevent future drift.
+- CSS Theming documentation page added to the mkdocs site (`docs/robotsix_board/theming.md`), exposing the `--board-*` custom properties table and light-theme override example that were previously only in README.md.
 - Add npm override for ``fast-uri >=3.1.4`` to fix a pre-existing transitive-dependency
   vulnerability flagged by ``npm audit --audit-level=high``.
 - Add JS frontend architecture documentation page (`docs/robotsix_board/architecture.md`) covering IIFE structure, subsystem map, key globals, public API, and testing patterns.
