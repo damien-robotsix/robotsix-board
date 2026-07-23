@@ -98,7 +98,7 @@ def test_js_unit_test_infrastructure_present() -> None:
     assert vitest_cfg.is_file()
     assert "happy-dom" in vitest_cfg.read_text()
 
-    board_test = REPO_ROOT / "tests" / "robotsix_board" / "board.helpers.test.js"
+    board_test = REPO_ROOT / "tests" / "robotsix_board" / "static" / "board.helpers.test.js"
     assert board_test.is_file()
     board_test_text = board_test.read_text()
     assert "robotsixBoardInternals" in board_test_text
@@ -243,7 +243,7 @@ def test_board_config_id_consistent_across_python_and_js() -> None:
     js_id = js_match.group(1)
 
     # 3. Extract the el.id assignment from the JS test helper
-    board_shared = REPO_ROOT / "tests" / "robotsix_board" / "board_shared.js"
+    board_shared = REPO_ROOT / "tests" / "robotsix_board" / "static" / "board_shared.js"
     shared_source = board_shared.read_text()
     shared_match = re.search(r'\.id\s*=\s*"([^"]+)"', shared_source)
     assert shared_match is not None, "Could not find .id assignment in board_shared.js"

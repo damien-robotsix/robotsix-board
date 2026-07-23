@@ -115,7 +115,7 @@ The JS test suite lives in `tests/robotsix_board/` and uses
 
 ### Bootstrapping the IIFE
 
-`tests/robotsix_board/setup.js`:
+`tests/robotsix_board/static/setup.js`:
 
 ```js
 import "../../src/robotsix_board/static/board.js";

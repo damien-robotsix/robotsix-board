@@ -1,6 +1,7 @@
 ## 0.0.0 (unreleased)
 
 - Extract `_trapFocus()` helper from `_attachDrawerHandlers()` to reduce nesting depth and make focus-trap logic independently testable (PR #4bb7 follow-up).
+- Moved JS test files from `tests/robotsix_board/` into `tests/robotsix_board/static/` to mirror the source tree structure.
 - Add npm override for ``fast-uri >=3.1.4`` to fix a pre-existing transitive-dependency
   vulnerability flagged by ``npm audit --audit-level=high``.
 - Add JS frontend architecture documentation page (`docs/robotsix_board/architecture.md`) covering IIFE structure, subsystem map, key globals, public API, and testing patterns.
