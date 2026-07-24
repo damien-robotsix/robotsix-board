@@ -269,3 +269,73 @@ def test_board_config_id_consistent_across_python_and_js() -> None:
         f"board.js={js_id!r}, "
         f"board_shared.js={shared_id!r}"
     )
+
+
+def test_esc_consistent_across_python_and_js() -> None:
+    """Python ``esc()`` and JS ``esc()`` must produce identical output.
+
+    Both transports must escape the same set of characters
+    (``&``, ``<``, ``>``, ``"``, ``'``) to identical entity
+    references.  If either implementation drifts, XSS vectors can
+    appear in one transport while the other remains safe, and no
+    existing test would catch it.
+    """
+    import re
+
+    from robotsix_board._render import esc as py_esc
+
+    # Shared test vectors covering all five special characters
+    # plus edge cases (empty string, already-escaped input).
+    vectors: list[str] = [
+        "<script>",
+        "a&b",
+        '"quoted"',
+        "'single'",
+        "normal",
+        "",
+        "<>&\"'",
+        "hello <world> & goodbye",
+        "already &amp; escaped",
+        "\"'&<>",
+    ]
+
+    # Python esc() output
+    py_outputs = [py_esc(v) for v in vectors]
+
+    # Extract the JS ENTITY_MAP char→entity lookup from board.js source.
+    # Keys are single characters inside single or double quotes;
+    # values are entity strings inside double quotes.
+    js_source = (robotsix_board.static_dir() / "board.js").read_text()
+    _entity_re = re.compile('["\x27]([&<>"\x27])["\x27]\\s*:\\s*"([^"]*)"')
+    entity_map: dict[str, str] = {}
+    for m in _entity_re.finditer(js_source):
+        entity_map[m.group(1)] = m.group(2)
+    assert len(entity_map) == 5, (
+        f"Expected 5 entries in JS ENTITY_MAP, found {len(entity_map)}: {entity_map}"
+    )
+
+    # Re-implement JS esc() behaviour in pure Python using the
+    # extracted map so we test the map contents, not Node.js runtime.
+    def _js_esc(s: str) -> str:
+        return "".join(entity_map.get(ch, ch) for ch in s)
+
+    js_outputs = [_js_esc(v) for v in vectors]
+
+    # Normalise hex vs decimal numeric entities (&#x27; vs &#39;) —
+    # they are semantically identical and Python's html.escape may
+    # use either form depending on the stdlib version.
+    def _normalise(s: str) -> str:
+        return s.replace("&#x27;", "&#39;")
+
+    py_outputs = [_normalise(p) for p in py_outputs]
+    js_outputs = [_normalise(j) for j in js_outputs]
+
+    mismatches = [
+        (v, py, js)
+        for v, py, js in zip(vectors, py_outputs, js_outputs, strict=True)
+        if py != js
+    ]
+    assert not mismatches, (
+        f"esc() mismatch between Python and JS for {len(mismatches)} vector(s):\n"
+        + "\n".join(f"  {v!r} -> py={py!r}  js={js!r}" for v, py, js in mismatches)
+    )
