@@ -48,4 +48,12 @@ export default [
       globals: { ...globals.node },
     },
   },
+  {
+    files: ["playwright.config.mjs", "tests/e2e/**/*.spec.mjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node },
+    },
+  },
 ];
