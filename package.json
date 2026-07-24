@@ -11,6 +11,7 @@
     "lint:css": "stylelint src/robotsix_board/static/board.css",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d'",
     "test:js": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "overrides": {
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9",
+    "@playwright/test": "^1.61.1",
     "@vitest/coverage-v8": "^4",
     "@vitest/eslint-plugin": "^1",
     "eslint": "^10.7.0",

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board E2E Fixture</title>
+  <link rel="stylesheet" href="/src/robotsix_board/static/board.css">
+</head>
+<body>
+  <script id="board-config" type="application/json">
+  {
+    "render_mode": "json_hydration",
+    "columns": [
+      ["todo", "To Do"],
+      ["doing", "Doing"],
+      ["done", "Done"]
+    ],
+    "move_method": "POST",
+    "move_endpoint_template": "/move/{card_id}/{target_status}"
+  }
+  </script>
+
+  <div id="drawer" class="hidden">
+    <div class="drawer-content"></div>
+  </div>
+
+  <div id="board">
+    <div class="board-column" data-status="todo">
+      <div class="board-column-header">
+        <h2 class="board-column-label">To Do</h2>
+        <span class="board-column-count">1</span>
+      </div>
+      <div class="board-column-cards">
+        <div class="board-card"
+             id="card-1"
+             data-card-id="1"
+             role="listitem"
+             tabindex="0"
+             aria-haspopup="dialog"
+             aria-expanded="false">
+          <div class="board-card-title">Test Card One</div>
+        </div>
+      </div>
+    </div>
+    <div class="board-column" data-status="doing">
+      <div class="board-column-header">
+        <h2 class="board-column-label">Doing</h2>
+        <span class="board-column-count">0</span>
+      </div>
+      <div class="board-column-cards"></div>
+    </div>
+    <div class="board-column" data-status="done">
+      <div class="board-column-header">
+        <h2 class="board-column-label">Done</h2>
+        <span class="board-column-count">0</span>
+      </div>
+      <div class="board-column-cards"></div>
+    </div>
+  </div>
+
+  <script src="/src/robotsix_board/static/board.js"></script>
+</body>
+</html>

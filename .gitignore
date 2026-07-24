@@ -25,6 +25,10 @@ coverage/
 # Node / JS tooling
 node_modules/
 
+# Playwright
+test-results/
+playwright-report/
+
 # OS / editor files
 .DS_Store
 .idea/
