@@ -1,6 +1,6 @@
 # JS Frontend Architecture
 
-The kanban-board client is a single ~1 260‑line IIFE at
+The kanban-board client is a single ~1 273‑line IIFE at
 `src/robotsix_board/static/board.js`.  This page documents its
 structure so contributors can navigate the file without
 reverse-engineering the full source.
@@ -35,7 +35,7 @@ Expression:
 | `window.robotsixBoardInternals` | Test-only — exposes pure functions for vitest |
 
 The exports are assigned at the bottom of the file (lines
-≈1 218–1 260).
+≈1 235–1 273).
 
 ## 2. Subsystem map
 
@@ -44,20 +44,23 @@ Every subsystem is delimited by a section-header comment of the form
 
 | # | Subsystem | Lines (approx.) | Key functions |
 |---|---|---|---|
-| 0 | Helpers | 53–115 | `esc()`, `hashStr()`, `agentColor()` |
-| 1 | Configuration | 117–165 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
-| 2 | Card rendering | 169–400 | `buildCardElement()`, `buildMoveForm()`, `rebuildMoveSelect()`, `updateColumnCounts()` |
-| 3 | Gate cache & closed toggle | 910–1 115 | `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `attachClosedToggle()`, `getClosedToggleState()`, `applyClosedToggle()` |
-| 4 | Refresh loop | 403–540 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
-| 5 | Move control | 545–657 | `performMove()`, `attachMoveDelegation()` |
-| 6 | Drawer / detail panel | 660–902 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
-| 7 | Init & wiring | 1 194–1 260 | `init()`, DOM-ready wiring, public API + internals export |
+| 0 | Helpers | 53–111 | `esc()`, `hashStr()`, `agentColor()` |
+| 1 | Configuration | 112–163 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
+| 2 | Card rendering | 164–371 | `buildCardElement()`, `_buildAgentBadgeElements()`, `buildSelectOptions()`, `buildMoveForm()`, `rebuildMoveSelect()` |
+| 3 | Column count update | 372–397 | `updateColumnCounts()` |
+| 4 | Refresh loop | 398–544 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
+| 5 | Move control | 545–650 | `performMove()`, `attachMoveDelegation()` |
+| 6 | Drawer / detail panel | 651–900 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_trapFocus()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
+| 7 | Gate caching | 901–1 023 | `getGateBlockedColumns()`, `getGateData()`, `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `robotsixBoardSetGateEndpoint()` |
+| 8 | Closed-ticket toggle | 1 024–1 110 | `attachClosedToggle()`, `getClosedToggleState()`, `setClosedToggleState()`, `applyClosedToggle()` |
+| 9 | Public API | 1 111–1 199 | `robotsixBoardRefresh()`, `robotsixBoardStopRefresh()`, `robotsixBoardSetRefreshUrl()`, `robotsixBoardSetRefreshInterval()`, `applyColumnA11y()` |
+| 10 | Bootstrap | 1 200–1 273 | `init()`, DOM-ready wiring, public API + internals export |
 
 > Line ranges are approximate and reflect the file at the time of
-> writing.  Subsystem 3 (gate cache) intentionally sits after the
-> drawer subsystem in the source — it was added later and lives at the
-> bottom so the refresh/public-API logic can reference it by
-> hoisting.
+> writing.  Subsystems 7–8 (gate cache and closed toggle) intentionally
+> sit after the drawer subsystem in the source — they were added later
+> and live at the bottom so the refresh/public-API logic can reference
+> them by hoisting.
 
 ## 3. Key IIFE-scoped globals
 
@@ -68,8 +71,6 @@ These `var` declarations are private to the IIFE closure:
 | `CFG` | `BoardConfig\|null` | Parsed configuration from `<script id="board-config">`. Set by `bootConfig()`. |
 | `CLOSED_KEY` | `string\|null` | The `status_key` of the terminal/closed column. Used by the closed-ticket toggle. |
 | `_refreshTimer` | `number\|null` | `setInterval` handle for the periodic refresh poll. Null when refresh is disabled or not started. |
-| `_drawerOpen` | `HTMLElement\|undefined` | (Not a top-level `var` — scoped inside `openDrawer`/`closeDrawer` as `_triggeringCard` on the drawer element.) |
-| `_drawerTrigger` | `HTMLElement\|null` | (Removed — focus restoration uses `drawer._triggeringCard` set by `_setupDrawerA11y`.) |
 
 ## 4. Public API reference
 
