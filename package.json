@@ -11,6 +11,7 @@
     "lint:css": "stylelint src/robotsix_board/static/board.css",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d'",
     "test:js": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "overrides": {

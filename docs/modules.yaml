@@ -20,6 +20,7 @@ modules:
       - uv.lock
       - tsconfig.json
       - vitest.config.mjs
+      - playwright.config.mjs
       - mkdocs.yml
       - .editorconfig
       - .gitignore
