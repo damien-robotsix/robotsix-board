@@ -152,6 +152,7 @@ def test_periodic_workflows_enabled() -> None:
     expected = {
         "audit.yaml",
         "bc_check.yaml",
+        "changelog_autofill.yaml",
         "completeness_check.yaml",
         "copy_paste.yaml",
         "docstring_coverage.yaml",
@@ -159,8 +160,7 @@ def test_periodic_workflows_enabled() -> None:
         "module_curator.yaml",
         "module_size.yaml",
         "repo_description_sync.yaml",
-        "security_posture.yaml",
-        "state_sync.yaml",
+        "survey.yaml",
         "test_gap.yaml",
     }
     actual = {p.name for p in yaml_files}
