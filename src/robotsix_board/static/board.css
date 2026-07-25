@@ -170,7 +170,12 @@
   border-radius: 6px;
   background: var(--board-card-bg, #1a1a2e);
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .board-card {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
 }
 
 .board-card:hover {
@@ -287,11 +292,22 @@
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .board-move-submit {
+    transition: background 0.15s ease;
+  }
 }
 
 .board-move-submit:hover {
   background: var(--board-accent-hover, #1a4a80);
+}
+
+.board-move-submit:focus-visible {
+  outline: none;
+  border-color: var(--board-focus-ring, #4a6fa5);
+  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
 .board-move-error {
@@ -316,7 +332,13 @@
   box-shadow: var(--board-shadow-drawer, -4px 0 16px rgb(0 0 0 / 0.4));
   z-index: 1000;
   overflow-y: auto;
-  transition: transform 0.25s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #drawer,
+  .drawer {
+    transition: transform 0.25s ease;
+  }
 }
 
 .drawer.hidden,
@@ -363,6 +385,12 @@
   background: var(--board-accent, #0f3460);
   color: var(--board-text-primary, #e0e0e0);
   cursor: pointer;
+}
+
+.drawer-close:focus-visible {
+  outline: none;
+  border-color: var(--board-focus-ring, #4a6fa5);
+  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
 /* ── responsive ──────────────────────────────────────────────────── */
