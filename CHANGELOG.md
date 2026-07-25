@@ -2,6 +2,7 @@
 
 - Bump pymdown-extensions to >=11.0.0 (GHSA-9xwg-3r6f-jcx2 path traversal fix), bump js-yaml override to >=5.2.2 (GHSA-pm4m-ph32-ghv5 DoS fix), and add brace-expansion >=5.0.8 override (GHSA-mh99-v99m-4gvg DoS fix).
 - Enable `module_size` periodic agent to monitor Python modules for excessive line counts.
+- Remove dead periodic presence files `security_posture.yaml` and `state_sync.yaml` (name-only, no `system_prompt`) from `.robotsix-mill/periodic/`.
 - Add Playwright E2E smoke test for drawer accessibility contract (visibility, focus trap, Escape-to-close, focus restoration). Verifies `.hidden` computed visibility and real browser focus semantics that happy-dom cannot. Gated as a separate `test:e2e` npm script and CI job.
 - Updated `docs/robotsix_board/architecture.md` subsystem map to match the current 10-section, 1,273-line `board.js` source: corrected all line ranges, added missing Column count update subsystem, split Gate cache and Closed-ticket toggle into separate entries, and removed phantom `_drawerOpen` / `_drawerTrigger` globals.
 - Extract `_trapFocus()` helper from `_attachDrawerHandlers()` to reduce nesting depth and make focus-trap logic independently testable (PR #4bb7 follow-up).
