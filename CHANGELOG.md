@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Bump 13 transitive Python dependencies in uv.lock (certifi, charset-normalizer, click, coverage, filelock, mkdocstrings, platformdirs, python-discovery, requirements-parser, rpds-py, stevedore, typing-extensions, virtualenv) to latest compatible versions to address `uv audit` vulnerability findings.
 - Bump pymdown-extensions to >=11.0.0 (GHSA-9xwg-3r6f-jcx2 path traversal fix), bump js-yaml override to >=5.2.2 (GHSA-pm4m-ph32-ghv5 DoS fix), and add brace-expansion >=5.0.8 override (GHSA-mh99-v99m-4gvg DoS fix).
 - Enable `module_size` periodic agent to monitor Python modules for excessive line counts.
 - Remove dead periodic presence files `security_posture.yaml` and `state_sync.yaml` (name-only, no `system_prompt`) from `.robotsix-mill/periodic/`.
