@@ -1,0 +1,1 @@
+ci_fix: out-of-scope CI failure — uv audit (pymdown-extensions GHSA-9xwg-3r6f-jcx2) and npm audit --audit-level=high (brace-expansion GHSA-mh99-v99m-4gvg, js-yaml GHSA-pm4m-ph32-ghv5) in pyproject.toml / uv.lock (to bump pymdown-extensions to >=11.0.0) and package.json overrides / package-lock.json (to bump markdownlint-cli2 js-yaml override and resolve brace-expansion)

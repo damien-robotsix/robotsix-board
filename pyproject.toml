@@ -46,6 +46,7 @@ docs = [
     "mkdocs",
     "mkdocs-material",
     "mkdocstrings[python]",
+    "pymdown-extensions>=11.0.0",
 ]
 
 
@@ -81,7 +82,7 @@ known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "towncrier", "vulture", "check-jsonschema", "pytest-xdist", "robotsix-modules"]  # CLI tools used via workflows, not imported
+DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "pymdown-extensions", "towncrier", "vulture", "check-jsonschema", "pytest-xdist", "robotsix-modules"]  # CLI tools used via workflows, not imported
 
 [tool.towncrier]
 directory = "changelog.d"
