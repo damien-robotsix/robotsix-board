@@ -100,7 +100,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      - run: npm install --package-lock-only && npm ci
+      - run: npm ci
       - run: |
           case "$TOOL" in
             lint)
