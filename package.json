@@ -16,11 +16,12 @@
   },
   "overrides": {
     "fast-uri": ">=3.1.4",
+    "brace-expansion": ">=5.0.8",
     "cosmiconfig": {
       "js-yaml": ">=4.3.0 <5.0.0"
     },
     "markdownlint-cli2": {
-      "js-yaml": ">=5.2.1 <6.0.0"
+      "js-yaml": ">=5.2.2 <6.0.0"
     }
   },
   "devDependencies": {
