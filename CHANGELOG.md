@@ -1,4 +1,4 @@
-## 0.0.0 (unreleased)
+## 0.2.0 (unreleased)
 
 - Respect `prefers-reduced-motion` for `.board-card`, `.board-move-submit`, and `.drawer` transition animations; add `:focus-visible` styles to `.drawer-close` and `.board-move-submit` for keyboard navigation (WCAG 2.2 SC 2.4.7).
 - CI: replace `npm install --package-lock-only && npm ci` with plain `npm ci` in JS lint job (PR #258 fix, never pushed to origin/main)
