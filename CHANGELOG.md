@@ -1,3 +1,6 @@
+## 0.0.0 (unreleased)
+
+- Consolidate three identical focus-ring CSS rules (`.board-move-select:focus`, `.board-move-submit:focus-visible`, `.drawer-close:focus-visible`) into a single multi-selector rule to eliminate jscpd clone pairs 42 and 43.
 ## 0.2.0 (unreleased)
 
 - Respect `prefers-reduced-motion` for `.board-card`, `.board-move-submit`, and `.drawer` transition animations; add `:focus-visible` styles to `.drawer-close` and `.board-move-submit` for keyboard navigation (WCAG 2.2 SC 2.4.7).
