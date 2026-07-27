@@ -276,12 +276,6 @@
   appearance: auto;
 }
 
-.board-move-select:focus {
-  outline: none;
-  border-color: var(--board-focus-ring, #4a6fa5);
-  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
-}
-
 .board-move-submit {
   padding: 4px 12px;
   border: 1px solid var(--board-accent, #0f3460);
@@ -302,12 +296,6 @@
 
 .board-move-submit:hover {
   background: var(--board-accent-hover, #1a4a80);
-}
-
-.board-move-submit:focus-visible {
-  outline: none;
-  border-color: var(--board-focus-ring, #4a6fa5);
-  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
 .board-move-error {
@@ -387,6 +375,8 @@
   cursor: pointer;
 }
 
+.board-move-select:focus,
+.board-move-submit:focus-visible,
 .drawer-close:focus-visible {
   outline: none;
   border-color: var(--board-focus-ring, #4a6fa5);
