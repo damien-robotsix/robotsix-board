@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
-dependencies = ["robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d56fd5d0ae36e2226a471ef276a38faa5d611e6b"]
+dependencies = ["robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@40ce7d19cea919cc575a9fb9164d512849791109"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
