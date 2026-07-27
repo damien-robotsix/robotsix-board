@@ -59,6 +59,8 @@ jobs:
           git commit -m "chore: bump robotsix-modules pin to ${LATEST:0:12}"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$BRANCH"
           gh pr create \
+            --head "$BRANCH" \
+            --base main \
             --title "chore: bump robotsix-modules git pin to ${LATEST:0:12}" \
             --body "Automated bump of the git-pinned robotsix-modules dependency from ${CUR:0:12} to ${LATEST:0:12}." \
             --label dependencies
