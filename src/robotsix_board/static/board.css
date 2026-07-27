@@ -276,14 +276,6 @@
   appearance: auto;
 }
 
-.board-move-select:focus,
-.board-move-submit:focus-visible,
-.drawer-close:focus-visible {
-  outline: none;
-  border-color: var(--board-focus-ring, #4a6fa5);
-  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
-}
-
 .board-move-submit {
   padding: 4px 12px;
   border: 1px solid var(--board-accent, #0f3460);
@@ -381,6 +373,14 @@
   background: var(--board-accent, #0f3460);
   color: var(--board-text-primary, #e0e0e0);
   cursor: pointer;
+}
+
+.board-move-select:focus,
+.board-move-submit:focus-visible,
+.drawer-close:focus-visible {
+  outline: none;
+  border-color: var(--board-focus-ring, #4a6fa5);
+  box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
 /* ── responsive ──────────────────────────────────────────────────── */
