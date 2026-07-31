@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import html
 import json
 import re
 from typing import Any, cast
 
 import pytest
+from hypothesis import example, given
+from hypothesis import strategies as st
 
 from robotsix_board import BoardAdapter
 from robotsix_board._render import _render_card, esc, render_board, render_config_script
@@ -50,6 +53,44 @@ class TestEsc:
             assert text in result
         for text in expected_not_in:
             assert text not in result
+
+    @given(
+        s=st.text(
+            alphabet=st.characters(
+                blacklist_categories=["Cs", "Cc"],
+                max_codepoint=0x10FFFF,
+            ),
+            min_size=0,
+            max_size=200,
+        )
+        | st.sampled_from(
+            [
+                "<script>alert(1)</script>",
+                "<img src=x onerror=alert(1)>",
+                "' OR 1=1 --",
+                "&amp;&lt;&gt;",
+                '"><svg onload=alert(1)>',
+            ]
+        ),
+    )
+    @example(s="")
+    @example(s="<script>alert(1)</script>")
+    @example(s="hello world")
+    def test_esc_round_trip_and_no_raw_specials(self, s: str) -> None:
+        """Property: esc escapes all HTML specials and round-trips via html.unescape."""
+        result = esc(s)
+
+        # Invariant 1: no raw <, >, &, double-quote, or single-quote survives escaping
+        for raw_char in ("<", ">", '"', "'"):
+            assert raw_char not in result
+        # & requires entity-aware check: every & must start a valid HTML entity
+        assert re.search(r"&(?!(?:amp|lt|gt|quot|#x27);)", result) is None
+
+        # Invariant 2: round-trip html.unescape(esc(s)) == s
+        # NOTE: We blacklist category Cs (surrogates) because html.unescape's
+        # parser replaces lone surrogates with U+FFFD, which breaks the
+        # round-trip invariant.
+        assert html.unescape(result) == s
 
 
 class TestRenderCard:

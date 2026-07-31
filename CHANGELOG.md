@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
 - Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.
 
 ## 0.2.0 (unreleased)
