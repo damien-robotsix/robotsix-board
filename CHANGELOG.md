@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Enable `mypy_baseline` periodic agent to track mypy baseline entry counts, triage growth by error category, and file targeted draft tickets for new type errors.
 - Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
 - Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.
 
