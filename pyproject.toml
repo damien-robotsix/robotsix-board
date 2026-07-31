@@ -53,6 +53,13 @@ docs = [
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.uv]
+exclude-newer = "7 days"
+index-strategy = "first-index"
+
+[tool.uv.audit]
+malware-check = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotsix_board"]
 
