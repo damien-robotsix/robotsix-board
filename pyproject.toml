@@ -31,6 +31,7 @@ dev = [
     "ruff==0.15.22",
     "pytest",
     "deptry",
+    "hypothesis",
     "mypy",
     "pytest-cov",
     "pytest-xdist",
