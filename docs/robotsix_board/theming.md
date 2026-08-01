@@ -1,6 +1,8 @@
 # CSS Theming
 
-All colours in `board.css` are expressed as `--board-*` custom properties scoped to `:root`.
-Consumers can override any property on `#board` or their own `:root` to customise the appearance.
+The board stylesheet is layered on top of the
+[robotsix-ui](https://github.com/damien-robotsix/robotsix-ui) shared base.
+See the robotsix-ui [consumption guide](https://github.com/damien-robotsix/robotsix-ui/blob/main/docs/consumption.md)
+for details on the shared design tokens and base stylesheet.
 
---8<-- "README.md:148:187"
+--8<-- "README.md:148:205"
