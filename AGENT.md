@@ -17,3 +17,7 @@ For a new optional capability, add a **duck-typed hook** instead: do NOT declare
 ## Frontend code conventions
 
 Fleet-wide frontend conventions (lockfile discipline, vitest coverage floor, no-inline-styles, export surfaces) are owned by the [robotsix-standards JavaScript page](https://damien-robotsix.github.io/robotsix-standards/javascript/).  This file covers only board-specific rules.
+
+**Rule:** Vendored third-party CSS assets (e.g. `robotsix-ui-base.css`) must be excluded from `stylelint` via `.stylelintignore` / `ignoreFiles` so the committed copy stays byte-identical to its pinned upstream source SHA. Routing a vendored file through the consumer's `stylelint --fix` silently rewrites upstream formatting (`#ffffff` → `#fff`, font-family case) and makes every future re-vendor a noisy, divergent diff.
+
+**Rationale:** 2026-08-01 tickets e193 (pilot vendoring) and 2e4c (coverage): package.json `lint:css` targets `robotsix-ui-base.css` and auto-fix commit 0944541 already rewrote upstream CSS (`#ffffff` → `#fff`, `Roboto` → `roboto`) before it was committed, byte-diverging from the pinned SHA 76829305. Excluding the vendored asset from lint keeps future `curl + cat` re-vendoring clean.
