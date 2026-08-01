@@ -49,7 +49,7 @@ export default [
     },
   },
   {
-    files: ["playwright.config.mjs", "tests/e2e/**/*.spec.mjs"],
+    files: ["playwright.config.mjs", "tests/robotsix_board/e2e/**/*.spec.mjs"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
