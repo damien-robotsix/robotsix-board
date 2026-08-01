@@ -1,5 +1,8 @@
 {
   "extends": "stylelint-config-standard",
+  "ignoreFiles": [
+    "src/robotsix_board/static/robotsix-ui-base.css"
+  ],
   "rules": {
     "color-function-notation": null,
     "alpha-value-notation": null,
