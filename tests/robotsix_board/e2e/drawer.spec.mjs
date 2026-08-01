@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("drawer visibility", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/tests/e2e/fixtures/board.html");
+    await page.goto("/tests/robotsix_board/e2e/fixtures/board.html");
     // Wait for board.js to bootstrap
     await page.waitForSelector("#board");
   });
@@ -33,7 +33,7 @@ test.describe("drawer visibility", () => {
 
 test.describe("focus trap", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/tests/e2e/fixtures/board.html");
+    await page.goto("/tests/robotsix_board/e2e/fixtures/board.html");
     await page.waitForSelector("#board");
     // Open the drawer via keyboard
     const card = page.locator(".board-card").first();
@@ -69,7 +69,7 @@ test.describe("focus trap", () => {
 
 test.describe("Escape to close", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/tests/e2e/fixtures/board.html");
+    await page.goto("/tests/robotsix_board/e2e/fixtures/board.html");
     await page.waitForSelector("#board");
   });
 
