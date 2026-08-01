@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -136,5 +136,49 @@ describe("CSS class name cross-file consistency", () => {
   it("every JS class name has a matching CSS rule in board.css", () => {
     const missing = [...jsClasses].filter((cls) => !cssClasses.has(cls));
     expect(missing).toEqual([]);
+  });
+});
+
+/* ==================================================================
+ * 22.  Vendored robotsix-ui-base.css integrity
+ * ================================================================ */
+
+describe("vendored robotsix-ui-base.css integrity", () => {
+  const staticDir = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../../src/robotsix_board/static/",
+  );
+  const baseCssPath = resolve(staticDir, "robotsix-ui-base.css");
+  const boardCssPath = resolve(staticDir, "board.css");
+
+  it("robotsix-ui-base.css exists and is non-empty", () => {
+    const src = readFileSync(baseCssPath, "utf-8");
+    expect(src.length).toBeGreaterThan(0);
+  });
+
+  it("@import directive resolves to an existing sibling file", () => {
+    const boardSrc = readFileSync(boardCssPath, "utf-8");
+    const importMatch = boardSrc.match(
+      /@import url\("([^"]+)"\)/,
+    );
+    expect(importMatch).not.toBeNull();
+    const importedFile = importMatch[1];
+    const resolvedPath = resolve(staticDir, importedFile);
+    expect(resolvedPath).toBe(baseCssPath);
+    expect(existsSync(resolvedPath)).toBe(true);
+  });
+
+  it("has balanced braces (well-formed CSS)", () => {
+    const src = readFileSync(baseCssPath, "utf-8");
+    const openBraces = (src.match(/\{/g) || []).length;
+    const closeBraces = (src.match(/\}/g) || []).length;
+    expect(openBraces).toBeGreaterThan(0);
+    expect(openBraces).toBe(closeBraces);
+  });
+
+  it("contains --rsu-* custom property declarations", () => {
+    const src = readFileSync(baseCssPath, "utf-8");
+    const rsuProps = [...src.matchAll(/--rsu-[\w-]+/g)];
+    expect(rsuProps.length).toBeGreaterThan(0);
   });
 });
