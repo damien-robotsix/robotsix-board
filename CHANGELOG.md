@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Adopt robotsix-ui shared base stylesheet: vendored `robotsix-ui-base.css` provides `--rsu-*` design tokens, a minimal reset, and shared component styles.  Board-specific styles now use `--rsu-*` tokens for colors, spacing, radii, fonts, and transitions, with board-only `--board-*` tokens kept for kanban-specific properties (header bg, card bg, merged accent, source badges, shadows).
 - Enable `mypy_baseline` periodic agent to track mypy baseline entry counts, triage growth by error category, and file targeted draft tickets for new type errors.
 - Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
 - Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.

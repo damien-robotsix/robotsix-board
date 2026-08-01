@@ -5,59 +5,59 @@
  * Mill-specific chrome (agents menu, cost dashboard, repo selector,
  * proposals/runs panels) is OUT of scope — those stay in robotsix-mill.
  *
- * Theming: all colours are expressed as --board-* custom properties
- * scoped to :root.  Consumers can override any property on #board or
- * their own :root to customise the appearance without selector wars.
+ * Layered on top of robotsix-ui's shared base (robotsix-ui-base.css).
+ * Board-specific tokens (--board-*) are defined in #board / .board
+ * alongside overrides of --rsu-* tokens for the dark theme.
+ * Consumers can override any property on #board or their own :root to
+ * customise the appearance without selector wars.
  */
 
-/* ── custom properties (theming API) ─────────────────────────────── */
+@import "robotsix-ui-base.css";
 
-:root {
-  /* Surfaces */
-  --board-surface-bg: #1a1a2e;
-  --board-column-bg: #16213e;
+/* ── board-scoped token overrides (dark theme) ──────────────────── */
+
+#board,
+.board {
+  /*
+   * Override robotsix-ui tokens for the board's dark palette.
+   * These take effect within the board container; the rest of the
+   * page inherits robotsix-ui's defaults (light theme or user/system
+   * preference).
+   */
+
+  /* rsu semantic token overrides */
+  --rsu-color-bg: #1a1a2e;
+  --rsu-color-bg-secondary: #16213e;
+  --rsu-color-text: #e0e0e0;
+  --rsu-color-text-secondary: #c0c0e0;
+  --rsu-color-border: #2a2a4a;
+  --rsu-color-border-focus: #4a6fa5;
+  --rsu-color-primary: #0f3460;
+  --rsu-color-primary-hover: #1a4a80;
+  --rsu-color-error: #ff6b6b;
+
+  /*
+   * Board-specific tokens — no rsu equivalent or intentionally
+   * distinct from the shared palette.
+   */
   --board-header-bg: #0f3460;
   --board-card-bg: #1a1a2e;
-
-  /* Borders */
-  --board-border-color: #2a2a4a;
   --board-border-hover: #3a3a6a;
-
-  /* Text */
-  --board-text-primary: #e0e0e0;
-  --board-text-secondary: #c0c0e0;
   --board-text-muted: #a0a0c0;
   --board-text-dim: #8080a0;
   --board-text-empty: #505070;
-
-  /* Interactive */
-  --board-focus-ring: #4a6fa5;
-  --board-accent: #0f3460;
-  --board-accent-hover: #1a4a80;
   --board-accent-merged: #4a9eff;
-  --board-error: #ff6b6b;
 
   /* Source badge */
   --board-badge-src-bg: #2d1f4e;
   --board-badge-src-color: #c0a0e0;
   --board-badge-src-border: #4a3a6a;
 
-  /* Shadows */
+  /* Shadows — board-specific elevations */
   --board-shadow-card-hover: 0 2px 8px rgb(0 0 0 / 0.3);
   --board-shadow-focus: 0 0 0 2px rgb(74 111 165 / 0.4);
   --board-shadow-focus-select: 0 0 0 2px rgb(74 111 165 / 0.3);
   --board-shadow-drawer: -4px 0 16px rgb(0 0 0 / 0.4);
-}
-
-/* ── reset / base ─────────────────────────────────────────────────── */
-
-.board *,
-#board *,
-.board *::before,
-#board *::before,
-.board *::after,
-#board *::after {
-  box-sizing: inherit;
 }
 
 /* ── accessibility utilities ──────────────────────────────────────── */
@@ -84,8 +84,8 @@
   flex-flow: row nowrap;
   gap: 12px;
   overflow-x: auto;
-  padding: 16px;
-  background: var(--board-surface-bg, #1a1a2e);
+  padding: var(--rsu-space-md);
+  background: var(--rsu-color-bg, #1a1a2e);
   min-height: 100vh;
   align-items: flex-start;
 }
@@ -98,9 +98,9 @@
   min-width: 280px;
   max-width: 360px;
   flex-shrink: 0;
-  border: 1px solid var(--board-border-color, #2a2a4a);
-  border-radius: 8px;
-  background: var(--board-column-bg, #16213e);
+  border: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
+  border-radius: var(--rsu-radius-lg, 8px);
+  background: var(--rsu-color-bg-secondary, #16213e);
   overflow: hidden;
 }
 
@@ -116,7 +116,7 @@
   justify-content: space-between;
   padding: 12px 14px;
   background: var(--board-header-bg, #0f3460);
-  border-bottom: 1px solid var(--board-border-color, #2a2a4a);
+  border-bottom: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
   position: sticky;
   top: 0;
   z-index: 2;
@@ -124,9 +124,9 @@
 
 .board-column-label {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--board-text-primary, #e0e0e0);
+  font-size: var(--rsu-font-size-md);
+  font-weight: var(--rsu-font-weight-semibold);
+  color: var(--rsu-color-text, #e0e0e0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,10 +140,10 @@
   height: 24px;
   padding: 0 6px;
   border-radius: 12px;
-  background: var(--board-surface-bg, #1a1a2e);
+  background: var(--rsu-color-bg, #1a1a2e);
   color: var(--board-text-muted, #a0a0c0);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--rsu-font-weight-semibold);
   line-height: 1;
 }
 
@@ -152,7 +152,7 @@
 .board-column-cards {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--rsu-space-sm);
   padding: 10px;
   overflow-y: auto;
   flex: 1;
@@ -166,15 +166,15 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  border: 1px solid var(--board-border-color, #2a2a4a);
-  border-radius: 6px;
+  border: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
+  border-radius: var(--rsu-radius-md);
   background: var(--board-card-bg, #1a1a2e);
   cursor: pointer;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .board-card {
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color var(--rsu-transition-fast), box-shadow var(--rsu-transition-fast);
   }
 }
 
@@ -184,7 +184,7 @@
 }
 
 .board-card:focus-within {
-  border-color: var(--board-focus-ring, #4a6fa5);
+  border-color: var(--rsu-color-border-focus, #4a6fa5);
   box-shadow: var(--board-shadow-focus, 0 0 0 2px rgb(74 111 165 / 0.4));
 }
 
@@ -199,8 +199,8 @@
 
 .board-card-title {
   font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--board-text-primary, #e0e0e0);
+  font-weight: var(--rsu-font-weight-semibold);
+  color: var(--rsu-color-text, #e0e0e0);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -218,10 +218,10 @@
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  background: var(--board-accent, #0f3460);
-  color: var(--board-text-secondary, #c0c0e0);
+  background: var(--rsu-color-primary, #0f3460);
+  color: var(--rsu-color-text-secondary, #c0c0e0);
   font-size: 0.72rem;
-  font-weight: 500;
+  font-weight: var(--rsu-font-weight-medium);
   line-height: 1.4;
   white-space: nowrap;
 }
@@ -230,12 +230,12 @@
 .src-badge {
   background: var(--board-badge-src-bg, #2d1f4e);
   color: var(--board-badge-src-color, #c0a0e0);
-  border: 1px solid var(--board-badge-src-border, #4a3a6a);
+  border: var(--rsu-border-width, 1px) solid var(--board-badge-src-border, #4a3a6a);
 }
 
 /* Agent-color badge support via custom property */
 .board-badge[data-agent] {
-  background: var(--badge-color, var(--board-accent, #0f3460));
+  background: var(--badge-color, var(--rsu-color-primary, #0f3460));
 }
 
 /* ── card timestamps ─────────────────────────────────────────────── */
@@ -259,18 +259,18 @@
   gap: 6px;
   align-items: center;
   margin-top: 4px;
-  padding-top: 8px;
-  border-top: 1px solid var(--board-border-color, #2a2a4a);
+  padding-top: var(--rsu-space-sm);
+  border-top: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
 }
 
 .board-move-select {
   flex: 1;
   min-width: 0;
-  padding: 4px 8px;
-  border: 1px solid var(--board-border-color, #2a2a4a);
-  border-radius: 4px;
-  background: var(--board-column-bg, #16213e);
-  color: var(--board-text-primary, #e0e0e0);
+  padding: 4px var(--rsu-space-sm);
+  border: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
+  border-radius: var(--rsu-radius-sm);
+  background: var(--rsu-color-bg-secondary, #16213e);
+  color: var(--rsu-color-text, #e0e0e0);
   font-size: 0.8rem;
   cursor: pointer;
   appearance: auto;
@@ -278,31 +278,31 @@
 
 .board-move-submit {
   padding: 4px 12px;
-  border: 1px solid var(--board-accent, #0f3460);
-  border-radius: 4px;
-  background: var(--board-accent, #0f3460);
-  color: var(--board-text-primary, #e0e0e0);
+  border: var(--rsu-border-width, 1px) solid var(--rsu-color-primary, #0f3460);
+  border-radius: var(--rsu-radius-sm);
+  background: var(--rsu-color-primary, #0f3460);
+  color: var(--rsu-color-text, #e0e0e0);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: var(--rsu-font-weight-medium);
   cursor: pointer;
   white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .board-move-submit {
-    transition: background 0.15s ease;
+    transition: background var(--rsu-transition-fast);
   }
 }
 
 .board-move-submit:hover {
-  background: var(--board-accent-hover, #1a4a80);
+  background: var(--rsu-color-primary-hover, #1a4a80);
 }
 
 .board-move-error {
   display: none;
-  color: var(--board-error, #ff6b6b);
-  font-size: 0.75rem;
-  margin-left: 8px;
+  color: var(--rsu-color-error, #ff6b6b);
+  font-size: var(--rsu-font-size-xs);
+  margin-left: var(--rsu-space-sm);
 }
 
 /* ── drawer (detail panel) ───────────────────────────────────────── */
@@ -315,8 +315,8 @@
   width: 420px;
   max-width: 90vw;
   height: 100vh;
-  background: var(--board-column-bg, #16213e);
-  border-left: 1px solid var(--board-border-color, #2a2a4a);
+  background: var(--rsu-color-bg-secondary, #16213e);
+  border-left: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
   box-shadow: var(--board-shadow-drawer, -4px 0 16px rgb(0 0 0 / 0.4));
   z-index: 1000;
   overflow-y: auto;
@@ -336,20 +336,20 @@
 
 .drawer-content {
   padding: 20px;
-  color: var(--board-text-primary, #e0e0e0);
+  color: var(--rsu-color-text, #e0e0e0);
 }
 
 .drawer-card-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--rsu-space-sm);
   font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--board-text-primary, #e0e0e0);
+  font-weight: var(--rsu-font-weight-semibold);
+  color: var(--rsu-color-text, #e0e0e0);
 }
 
 .drawer-card-id {
   font-size: 0.85rem;
   color: var(--board-text-dim, #8080a0);
-  margin-bottom: 16px;
+  margin-bottom: var(--rsu-space-md);
 }
 
 .drawer-section h3 {
@@ -361,17 +361,17 @@
 .drawer-section ul {
   margin: 0;
   padding-left: 18px;
-  color: var(--board-text-secondary, #c0c0e0);
+  color: var(--rsu-color-text-secondary, #c0c0e0);
 }
 
 .drawer-close {
   display: inline-block;
   margin-top: 20px;
-  padding: 6px 16px;
-  border: 1px solid var(--board-border-color, #2a2a4a);
-  border-radius: 4px;
-  background: var(--board-accent, #0f3460);
-  color: var(--board-text-primary, #e0e0e0);
+  padding: 6px var(--rsu-space-md);
+  border: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
+  border-radius: var(--rsu-radius-sm);
+  background: var(--rsu-color-primary, #0f3460);
+  color: var(--rsu-color-text, #e0e0e0);
   cursor: pointer;
 }
 
@@ -379,7 +379,7 @@
 .board-move-submit:focus-visible,
 .drawer-close:focus-visible {
   outline: none;
-  border-color: var(--board-focus-ring, #4a6fa5);
+  border-color: var(--rsu-color-border-focus, #4a6fa5);
   box-shadow: var(--board-shadow-focus-select, 0 0 0 2px rgb(74 111 165 / 0.3));
 }
 
@@ -389,7 +389,7 @@
   #board,
   .board {
     padding: 10px;
-    gap: 8px;
+    gap: var(--rsu-space-sm);
   }
 
   .board-column {
@@ -405,21 +405,21 @@
 }
 
 #board-closed-toggle {
-  padding: 8px 16px;
+  padding: var(--rsu-space-sm) var(--rsu-space-md);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--rsu-space-sm);
 }
 
 #board-closed-toggle label {
-  color: var(--board-text-secondary, #c0c0e0);
+  color: var(--rsu-color-text-secondary, #c0c0e0);
   font-size: 0.85rem;
   cursor: pointer;
   user-select: none;
 }
 
 #board-closed-checkbox {
-  accent-color: var(--board-accent, #0f3460);
+  accent-color: var(--rsu-color-primary, #0f3460);
   width: 16px;
   height: 16px;
   cursor: pointer;

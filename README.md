@@ -147,47 +147,88 @@ in the build-out ticket.
 
 ### CSS custom properties (theming)
 
-All colours in `board.css` are expressed as `--board-*` custom properties
-scoped to `:root`, with the current dark-theme values as defaults.  Consumers
-can override any property on `#board` or their own `:root` to customise the
-appearance without writing increasingly specific selector overrides.
+`board.css` is layered on top of the [robotsix-ui](https://github.com/damien-robotsix/robotsix-ui)
+shared base stylesheet (vendored as `robotsix-ui-base.css`).  The shared base
+provides design tokens (`--rsu-*`), a minimal reset, and shared component
+styles.  See [Consuming robotsix-ui styles](#consuming-robotsix-ui-styles)
+below for details on the vendored stylesheet.
 
-| Category     | Property                     | Default     |
-|-------------|------------------------------|-------------|
-| Surfaces    | `--board-surface-bg`         | `#1a1a2e`   |
-|             | `--board-column-bg`          | `#16213e`   |
-|             | `--board-header-bg`          | `#0f3460`   |
-|             | `--board-card-bg`            | `#1a1a2e`   |
-| Borders     | `--board-border-color`       | `#2a2a4a`   |
-|             | `--board-border-hover`       | `#3a3a6a`   |
-| Text        | `--board-text-primary`       | `#e0e0e0`   |
-|             | `--board-text-secondary`     | `#c0c0e0`   |
-|             | `--board-text-muted`         | `#a0a0c0`   |
-|             | `--board-text-dim`           | `#8080a0`   |
-|             | `--board-text-empty`         | `#505070`   |
-| Interactive | `--board-focus-ring`         | `#4a6fa5`   |
-|             | `--board-accent`             | `#0f3460`   |
-|             | `--board-accent-hover`       | `#1a4a80`   |
-|             | `--board-accent-merged`      | `#4a9eff`   |
-|             | `--board-error`              | `#ff6b6b`   |
-| Badges      | `--board-badge-src-bg`       | `#2d1f4e`   |
-|             | `--board-badge-src-color`    | `#c0a0e0`   |
-|             | `--board-badge-src-border`   | `#4a3a6a`   |
-| Shadows     | `--board-shadow-card-hover`  | `0 2px 8px rgba(0,0,0,0.3)` |
-|             | `--board-shadow-focus`       | `0 0 0 2px rgba(74,111,165,0.4)` |
-|             | `--board-shadow-focus-select`| `0 0 0 2px rgba(74,111,165,0.3)` |
-|             | `--board-shadow-drawer`      | `-4px 0 16px rgba(0,0,0,0.4)` |
+`board.css` overrides the following `--rsu-*` tokens inside `#board` / `.board`
+for the board's default dark theme:
+
+| Token                         | Board default | Purpose              |
+|-------------------------------|---------------|----------------------|
+| `--rsu-color-bg`              | `#1a1a2e`     | Surface background   |
+| `--rsu-color-bg-secondary`    | `#16213e`     | Column / drawer bg   |
+| `--rsu-color-text`            | `#e0e0e0`     | Primary text         |
+| `--rsu-color-text-secondary`  | `#c0c0e0`     | Secondary text       |
+| `--rsu-color-border`          | `#2a2a4a`     | Card / column border |
+| `--rsu-color-border-focus`    | `#4a6fa5`     | Focus ring           |
+| `--rsu-color-primary`         | `#0f3460`     | Accent / button bg   |
+| `--rsu-color-primary-hover`   | `#1a4a80`     | Hover state          |
+| `--rsu-color-error`           | `#ff6b6b`     | Error text           |
+
+Board-specific `--board-*` tokens (no `--rsu-*` equivalent):
+
+| Category  | Property                     | Default     |
+|-----------|------------------------------|-------------|
+| Surfaces  | `--board-header-bg`          | `#0f3460`   |
+|           | `--board-card-bg`            | `#1a1a2e`   |
+| Borders   | `--board-border-hover`       | `#3a3a6a`   |
+| Text      | `--board-text-muted`         | `#a0a0c0`   |
+|           | `--board-text-dim`           | `#8080a0`   |
+|           | `--board-text-empty`         | `#505070`   |
+| Accent    | `--board-accent-merged`      | `#4a9eff`   |
+| Badges    | `--board-badge-src-bg`       | `#2d1f4e`   |
+|           | `--board-badge-src-color`    | `#c0a0e0`   |
+|           | `--board-badge-src-border`   | `#4a3a6a`   |
+| Shadows   | `--board-shadow-card-hover`  | `0 2px 8px rgba(0,0,0,0.3)` |
+|           | `--board-shadow-focus`       | `0 0 0 2px rgba(74,111,165,0.4)` |
+|           | `--board-shadow-focus-select`| `0 0 0 2px rgba(74,111,165,0.3)` |
+|           | `--board-shadow-drawer`      | `-4px 0 16px rgba(0,0,0,0.4)` |
+
+Consumers can override any `--rsu-*` or `--board-*` property on `#board` or
+their own `:root` to customise the appearance without selector wars.
 
 Example — light-theme override:
 
 ```css
 #board {
-  --board-surface-bg: #ffffff;
-  --board-column-bg: #f5f5f5;
-  --board-text-primary: #1a1a2e;
+  --rsu-color-bg: #ffffff;
+  --rsu-color-bg-secondary: #f5f5f5;
+  --rsu-color-text: #1a1a2e;
+  --rsu-color-text-secondary: #4b5563;
+  --rsu-color-border: #e5e7eb;
   /* ... */
 }
 ```
+
+### Consuming robotsix-ui styles
+
+The shared base stylesheet (`robotsix-ui-base.css`) is **vendored** — a
+pinned copy of robotsix-ui's design tokens, reset, and component styles
+committed directly in `src/robotsix_board/static/`.  This avoids requiring
+Node.js / npm for Python-only consumers of robotsix-board.
+
+**Source:** [robotsix-ui](https://github.com/damien-robotsix/robotsix-ui)
+(`src/styles/{tokens,base,components}.css` concatenated).
+
+**To update the vendored copy** to a newer robotsix-ui revision:
+
+```bash
+# Fetch the three source CSS files at the desired commit SHA:
+SHA=<full-40-char-commit-sha>
+curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/tokens.css" > /tmp/t.css
+curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/base.css" > /tmp/b.css
+curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/components.css" > /tmp/c.css
+
+# Concatenate, update the pinned-SHA comment, and replace:
+cat /tmp/t.css /tmp/b.css /tmp/c.css > src/robotsix_board/static/robotsix-ui-base.css
+# (update the header comment with the new SHA)
+```
+
+The vendored file carries a header comment with the pinned commit SHA so
+the exact revision is always traceable.
 
 ## Build-out phasing
 
