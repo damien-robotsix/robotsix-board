@@ -12,7 +12,7 @@
  * customise the appearance without selector wars.
  */
 
-@import "robotsix-ui-base.css";
+@import url("robotsix-ui-base.css");
 
 /* ── board-scoped token overrides (dark theme) ──────────────────── */
 
@@ -58,6 +58,17 @@
   --board-shadow-focus: 0 0 0 2px rgb(74 111 165 / 0.4);
   --board-shadow-focus-select: 0 0 0 2px rgb(74 111 165 / 0.3);
   --board-shadow-drawer: -4px 0 16px rgb(0 0 0 / 0.4);
+
+  /* Layout */
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  padding: var(--rsu-space-md);
+  background: var(--rsu-color-bg, #1a1a2e);
+  min-height: 100vh;
+  align-items: flex-start;
 }
 
 /* ── accessibility utilities ──────────────────────────────────────── */
@@ -73,21 +84,6 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
-}
-
-/* ── board container ─────────────────────────────────────────────── */
-
-#board,
-.board {
-  box-sizing: border-box;
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 12px;
-  overflow-x: auto;
-  padding: var(--rsu-space-md);
-  background: var(--rsu-color-bg, #1a1a2e);
-  min-height: 100vh;
-  align-items: flex-start;
 }
 
 /* ── column ──────────────────────────────────────────────────────── */
