@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import fc from "fast-check";
 
 const {
   esc,
@@ -23,6 +24,88 @@ describe("esc()", () => {
   it("escapes a mixed string and passes plain text through unchanged", () => {
     expect(esc('<a href="x">&')).toBe("&lt;a href=&quot;x&quot;&gt;&amp;");
     expect(esc("plain text 123")).toBe("plain text 123");
+  });
+
+  // ------------------------------------------------------------------
+  //  Property-based oracle (fast-check)
+  // ------------------------------------------------------------------
+
+  // Character generator: all BMP code points (0x0000–0xFFFF) except
+  // surrogates (U+D800–U+DFFF).  Surrogates are excluded because
+  // html.unescape replaces lone surrogates with U+FFFD, which breaks
+  // the round-trip invariant.  (Mirrors the Python Hypothesis
+  // blacklist of [Cs,Cc] — Cc would also break round-trip but fast-check
+  // char16bits does generate control chars; they round-trip fine through
+  // esc because esc only touches the five HTML-significant chars.)
+  const nonSurrogateChar = fc.char16bits().filter(
+    (c) => {
+      const cp = c.charCodeAt(0);
+      return cp < 0xD800 || cp > 0xDFFF;
+    },
+  );
+
+  /** Invert ENTITY_MAP so we can decode esc() output for round-trip testing. */
+  const REVERSE_ENTITY_MAP = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+  };
+  const ENTITY_RE = /&(?:amp|lt|gt|quot|#39);/g;
+
+  /** Decode entities produced by esc() back to raw characters. */
+  function decodeEntities(escaped) {
+    return escaped.replace(ENTITY_RE, (m) => REVERSE_ENTITY_MAP[m]);
+  }
+
+  /** Shared arbitrary: BMP strings without surrogates, plus XSS vectors. */
+  const anySafeString = fc.oneof(
+    fc.stringOf(nonSurrogateChar, { minLength: 0, maxLength: 200 }),
+    fc.constantFrom(
+      "<script>alert(1)</script>",
+      "<img src=x onerror=alert(1)>",
+      "' OR 1=1 --",
+      "&amp;&lt;&gt;",
+      "'\"><svg onload=alert(1)>",
+    ),
+  );
+
+  it("property: no raw sigils survive escaping", () => {
+    fc.assert(
+      fc.property(anySafeString, (s) => {
+        const result = esc(s);
+        for (const rawChar of ["<", ">", '"', "'"]) {
+          expect(result).not.toContain(rawChar);
+        }
+        // Every '&' must start a valid HTML entity.
+        // The regex checks any '&' NOT followed by one of the known
+        // entity patterns.
+        expect(result).not.toMatch(/&(?!(?:amp|lt|gt|quot|#39);)/);
+      }),
+      {
+        examples: [
+          [""],
+          ["<script>alert(1)</script>"],
+          ["hello world"],
+        ],
+      },
+    );
+  });
+
+  it("property: esc round-trips through decodeEntities", () => {
+    fc.assert(
+      fc.property(anySafeString, (s) => {
+        expect(decodeEntities(esc(s))).toBe(s);
+      }),
+      {
+        examples: [
+          [""],
+          ["<script>alert(1)</script>"],
+          ["hello world"],
+        ],
+      },
+    );
   });
 });
 
