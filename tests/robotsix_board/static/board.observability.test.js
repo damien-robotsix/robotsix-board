@@ -24,6 +24,10 @@ describe("_notifyError()", () => {
     boardEl = document.getElementById("board");
   });
 
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
+  });
+
   it("dispatches a board:error CustomEvent on #board", () => {
     const handler = vi.fn();
     boardEl.addEventListener("board:error", handler);
@@ -117,6 +121,10 @@ describe("init() error hook", () => {
   beforeEach(() => {
     buildBoardDOM();
     setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
+  });
+
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
   });
 
   it("renders error stub and dispatches board:error when init throws", () => {
@@ -365,6 +373,10 @@ describe("performMove() error hook", () => {
     buildBoardDOM();
   });
 
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
+  });
+
   it("dispatches board:error on move fetch failure", async () => {
     const board = document.getElementById("board");
     const errorHandler = vi.fn();
@@ -442,6 +454,9 @@ describe("performMove() error hook", () => {
  * ================================================================ */
 
 describe("CFG.onError string lookup", () => {
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
+  });
   it("resolves a global function name from CFG.onError", () => {
     const cb = vi.fn();
     window._testOnErrorHandler = cb;
@@ -509,3 +524,4 @@ describe("window.robotsixBoardOnError()", () => {
     expect(cb).not.toHaveBeenCalled();
   });
 });
+
