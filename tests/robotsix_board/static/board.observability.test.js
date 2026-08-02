@@ -186,6 +186,10 @@ describe("applyCardDiff() error hook", () => {
     board = document.getElementById("board");
   });
 
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
+  });
+
   it("dispatches board:error when applyCardDiff throws", () => {
     const errorHandler = vi.fn();
     board.addEventListener("board:error", errorHandler);
@@ -264,6 +268,10 @@ describe("doRefresh() error hook", () => {
     bootConfig();
   });
 
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
+  });
+
   it("dispatches board:error on refresh fetch failure", async () => {
     const board = document.getElementById("board");
     const errorHandler = vi.fn();
@@ -320,6 +328,10 @@ describe("fetchGateDataAsync() error hook", () => {
       })
     );
     window.robotsixBoardSetGateEndpoint("/api/gate");
+  });
+
+  afterEach(() => {
+    window.robotsixBoardOnError(null);
   });
 
   it("dispatches board:error on gate fetch failure", async () => {

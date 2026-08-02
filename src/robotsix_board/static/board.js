@@ -494,7 +494,6 @@
       })
       .catch(function (err) {
         _notifyError("REFRESH_FAILED", "Refresh fetch failed", err, "refresh");
-        console.warn("board.js: refresh fetch failed:", err);
         // Retry on next interval — do not break the loop.
       });
   }
