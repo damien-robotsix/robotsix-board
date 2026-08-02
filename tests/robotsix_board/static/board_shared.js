@@ -19,8 +19,6 @@ export const SAMPLE_CONFIG = {
     ["doing", "Doing"],
     ["done", "Done"],
   ],
-  move_method: "POST",
-  move_endpoint_template: "/move/{card_id}/{target_status}",
 };
 
 /**

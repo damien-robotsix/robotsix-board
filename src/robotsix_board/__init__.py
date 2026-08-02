@@ -1,8 +1,10 @@
 """robotsix-board — shared kanban-board frontend library.
 
 This package owns the board HTML/CSS/JS chrome (a column-per-status board
-of cards with a move-between-columns action, auto-refresh, and a
-click-through detail panel). It is parameterized by a small data adapter
+of cards with auto-refresh and a click-through detail panel). It is
+read-only: moving a card between columns is the owning service's business,
+exposed through its own API, not an affordance this chrome renders. It is
+parameterized by a small data adapter
 (see :class:`BoardAdapter`) and a render mode (server-rendered HTML
 fragments vs JSON + client-side JS hydration).
 
@@ -70,8 +72,7 @@ class BoardAdapter(Protocol):
     This is the stable import target the follow-on build-out fills in. The
     create step ships a skeleton: methods document the contract but are not
     implemented. See ``README.md`` for the authoritative description of the
-    column order/labels, card-field accessors, move endpoint, and render
-    mode.
+    column order/labels, card-field accessors, and render mode.
 
     OPTIONAL duck-typed hooks (deliberately NOT part of this runtime-checkable
     Protocol — adding members here breaks ``isinstance()`` for every existing
@@ -79,7 +80,7 @@ class BoardAdapter(Protocol):
 
     * ``card_extra_html(card) -> str`` — trusted raw HTML appended VERBATIM
       (NOT through ``esc()``) inside the card's ``.board-card`` container,
-      after the move form.
+      after the timestamps.
     * ``column_extra_html(status_key) -> str`` — trusted raw HTML appended
       VERBATIM inside the column's ``.board-column``, after the cards list.
 
@@ -106,16 +107,4 @@ class BoardAdapter(Protocol):
 
     def card_timestamps(self, card: object) -> dict[str, str]:
         """Return the timestamp fields (e.g. created/updated) for ``card``."""
-        raise NotImplementedError  # pragma: no cover
-
-    def move_endpoint(self, card: object) -> tuple[str, str]:
-        """Return the ``(url, http_method)`` used to move ``card`` between columns."""
-        raise NotImplementedError  # pragma: no cover
-
-    def move_endpoint_template(self) -> str:
-        """Return the URL template used by the board config in JSON_HYDRATION mode.
-
-        The template should contain the placeholders ``{card_id}`` and
-        ``{target_status}``, e.g. ``"/move/{card_id}/{target_status}"``.
-        """
         raise NotImplementedError  # pragma: no cover

@@ -31,13 +31,6 @@ class MockAdapter(BoardAdapter):
         assert isinstance(c, dict)
         return c.get("timestamps", {})  # type: ignore[no-any-return]
 
-    def move_endpoint(self, c: object) -> tuple[str, str]:
-        assert isinstance(c, dict)
-        return (f"/move/{c['id']}", "POST")
-
-    def move_endpoint_template(self) -> str:
-        return "/move/{card_id}/{target_status}"
-
 
 class FailingAdapter:
     """Adapter that raises on every method call for error-resilience testing."""
@@ -56,12 +49,6 @@ class FailingAdapter:
 
     def card_timestamps(self, card: object) -> dict[str, str]:
         raise RuntimeError("card_timestamps failed")
-
-    def move_endpoint(self, card: object) -> tuple[str, str]:
-        raise RuntimeError("move_endpoint failed")
-
-    def move_endpoint_template(self) -> str:
-        raise RuntimeError("move_endpoint_template failed")
 
 
 def sample_cards() -> dict[str, list[dict[str, object]]]:

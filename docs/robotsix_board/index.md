@@ -3,9 +3,13 @@
 ## Overview
 
 `robotsix-board` is a shared kanban-board frontend library. It owns the
-board HTML/CSS/JS chrome — a column-per-status board of cards with a
-move-between-columns action, auto-refresh, and a click-through detail
-panel — and is parameterized by a small data adapter and a render mode.
+board HTML/CSS/JS chrome — a column-per-status board of cards with
+auto-refresh and a click-through detail panel — and is parameterized by a
+small data adapter and a render mode.
+
+The chrome is **read-only**: it renders no control for moving a card
+between columns. What a column change means, and who may make one, is the
+owning service's business, exposed through that service's own API.
 
 The library is designed for a **two-consumer architecture**:
 
@@ -78,7 +82,7 @@ Return the **stable identifier** for `card`. This is used as:
 
 - The DOM element id (`id="card-{card_id}"`).
 - The `data-card-id` attribute on the card element.
-- The key in move URLs and refresh-hydration logic.
+- The key in refresh-hydration logic.
 
 The identifier must be stable across renders for the same logical card.
 
@@ -114,39 +118,6 @@ entry renders as `<span class="board-timestamp">label: value</span>`.
 If a card has no timestamps, return an empty `dict` — the timestamps block
 will be omitted from the output.
 
-### `move_endpoint()`
-
-```python
-def move_endpoint(self, card: object) -> tuple[str, str]:
-```
-
-Return the `(url, http_method)` tuple used to **move a card** between
-columns. The move form (a `<form class="board-card-move">`) posts the
-selected `target_status` to this endpoint.
-
-- `http_method` is typically `"POST"`.
-- `url` is the action target — the form will submit `target_status` as a
-  form field to this URL.
-
-This is used in `SERVER_FRAGMENTS` mode, where each card gets its own
-inline form with a per-card endpoint.
-
-### `move_endpoint_template()`
-
-```python
-def move_endpoint_template(self) -> str:
-```
-
-Return a **URL template** consumed by `board.js` in `JSON_HYDRATION` mode.
-The template must contain the placeholders `{card_id}` and
-`{target_status}`, e.g. `"/move/{card_id}/{target_status}"`.
-
-The JavaScript client expands these placeholders before issuing the move
-request, so the server only needs to expose a single parameterized route.
-
-This method is **not** called in `SERVER_FRAGMENTS` mode — only
-`JSON_HYDRATION` mode uses the template.
-
 ### Structural HTML hooks (optional)
 
 Two **optional** duck-typed hooks allow a consumer to inject trusted raw
@@ -165,7 +136,7 @@ def card_extra_html(self, card: object) -> str:
 ```
 
 Return a raw HTML string to inject **inside `.board-card`**, immediately
-after the per-card move form. Defaults to `""` when not implemented.
+after the timestamps block. Defaults to `""` when not implemented.
 
 #### `column_extra_html(status_key)`
 
@@ -293,9 +264,6 @@ these guarantees without extra work.
 | `.board-column-label` (`<h2>`) | `id="col-heading-<key>"` | Heading anchor for `aria-labelledby` |
 | `.board-column-cards` | `role="list"` | Card container with list semantics |
 | `.board-card` | `role="listitem" tabindex="0" aria-haspopup="dialog"` | Focusable list item that opens a dialog |
-| Move `<select>` | `aria-label="Move <title> to column"` | Contextual label for screen readers |
-| Move `<button>` | `aria-label="Move <title>"` | Contextual label for screen readers |
-| `.board-move-error` | `role="alert"` | Assertive live region for move failures |
 | `#drawer` | `role="dialog" aria-modal="true" aria-labelledby="drawer-title"` | Modal dialog landmark |
 
 ### Keyboard interaction
@@ -376,40 +344,13 @@ semantics.
   <div class="board-card-timestamps">
     <span class="board-timestamp"><key>: <value></span>  <!-- zero or more -->
   </div>
-  <form class="board-card-move" method="<method>" action="<url>">
-    <select name="target_status" class="board-move-select"
-            aria-label="Move <title> to column">
-      <option value="">Move to…</option>
-      <option value="<other_key>"><other_label></option>  <!-- one per other column -->
-    </select>
-    <button type="submit" class="board-move-submit"
-            aria-label="Move <title>">Move</button>
-  </form>
 </div>
 ```
 
 Each card is keyed by its stable `card_id` via both the `id` attribute and
 `data-card-id`.  Cards carry `role="listitem"` (inside the `role="list"`
 container), `tabindex="0"` (keyboard-focusable), and
-`aria-haspopup="dialog"` (announces the drawer popup).  The move
-`<select>` and `<button>` include `aria-label` attributes that embed the
-card title for screen-reader context.
-
-### Move control
-
-The per-card move form includes:
-
-- A `<select>` listing every **other** column as a target option, with an
-  `aria-label` that includes the card title (e.g. `"Move Fix login bug to
-  column"`).
-- A `<button type="submit">` labelled "Move", with an `aria-label` that
-  includes the card title (e.g. `"Move Fix login bug"`).
-- An inline `<span class="board-move-error" role="alert">` for
-  screen-reader announcement of move failures.
-- The form `action` and `method` come from `adapter.move_endpoint(card)`.
-
-In `JSON_HYDRATION` mode, `board.js` generates equivalent interactive
-controls from the config; the server does not produce any `<form>` markup.
+`aria-haspopup="dialog"` (announces the drawer popup).
 
 ### Drawer shell
 

@@ -99,9 +99,6 @@ class TestRenderCard:
     @pytest.fixture(autouse=True)
     def _setup(self) -> None:
         self.adapter = MockAdapter()
-        columns = self.adapter.columns()
-        self.other_keys = [k for k, _ in columns if k != "todo"]
-        self.other_labels = dict(columns)
 
     @pytest.mark.parametrize(
         ("card", "expected_in", "expected_not_in"),
@@ -154,33 +151,12 @@ class TestRenderCard:
         expected_in: list[str],
         expected_not_in: list[str],
     ) -> None:
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         for text in expected_in:
             assert text in html
         for text in expected_not_in:
             assert text not in html
-
-    # ── move-form rendering ──
-
-    def test_move_form_present(self) -> None:
-        card = {"id": "c6", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
-        html = "".join(parts)
-        assert 'class="board-card-move"' in html
-        assert "Move to…" in html
-        assert "Move</button>" in html
-
-    def test_move_form_lists_other_columns(self) -> None:
-        card = {"id": "c7", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
-        html = "".join(parts)
-        # Current column "todo"; other columns "in_progress", "done"
-        assert "In Progress" in html
-        assert "Done" in html
-        assert "To Do" not in html  # current column not listed as target
-
-    # ── HTML escaping ──
 
     def test_html_escaped_in_title(self) -> None:
         card = {
@@ -189,7 +165,7 @@ class TestRenderCard:
             "badges": [],
             "timestamps": {},
         }
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         assert "<script>alert(1)</script>" not in html
         assert "&lt;script&gt;" in html
@@ -201,7 +177,7 @@ class TestRenderCard:
             "badges": [],
             "timestamps": {},
         }
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         # Double-quotes in the id are escaped, preventing attribute injection.
         assert 'onmouseover="alert(1)"' not in html
@@ -216,7 +192,7 @@ class TestRenderCard:
 
         adapter = FailingAdapter()
         card = {"id": "fail-1", "title": "irrelevant"}
-        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(adapter, card)
         assert parts == []
 
     # ── card_extra_html injection ──
@@ -228,7 +204,7 @@ class TestRenderCard:
 
         adapter = HookAdapter()
         card = {"id": "h1", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(adapter, card)
         html = "".join(parts)
         assert '<button class="x-delete">Del</button>' in html
 
@@ -239,14 +215,14 @@ class TestRenderCard:
 
         adapter = FailingHookAdapter()
         card = {"id": "h2", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(adapter, card)
         html = "".join(parts)
         # Card is still rendered; extra output is just omitted.
         assert "Task" in html
 
     def test_no_card_extra_html_on_adapter_without_hook(self) -> None:
         card = {"id": "h3", "title": "Task", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         assert 'class="x-delete"' not in html
 
@@ -254,14 +230,14 @@ class TestRenderCard:
 
     def test_empty_title_still_renders(self) -> None:
         card = {"id": "e1", "title": "", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         assert 'id="card-e1"' in html
         assert "board-card-title" in html
 
     def test_card_id_data_attribute(self) -> None:
         card = {"id": "my-card-42", "title": "T", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         html = "".join(parts)
         assert 'id="card-my-card-42"' in html
         assert 'data-card-id="my-card-42"' in html
@@ -270,7 +246,7 @@ class TestRenderCard:
 
     def test_returns_list_of_strings(self) -> None:
         card = {"id": "s1", "title": "T", "badges": [], "timestamps": {}}
-        parts = _render_card(self.adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(self.adapter, card)
         assert isinstance(parts, list)
         assert all(isinstance(p, str) for p in parts)
 
@@ -281,7 +257,7 @@ class TestRenderCard:
 
         adapter = BoomAdapter()
         card = {"id": "b1", "title": "T"}
-        parts = _render_card(adapter, card, self.other_keys, self.other_labels)
+        parts = _render_card(adapter, card)
         assert parts == []
         assert isinstance(parts, list)
 
@@ -327,30 +303,6 @@ class TestRenderBoard:
         assert "<script>alert(1)</script>" not in html
         assert "&lt;script&gt;" in html
 
-    def test_render_move_control_lists_other_columns(self) -> None:
-        adapter = _adapter()
-        cards = sample_cards()
-        html = render_board(adapter, cards)
-
-        # Cards in "todo" column should have move options for
-        # "in_progress" and "done", but NOT "todo" itself.
-        # Parse out the first card's move form options.
-        # Use regex to find <option> tags within the first card.
-        card_pattern = re.compile(
-            r'<div class="board-card".*?</div>\s*</div>\s*</div>',
-            re.DOTALL,
-        )
-        first_card_match = card_pattern.search(html)
-        assert first_card_match is not None
-        first_card_html = first_card_match.group(0)
-
-        # The first card is in "todo" column, so its move form should
-        # include "In Progress" and "Done" but not "To Do" as target.
-        assert "In Progress" in first_card_html
-        assert "Done" in first_card_html
-        # The move-to prompt should be present
-        assert "Move to…" in first_card_html
-
     def test_render_board_includes_drawer_shell(self) -> None:
         adapter = _adapter()
         cards = sample_cards()
@@ -390,15 +342,6 @@ class TestRenderBoard:
         assert 'tabindex="0"' in html
         assert 'aria-haspopup="dialog"' in html
 
-    def test_render_board_move_select_aria_label(self) -> None:
-        adapter = _adapter()
-        cards = sample_cards()
-        html = render_board(adapter, cards)
-
-        # The select should have an aria-label referencing the card title
-        assert 'aria-label="Move Fix login bug to column"' in html
-        assert 'aria-label="Move Fix login bug"' in html
-
     def test_render_board_drawer_dialog_attrs(self) -> None:
         adapter = _adapter()
         cards = sample_cards()
@@ -422,7 +365,6 @@ class TestRenderBoard:
             "board-card-badges",
             "board-badge",
             "board-card-timestamps",
-            "board-card-move",
         ]
         for cls in expected_classes:
             assert cls in html, f"Missing CSS class: {cls}"
@@ -516,10 +458,6 @@ class TestRenderBoard:
             def card_timestamps(self, card: object) -> dict[str, str]:
                 return {}
 
-            def move_endpoint(self, card: object) -> tuple[str, str]:
-                assert isinstance(card, dict)
-                return (f"/move/{card['id']}", "POST")
-
         adapter = cast(BoardAdapter, BareAdapter())
         html = render_board(adapter, {"todo": [{"id": "b1", "title": "t"}]})
 
@@ -545,12 +483,12 @@ class TestRenderBoard:
         assert sentinel in html
         assert "&lt;button" not in html
 
-        # Positioned inside .board-card: after the move form's </form>,
-        # before the card-closing </div>.
-        move_form_end = html.index("</form>")
+        # Positioned inside .board-card: after the timestamps, before
+        # the card-closing </div>.
+        timestamps_end = html.index("board-card-timestamps")
         sentinel_pos = html.index(sentinel)
         card_close = html.index("</div>", sentinel_pos)
-        assert move_form_end < sentinel_pos < card_close
+        assert timestamps_end < sentinel_pos < card_close
 
     def test_render_board_column_extra_html_injected_verbatim(self) -> None:
         class ColumnHookAdapter(MockAdapter):
@@ -599,10 +537,8 @@ class TestRenderBoard:
             ["in_progress", "In Progress"],
             ["done", "Done"],
         ]
-        assert "move_endpoint_template" in parsed
-        assert parsed["move_endpoint_template"] == "/move/{card_id}/{target_status}"
-        assert "move_method" in parsed
-        assert parsed["move_method"] == "POST"
+        assert "move_endpoint_template" not in parsed
+        assert "move_method" not in parsed
         assert "render_mode" in parsed
         assert parsed["render_mode"] == "json_hydration"
         assert "refresh_interval_ms" in parsed
@@ -626,16 +562,6 @@ class TestRenderBoard:
             assert parsed["refresh_url"] == refresh_url
         else:
             assert "refresh_url" not in parsed
-
-    def test_render_config_script_uses_adapter_move_endpoint_template(self) -> None:
-        """A custom template from the adapter must appear in the emitted config."""
-        adapter = MockAdapter()
-        adapter.move_endpoint_template = lambda: "/api/board/{card_id}/transition"  # type: ignore[method-assign]
-
-        result = render_config_script(adapter)
-        parsed = _extract_script_json(result)
-
-        assert parsed["move_endpoint_template"] == "/api/board/{card_id}/transition"
 
     @pytest.mark.parametrize(
         ("gate_endpoint", "expected_present"),
