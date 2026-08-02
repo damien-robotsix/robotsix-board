@@ -1,0 +1,1 @@
+Add consumer-facing error observability to the board JS widget: a `robotsixBoardOnError(fn)` public API, a `board:error` CustomEvent on `#board`, and a visible `.board-error` stub rendered on hard init failure so the widget never silently vanishes.

@@ -27,7 +27,8 @@
    *   columns: Array<[string, string]>,
    *   gate_endpoint?: string,
    *   refresh_url?: string|null,
-   *   refresh_interval_ms?: number
+   *   refresh_interval_ms?: number,
+   *   onError?: string
    * }} BoardConfig
    */
 
@@ -121,6 +122,45 @@
   /** @type {string|null}  status_key of the terminal / closed column. */
   var CLOSED_KEY = null;
 
+  /** @type {Function|null} Consumer-supplied error callback. */
+  var _onErrorCallback = null;
+
+  /**
+   * Notify the consumer of a board error through all available channels:
+   * the onError callback (if set), console.warn, and a namespaced
+   * CustomEvent on the board container.
+   * @param {string} code - Machine-readable error code.
+   * @param {string} message - Human-readable error message.
+   * @param {*} cause - The originating error or value.
+   * @param {string} phase - Lifecycle phase (init, render, move, refresh, gate).
+   */
+  function _notifyError(code, message, cause, phase) {
+    var errorObj = { code: code, message: message, cause: cause, phase: phase };
+    if (typeof _onErrorCallback === "function") {
+      try { _onErrorCallback(errorObj); } catch (_) { /* consumer callback must not break the board */ }
+    }
+    console.warn("board.js: " + message, cause);
+    var board = document.getElementById("board");
+    if (board) {
+      board.dispatchEvent(new CustomEvent("board:error", { detail: errorObj }));
+    }
+  }
+
+  /**
+   * Render a visible error stub inside the board container so the widget
+   * never silently vanishes.
+   * @param {string} message - Human-readable error message.
+   */
+  function _renderErrorStub(message) {
+    var board = document.getElementById("board");
+    if (!board) { return; }
+    var stub = document.createElement("div");
+    stub.className = "board-error";
+    stub.setAttribute("role", "alert");
+    stub.textContent = message;
+    board.appendChild(stub);
+  }
+
   /**
    * Boot: locate #board-config, parse, validate, and store globally.
    * Returns true on success, false when the page is not in
@@ -158,6 +198,13 @@
 
     if (CFG.gate_endpoint) {
       robotsixBoardSetGateEndpoint(CFG.gate_endpoint);
+    }
+
+    if (typeof CFG.onError === "string") {
+      var fn = /** @type {Function|undefined} */ (/** @type {any} */ (window)[CFG.onError]);
+      if (typeof fn === "function") {
+        _onErrorCallback = fn;
+      }
     }
 
     return true;
@@ -354,6 +401,7 @@
         updateColumnCounts();
       })
       .catch(function (err) {
+        _notifyError("REFRESH_FAILED", "Refresh fetch failed", err, "refresh");
         console.warn("board.js: refresh fetch failed:", err);
         // Retry on next interval — do not break the loop.
       });
@@ -369,6 +417,7 @@
     if (!board) { return; }
     if (!Array.isArray(cards)) { return; }
 
+    try {
     // Index incoming cards by id
     /** @type {Record<string, BoardCard>} */
     var incoming = {};
@@ -418,6 +467,9 @@
       if (!seen[currentIds[m]]) {
         currentMap[currentIds[m]].el.remove();
       }
+    }
+    } catch (err) {
+      _notifyError("RENDER_FAILED", "Card diff rendering failed", err, "render");
     }
   }
 
@@ -650,7 +702,12 @@
       timestamps.push(tsEls[j].textContent || "");
     }
 
-    content.innerHTML = _buildDrawerHtml(title, cardId, badges, timestamps);
+    try {
+      content.innerHTML = _buildDrawerHtml(title, cardId, badges, timestamps);
+    } catch (err) {
+      _notifyError("HYDRATE_FAILED", "Drawer hydration failed", err, "hydrate");
+      return;
+    }
     drawer.classList.remove("hidden");
 
     _setupDrawerA11y(drawer, cardEl, content.querySelector(".drawer-close"));
@@ -783,6 +840,7 @@
         robotsixBoardSetGate(data);
       })
       .catch(function (err) {
+        _notifyError("GATE_FAILED", "Gate fetch failed", err, "gate");
         console.warn("board.js: gate fetch failed:", err);
       });
   }
@@ -958,6 +1016,16 @@
   }
 
   /**
+   * Register a consumer error callback.  The function receives a
+   * structured error object: ``{code, message, cause, phase}``.
+   * Pass ``null`` to unregister.
+   * @param {Function|null} fn - Error callback or null.
+   */
+  function robotsixBoardOnError(fn) {
+    _onErrorCallback = fn;
+  }
+
+  /**
    * Apply column-level ARIA attributes to the pre-rendered board DOM.
    * Ensures every .board-column-cards has role="list" and every
    * .board-column has aria-labelledby pointing to its <h2> heading.
@@ -1001,14 +1069,19 @@
    * the refresh loop, and mount UI controls.
    */
   function init() {
-    if (!bootConfig()) {
-      return; // not json_hydration mode or missing config
-    }
+    try {
+      if (!bootConfig()) {
+        return; // not json_hydration mode or missing config
+      }
 
     attachDrawerDelegation();
     attachClosedToggle();
     applyColumnA11y();
     startRefreshLoop();
+    } catch (err) {
+      _notifyError("INIT_FAILED", "Board initialisation failed", err, "init");
+      _renderErrorStub("The board failed to load. Please refresh the page.");
+    }
   }
 
   // ── Wire up on DOM ready ─────────────────────────────────────────
@@ -1026,6 +1099,7 @@
   w["robotsixBoardSetGateEndpoint"] = robotsixBoardSetGateEndpoint;
   w["robotsixBoardSetRefreshUrl"] = robotsixBoardSetRefreshUrl;
   w["robotsixBoardSetRefreshInterval"] = robotsixBoardSetRefreshInterval;
+  w["robotsixBoardOnError"] = robotsixBoardOnError;
 
   // Expose pure IIFE-private helpers so they can be unit-tested.
   w["robotsixBoardInternals"] = {
@@ -1058,5 +1132,7 @@
     attachDrawerDelegation: attachDrawerDelegation,
     applyColumnA11y: applyColumnA11y,
     init: init,
+    _notifyError: _notifyError,
+    _renderErrorStub: _renderErrorStub,
   };
 })();

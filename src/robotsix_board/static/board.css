@@ -377,3 +377,15 @@
   font-style: italic;
   text-align: center;
 }
+
+/* ── Error stub (rendered by board.js on init failure) ── */
+.board-error {
+  padding: 24px 16px;
+  margin: 16px 8px;
+  border: 1px solid var(--board-error-border, #c00);
+  border-radius: 6px;
+  background: var(--board-error-bg, #fff5f5);
+  color: var(--board-error-text, #900);
+  font-size: 0.95rem;
+  text-align: center;
+}
