@@ -35,12 +35,7 @@ def esc(s: str) -> str:
     return _html.escape(s, quote=True)
 
 
-def _render_card(
-    adapter: BoardAdapter,
-    card: object,
-    other_keys: list[str],
-    other_labels: dict[str, str],
-) -> list[str]:
+def _render_card(adapter: BoardAdapter, card: object) -> list[str]:
     """Render a single card's HTML fragments.
 
     Returns a list of HTML strings to be appended to the column's card
@@ -52,7 +47,6 @@ def _render_card(
         title = adapter.card_title(card)
         badges = adapter.card_badges(card)
         timestamps = adapter.card_timestamps(card)
-        move_url, move_method = adapter.move_endpoint(card)
     except Exception:
         _logger.warning("Failed to render card %r: skipping", card, exc_info=True)
         return []
@@ -81,27 +75,6 @@ def _render_card(
                 f'<span class="board-timestamp">{esc(key)}: {esc(value)}</span>'
             )
         parts.append("</div>")  # .board-card-timestamps
-
-    # move form
-    parts.append(
-        f'<form class="board-card-move" method="{esc(move_method)}"'
-        f' action="{esc(move_url)}">'
-    )
-    parts.append(
-        f'<select name="target_status" class="board-move-select"'
-        f' aria-label="Move {esc(title)} to column">'
-    )
-    parts.append('<option value="">Move to…</option>')
-    parts.extend(
-        f'<option value="{esc(other_key)}">{esc(other_labels[other_key])}</option>'
-        for other_key in other_keys
-    )
-    parts.append("</select>")
-    parts.append(
-        f'<button type="submit" class="board-move-submit"'
-        f' aria-label="Move {esc(title)}">Move</button>'
-    )
-    parts.append("</form>")  # .board-card-move
 
     # ── optional duck-typed hook: card_extra_html(card) ──
     card_hook = getattr(adapter, "card_extra_html", None)
@@ -141,7 +114,6 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         return '<div id="board" class="board"></div>'
 
     parts: list[str] = ['<div id="board" class="board">']
-    other_labels = dict(columns)
 
     for status_key, label in columns:
         column_cards = cards.get(status_key, [])
@@ -162,10 +134,8 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         # ── card list ──
         parts.append('<div class="board-column-cards" role="list">')
 
-        other_keys = [k for k in other_labels if k != status_key]
-
         for card in column_cards:
-            parts.extend(_render_card(adapter, card, other_keys, other_labels))
+            parts.extend(_render_card(adapter, card))
 
         parts.append("</div>")  # .board-column-cards
 
@@ -224,21 +194,8 @@ def render_config_script(
         )
         columns = []
 
-    move_method = "POST"
-    try:
-        move_endpoint_template = adapter.move_endpoint_template()
-    except Exception:
-        _logger.warning(
-            "Failed to fetch move_endpoint_template from adapter %r",
-            adapter,
-            exc_info=True,
-        )
-        move_endpoint_template = ""
-
     config: dict[str, object] = {
         "columns": [[k, lbl] for k, lbl in columns],
-        "move_endpoint_template": move_endpoint_template,
-        "move_method": move_method,
         "render_mode": RenderMode.JSON_HYDRATION.value,
         "refresh_interval_ms": refresh_interval_ms,
     }

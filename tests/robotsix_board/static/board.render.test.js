@@ -2,9 +2,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { SAMPLE_CONFIG, setBoardConfig, buildBoardDOM } from "./board_shared.js";
 
 const {
-  buildSelectOptions,
-  buildMoveForm,
-  rebuildMoveSelect,
   findColumnByStatus,
   appendCardToColumn,
   updateColumnCounts,
@@ -12,83 +9,6 @@ const {
   bootConfig,
   applyColumnA11y,
 } = window.robotsixBoardInternals;
-
-/* ==================================================================
- * 2.  buildSelectOptions
- * ================================================================ */
-
-describe("buildSelectOptions()", () => {
-  it("populates options, skips the current status, and disables blocked columns", () => {
-    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
-    bootConfig();
-
-    const select = document.createElement("select");
-    buildSelectOptions(select, "todo", ["done"]);
-
-    // Placeholder + (3 columns - 1 current) = 3 options.
-    expect(select.options.length).toBe(3);
-    expect(select.options[0].value).toBe("");
-
-    const values = Array.from(select.options).map((o) => o.value);
-    expect(values).not.toContain("todo");
-    expect(values).toContain("doing");
-    expect(values).toContain("done");
-
-    const doneOpt = Array.from(select.options).find((o) => o.value === "done");
-    expect(doneOpt.disabled).toBe(true);
-  });
-});
-
-/* ==================================================================
- * 2b.  buildMoveForm
- * ================================================================ */
-
-describe("buildMoveForm()", () => {
-  it("builds a move form with select, submit button, and error placeholder", () => {
-    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
-    bootConfig();
-
-    const form = buildMoveForm({ id: "c1", title: "Test Title", status: "todo" });
-    expect(form.tagName).toBe("FORM");
-    expect(form.className).toBe("board-card-move");
-    expect(form.getAttribute("method")).toBe("POST");
-
-    const select = form.querySelector("select[name='target_status']");
-    expect(select).not.toBeNull();
-    expect(select.getAttribute("aria-label")).toBe("Move Test Title to column");
-
-    const btn = form.querySelector("button.board-move-submit");
-    expect(btn).not.toBeNull();
-    expect(btn.getAttribute("aria-label")).toBe("Move Test Title");
-
-    const errEl = form.querySelector(".board-move-error");
-    expect(errEl).not.toBeNull();
-    expect(errEl.getAttribute("role")).toBe("alert");
-  });
-});
-
-/* ==================================================================
- * 2c.  rebuildMoveSelect
- * ================================================================ */
-
-describe("rebuildMoveSelect()", () => {
-  it("replaces the select to reflect the card's new status", () => {
-    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
-    bootConfig();
-
-    const form = buildMoveForm({ id: "c1", status: "todo" });
-    const before = form.querySelector("select[name='target_status']");
-
-    rebuildMoveSelect(form, { id: "c1", status: "doing" });
-    const after = form.querySelector("select[name='target_status']");
-
-    expect(after).not.toBe(before);
-    const values = Array.from(after.options).map((o) => o.value);
-    // The new current status "doing" is skipped; "todo" is now offered.
-    expect(values).not.toContain("doing");
-    expect(values).toContain("todo");
-  });
-});
 
 /* ==================================================================
  * 3.  findColumnByStatus / appendCardToColumn / updateColumnCounts
@@ -232,7 +152,7 @@ describe("buildCardElement()", () => {
     bootConfig();
   });
 
-  it("builds a .board-card element with title and move form", () => {
+  it("builds a .board-card element with title", () => {
     const el = buildCardElement({ id: "c1", title: "Test card", status: "todo" });
     expect(el.className).toBe("board-card");
     expect(el.id).toBe("card-c1");
@@ -247,8 +167,8 @@ describe("buildCardElement()", () => {
     expect(titleEl).not.toBeNull();
     expect(titleEl.textContent).toBe("Test card");
 
-    // Should include a move form
-    expect(el.querySelector(".board-card-move")).not.toBeNull();
+    // The board renders no move control.
+    expect(el.querySelector("form")).toBeNull();
   });
 
   it("adds .board-card--merged when card.merged is true", () => {

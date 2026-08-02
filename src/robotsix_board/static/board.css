@@ -1,7 +1,7 @@
 /*
  * robotsix-board — shared board styles.
  *
- * Dark-theme column/card/move-form styles for the shared DOM contract.
+ * Dark-theme column/card styles for the shared DOM contract.
  * Mill-specific chrome (agents menu, cost dashboard, repo selector,
  * proposals/runs panels) is OUT of scope — those stay in robotsix-mill.
  *
@@ -248,59 +248,6 @@
   white-space: nowrap;
 }
 
-/* ── move form ───────────────────────────────────────────────────── */
-
-.board-card-move {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin-top: 4px;
-  padding-top: var(--rsu-space-sm);
-  border-top: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
-}
-
-.board-move-select {
-  flex: 1;
-  min-width: 0;
-  padding: 4px var(--rsu-space-sm);
-  border: var(--rsu-border-width, 1px) solid var(--rsu-color-border, #2a2a4a);
-  border-radius: var(--rsu-radius-sm);
-  background: var(--rsu-color-bg-secondary, #16213e);
-  color: var(--rsu-color-text, #e0e0e0);
-  font-size: 0.8rem;
-  cursor: pointer;
-  appearance: auto;
-}
-
-.board-move-submit {
-  padding: 4px 12px;
-  border: var(--rsu-border-width, 1px) solid var(--rsu-color-primary, #0f3460);
-  border-radius: var(--rsu-radius-sm);
-  background: var(--rsu-color-primary, #0f3460);
-  color: var(--rsu-color-text, #e0e0e0);
-  font-size: 0.8rem;
-  font-weight: var(--rsu-font-weight-medium);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .board-move-submit {
-    transition: background var(--rsu-transition-fast);
-  }
-}
-
-.board-move-submit:hover {
-  background: var(--rsu-color-primary-hover, #1a4a80);
-}
-
-.board-move-error {
-  display: none;
-  color: var(--rsu-color-error, #ff6b6b);
-  font-size: var(--rsu-font-size-xs);
-  margin-left: var(--rsu-space-sm);
-}
-
 /* ── drawer (detail panel) ───────────────────────────────────────── */
 
 #drawer,
@@ -371,8 +318,6 @@
   cursor: pointer;
 }
 
-.board-move-select:focus,
-.board-move-submit:focus-visible,
 .drawer-close:focus-visible {
   outline: none;
   border-color: var(--rsu-color-border-focus, #4a6fa5);

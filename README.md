@@ -5,7 +5,7 @@
 
 # robotsix-board
 
-Shared kanban-board frontend library: column-per-status board of cards with a move-between-columns action, auto-refresh, and a click-through detail panel. Owns the board HTML/CSS/JS chrome, parameterized by a small data adapter (column order, card fields, move endpoint) and a render mode (server-rendered fragments vs JSON+JS hydration). Consumed by robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib BaseHTTPRequestHandler + inline Jinja).
+Shared kanban-board frontend library: column-per-status board of cards with auto-refresh and a click-through detail panel. Owns the board HTML/CSS/JS chrome, parameterized by a small data adapter (column order, card fields) and a render mode (server-rendered fragments vs JSON+JS hydration). The chrome is read-only — moving a card between columns is the owning service's business, done through that service's own API. Consumed by robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib BaseHTTPRequestHandler + inline Jinja).
 
 ## Installation
 
@@ -29,7 +29,7 @@ dependencies = [
 
 The library owns the board HTML/CSS/JS chrome and is parameterized by two things:
 
-- **A data adapter** that describes the board's shape — the column order, which card fields to display, and the endpoint used to move a card between columns.
+- **A data adapter** that describes the board's shape — the column order and which card fields to display.
 - **A render mode** that selects how the board is produced — server-rendered HTML fragments, or a JSON payload hydrated by the bundled JavaScript.
 
 This lets it be consumed by both robotsix-mill (FastAPI + static files) and robotsix-auto-mail (stdlib `BaseHTTPRequestHandler` + inline Jinja).
@@ -84,17 +84,14 @@ A consumer drives the board by supplying an adapter (see
   pairs. Column order is significant: it is the left-to-right order columns
   appear on the board, and the labels are the human-readable column headings.
 - **Card-field accessors** — given a card object, the adapter exposes:
-  - `id` — a stable identifier (used as the DOM/card key and in move URLs).
+  - `id` — a stable identifier (used as the DOM/card key).
   - `title` — the display title.
   - `badges` — zero or more short badge labels.
   - `timestamps` — named timestamp fields (e.g. created / updated).
-- **Move endpoint** — the `(url, http_method)` used to move a card from one
-  column to another. The move control posts the target `status_key` to this
-  endpoint.
 - **Structural HTML hooks (optional)** — two optional adapter methods inject
   trusted raw HTML into the server-rendered markup (`SERVER_FRAGMENTS` only):
   - `card_extra_html(card) -> str` — output is injected inside `.board-card`,
-    immediately after the per-card move form.
+    immediately after the timestamps block.
   - `column_extra_html(status_key) -> str` — output is injected inside
     `.board-column`, after the `.board-column-cards` list.
 
@@ -127,8 +124,6 @@ Both transports produce the same DOM shape:
   headed by the column `label`.
 - **Card markup** — a card element keyed by the card `id`, showing `title`,
   `badges`, and `timestamps`.
-- **Move control** — a per-card form/dropdown listing the other columns;
-  selecting a target column issues the adapter's move endpoint request.
 
 All HTML interpolation goes through a single centralized `esc()` escaping
 helper, so the server-fragment and JSON-hydration transports share **one**
@@ -233,13 +228,13 @@ the exact revision is always traceable.
 ## Build-out phasing
 
 The build-out should start with the **highest-overlap, lowest-risk slice**:
-the shared CSS plus the column/card/move-form markup contract. Only after
+the shared CSS plus the column/card markup contract. Only after
 that lands should it unify the JS refresh/detail behavior.
 
 **Out of scope for this shared library:** mill-specific chrome — the agents
 menu, cost dashboard, AGENT.md candidates, the repo selector, and the
 proposals/runs panels all stay in robotsix-mill. Only the `#board`
-columns/cards/move control, the `#drawer`/detail panel, and the refresh loop
+columns/cards, the `#drawer`/detail panel, and the refresh loop
 are shared here.
 
 ## Standards

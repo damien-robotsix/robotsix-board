@@ -97,12 +97,6 @@ class TestRenderBoardErrorResilience:
             def card_timestamps(self, card: object) -> dict[str, str]:
                 return {}
 
-            def move_endpoint(self, card: object) -> tuple[str, str]:
-                return ("/move/x", "POST")
-
-            def move_endpoint_template(self) -> str:
-                return "/move/{card_id}/{target_status}"
-
         adapter = PickyAdapter()
         bad_card: dict[str, str] = {"id": "bad", "title": "Will Fail"}
         good_card: dict[str, str] = {"id": "g2", "title": "Good"}
@@ -137,12 +131,6 @@ class TestRenderBoardErrorResilience:
 
             def card_timestamps(self, card: object) -> dict[str, str]:
                 return {}
-
-            def move_endpoint(self, card: object) -> tuple[str, str]:
-                return ("/move/x", "POST")
-
-            def move_endpoint_template(self) -> str:
-                return "/move/{card_id}/{target_status}"
 
             def card_extra_html(self, card: object) -> str:
                 raise RuntimeError("hook exploded")
@@ -179,12 +167,6 @@ class TestRenderBoardErrorResilience:
             def card_timestamps(self, card: object) -> dict[str, str]:
                 return {}
 
-            def move_endpoint(self, card: object) -> tuple[str, str]:
-                return ("/move/x", "POST")
-
-            def move_endpoint_template(self) -> str:
-                return "/move/{card_id}/{target_status}"
-
             def column_extra_html(self, status_key: str) -> str:
                 raise RuntimeError("column hook exploded")
 
@@ -210,17 +192,3 @@ class TestRenderConfigScriptErrorResilience:
         assert "Failed to fetch columns from adapter" in caplog.text
         assert "columns failed" in caplog.text
         assert '"columns":[]' in result
-
-    def test_render_config_script_move_endpoint_template_failure(
-        self, caplog: pytest.LogCaptureFixture
-    ) -> None:
-        class SemiFailingAdapter(FailingAdapter):
-            def columns(self) -> list[tuple[str, str]]:
-                return [("todo", "To Do")]
-
-        adapter = SemiFailingAdapter()
-        with caplog.at_level(logging.WARNING, logger="robotsix_board._render"):
-            result = render_config_script(adapter)
-
-        assert "Failed to fetch move_endpoint_template from adapter" in caplog.text
-        assert '"columns":[["todo","To Do"]]' in result

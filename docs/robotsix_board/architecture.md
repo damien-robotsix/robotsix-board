@@ -44,20 +44,19 @@ Every subsystem is delimited by a section-header comment of the form
 
 | # | Subsystem | Lines (approx.) | Key functions |
 |---|---|---|---|
-| 0 | Helpers | 53–111 | `esc()`, `hashStr()`, `agentColor()` |
-| 1 | Configuration | 112–163 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
-| 2 | Card rendering | 164–371 | `buildCardElement()`, `_buildAgentBadgeElements()`, `buildSelectOptions()`, `buildMoveForm()`, `rebuildMoveSelect()` |
-| 3 | Column count update | 372–397 | `updateColumnCounts()` |
-| 4 | Refresh loop | 398–544 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
-| 5 | Move control | 545–650 | `performMove()`, `attachMoveDelegation()` |
-| 6 | Drawer / detail panel | 651–900 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_trapFocus()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
-| 7 | Gate caching | 901–1 023 | `getGateBlockedColumns()`, `getGateData()`, `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `robotsixBoardSetGateEndpoint()` |
-| 8 | Closed-ticket toggle | 1 024–1 110 | `attachClosedToggle()`, `getClosedToggleState()`, `setClosedToggleState()`, `applyClosedToggle()` |
-| 9 | Public API | 1 111–1 199 | `robotsixBoardRefresh()`, `robotsixBoardStopRefresh()`, `robotsixBoardSetRefreshUrl()`, `robotsixBoardSetRefreshInterval()`, `applyColumnA11y()` |
-| 10 | Bootstrap | 1 200–1 273 | `init()`, DOM-ready wiring, public API + internals export |
+| 0 | Helpers | 55–113 | `esc()`, `hashStr()`, `agentColor()` |
+| 1 | Configuration | 114–165 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
+| 2 | Card rendering | 166–279 | `buildCardElement()`, `_buildAgentBadgeElements()` |
+| 3 | Column count update | 280–305 | `updateColumnCounts()` |
+| 4 | Refresh loop | 306–452 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
+| 5 | Drawer / detail panel | 453–691 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_trapFocus()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
+| 6 | Gate caching | 692–818 | `getGateBlockedColumns()`, `getGateData()`, `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `robotsixBoardSetGateEndpoint()` |
+| 7 | Closed-ticket toggle | 819–905 | `attachClosedToggle()`, `getClosedToggleState()`, `setClosedToggleState()`, `applyClosedToggle()` |
+| 8 | Public API | 906–994 | `robotsixBoardRefresh()`, `robotsixBoardStopRefresh()`, `robotsixBoardSetRefreshUrl()`, `robotsixBoardSetRefreshInterval()`, `applyColumnA11y()` |
+| 9 | Bootstrap | 995–1 063 | `init()`, DOM-ready wiring, public API + internals export |
 
 > Line ranges are approximate and reflect the file at the time of
-> writing.  Subsystems 7–8 (gate cache and closed toggle) intentionally
+> writing.  Subsystems 6–7 (gate cache and closed toggle) intentionally
 > sit after the drawer subsystem in the source — they were added later
 > and live at the bottom so the refresh/public-API logic can reference
 > them by hoisting.
@@ -97,8 +96,10 @@ the server already has the gate information.
 
 ### `robotsixBoardSetGateEndpoint(url)`
 
-Set (or change) the gate-data endpoint URL.  The next move-select
-build will fetch from this URL.
+Set (or change) the gate-data endpoint URL.  The next gate-data read
+will fetch from this URL.  The library itself no longer consumes the
+blocked-column list (the move control it fed is gone); consumers read it
+through `robotsixBoardInternals.getGateBlockedColumns()`.
 
 ### `robotsixBoardSetRefreshUrl(url)`
 
@@ -151,8 +152,7 @@ that forgets to add its entry will fail CI.
 |---|---|
 | `board.helpers.test.js` | `esc()`, `hashStr()`, `agentColor()` |
 | `board.config.test.js` | `bootConfig()` configuration parsing |
-| `board.render.test.js` | `buildCardElement()`, `buildMoveForm()` |
-| `board.move.test.js` | `performMove()`, `attachMoveDelegation()` |
+| `board.render.test.js` | `buildCardElement()` |
 | `board.drawer.test.js` | `openDrawer()`, `closeDrawer()`, focus trap |
 | `board.gate.test.js` | `fetchGateDataAsync()`, gate cache |
 | `board.toggle.test.js` | `attachClosedToggle()`, `applyClosedToggle()` |

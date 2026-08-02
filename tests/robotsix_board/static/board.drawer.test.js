@@ -276,27 +276,6 @@ describe("attachDrawerDelegation()", () => {
     expect(drawer.querySelector(".drawer-content").innerHTML).toContain("Drawer Test");
   });
 
-  it("does not open the drawer when .board-card-move is clicked", () => {
-    const board = buildBoardDOM();
-    const todoCards = board.querySelector(
-      '.board-column[data-status="todo"] .board-column-cards'
-    );
-    const cardEl = document.createElement("div");
-    cardEl.className = "board-card";
-    cardEl.setAttribute("data-card-id", "no-drawer");
-    const moveForm = document.createElement("form");
-    moveForm.className = "board-card-move";
-    cardEl.appendChild(moveForm);
-    todoCards.appendChild(cardEl);
-
-    attachDrawerDelegation();
-
-    moveForm.dispatchEvent(new Event("click", { bubbles: true }));
-
-    const drawer = document.getElementById("drawer");
-    expect(drawer.classList.contains("hidden")).toBe(true);
-  });
-
   it("opens the drawer on Enter keydown on a .board-card", () => {
     const board = buildBoardDOM();
     const todoCards = board.querySelector(
@@ -362,27 +341,6 @@ describe("attachDrawerDelegation()", () => {
     attachDrawerDelegation();
 
     cardEl.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
-
-    const drawer = document.getElementById("drawer");
-    expect(drawer.classList.contains("hidden")).toBe(true);
-  });
-
-  it("does not open the drawer on Enter keydown inside .board-card-move", () => {
-    const board = buildBoardDOM();
-    const todoCards = board.querySelector(
-      '.board-column[data-status="todo"] .board-column-cards'
-    );
-    const cardEl = document.createElement("div");
-    cardEl.className = "board-card";
-    cardEl.setAttribute("data-card-id", "no-kbd-drawer");
-    const moveForm = document.createElement("form");
-    moveForm.className = "board-card-move";
-    cardEl.appendChild(moveForm);
-    todoCards.appendChild(cardEl);
-
-    attachDrawerDelegation();
-
-    moveForm.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
 
     const drawer = document.getElementById("drawer");
     expect(drawer.classList.contains("hidden")).toBe(true);
