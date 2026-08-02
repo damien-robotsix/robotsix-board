@@ -120,9 +120,11 @@
   /** @type {string|null}  status_key of the terminal / closed column. */
   var CLOSED_KEY = null;
 
+  // eslint-disable-next-line jsdoc/reject-function-type -- callback stored as var
   /** @type {Function|null} Consumer-supplied error callback. */
   var _onErrorCallback = null;
 
+  /* eslint-disable jsdoc/reject-any-type */
   /**
    * Notify the consumer of a board error through all available channels:
    * the onError callback (if set), console.warn, and a namespaced
@@ -143,6 +145,7 @@
       board.dispatchEvent(new CustomEvent("board:error", { detail: errorObj }));
     }
   }
+  /* eslint-enable jsdoc/reject-any-type */
 
   /**
    * Render a visible error stub inside the board container so the widget
@@ -199,6 +202,7 @@
     }
 
     if (typeof CFG.onError === "string") {
+      // eslint-disable-next-line jsdoc/reject-function-type, jsdoc/reject-any-type -- dynamic window access
       var fn = /** @type {Function|undefined} */ (/** @type {any} */ (window)[CFG.onError]);
       if (typeof fn === "function") {
         _onErrorCallback = fn;
@@ -1218,6 +1222,7 @@
     startRefreshLoop();  // clears old timer, starts new one at updated interval
   }
 
+  /* eslint-disable jsdoc/reject-function-type */
   /**
    * Register a consumer error callback.  The function receives a
    * structured error object: ``{code, message, cause, phase}``.
@@ -1227,6 +1232,7 @@
   function robotsixBoardOnError(fn) {
     _onErrorCallback = fn;
   }
+  /* eslint-enable jsdoc/reject-function-type */
 
   /**
    * Apply column-level ARIA attributes to the pre-rendered board DOM.

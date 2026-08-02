@@ -536,4 +536,3 @@ describe("window.robotsixBoardOnError()", () => {
     expect(cb).not.toHaveBeenCalled();
   });
 });
-
