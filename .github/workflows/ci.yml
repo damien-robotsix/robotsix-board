@@ -77,7 +77,7 @@ jobs:
           case "$TOOL" in
             detect-secrets) uv run detect-secrets scan --baseline .secrets.baseline ;;
             vulture) uv run vulture src/ vulture_whitelist.py ;;
-            mypy-tests) uv run mypy tests ;;
+            mypy-tests) uv run mypy src tests ;;
             deptry) uv run deptry . ;;
             modules) uv run robotsix-modules validate docs/modules.yaml ;;
           esac
