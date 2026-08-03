@@ -55,7 +55,6 @@ docs = [
 allow-direct-references = true
 
 [tool.uv]
-exclude-newer = "7 days"
 index-strategy = "first-index"
 
 [tool.uv.audit]

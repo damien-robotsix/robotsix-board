@@ -57,25 +57,27 @@ parsed from the tag.  An attacker who controls the JSON payload can
 corrupt the board's client-side configuration but cannot execute
 arbitrary script through this channel.
 
-### URL interpolation
-
-The client replaces the `{card_id}` and `{target_status}` placeholders
-in `move_endpoint_template` with `encodeURIComponent()`-encoded values,
-preventing injection of additional path segments or query-string
-parameters.
-
-### Consumer responsibility for adapter URLs
+### Consumer responsibility for HTML hooks and configuration URLs
 
 `BoardAdapter` implementers control every piece of card content (title,
-badges, timestamps).  The library escapes that content, but
-`BoardAdapter.move_endpoint()` and `BoardAdapter.move_endpoint_template()`
-return URLs that the library uses verbatim.  Consumers **must** ensure
-those URLs are safe:
+badges, timestamps).  The library escapes that content.  In addition,
+the library exposes optional duck-typed hooks and configuration values
+whose output is **not** escaped by the library:
 
-- Use `https:` endpoints on trusted hosts.
-- Never return `javascript:` or `data:` URIs.
-- Validate that the URL host is not attacker-controlled (e.g. avoid
-  raw user input in the URL).
+- **`card_extra_html(card) -> str`** and
+  **`column_extra_html(status_key) -> str`** (optional) — raw HTML
+  fragments appended verbatim inside the card or column container.
+  Consumers **must** escape any user-controlled content they
+  interpolate into these fragments.
+
+- **`refresh_url`** and **`gate_endpoint`** configuration values —
+  fetched by `board.js` at runtime.  Consumers should ensure these
+  point to trusted origins.
+
+- **`board-config` JSON script tag** — in `JSON_HYDRATION` mode the
+  server emits a ``<script id="board-config" type="application/json">``
+  element whose content is produced by `json.dumps()` and consumed via
+  `JSON.parse()`.  No executable JavaScript is parsed from the tag.
 
 ### Content Security Policy
 
@@ -95,7 +97,4 @@ include it in the `script-src` directive.
 
 The board is a pure frontend chrome library.  It does **not** perform
 authentication, authorization, session management, or CSRF protection.
-All of those concerns belong to the consuming application.  In
-particular, the move endpoint (the only state-changing request the
-board makes) must be protected by the consumer with appropriate
-same-origin and anti-CSRF measures.
+All of those concerns belong to the consuming application.
