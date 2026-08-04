@@ -182,7 +182,7 @@ fragments (and vice versa).
 The parity contract is enforced by a **cross-language parity test** at
 [`tests/robotsix_board/test_smoke.py`](../../tests/robotsix_board/test_smoke.py):
 
-- **`test_board_config_script_id_consistent`** — confirms that the
+- **`test_board_config_id_consistent_across_python_and_js`** — confirms that the
   `board-config` script `id` is the same across `_render.py`, `board.js`,
   and `board_shared.js`.
 
