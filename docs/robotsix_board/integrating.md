@@ -98,6 +98,7 @@ app.mount("/board/static", StaticFiles(directory=static_dir()), name="board_stat
 ```python
 from robotsix_board import render_config_script
 
+
 @app.get("/board")
 def board_page():
     adapter = MyAdapter()
@@ -138,13 +139,14 @@ and optionally `badges`, `timestamps`, `merged`, `agent_badges`, and
 from robotsix_board import static_dir
 
 css = (static_dir() / "board.css").read_text()
-js  = (static_dir() / "board.js").read_text()
+js = (static_dir() / "board.js").read_text()
 ```
 
 ### 5b. Call `render_board()` and embed the output
 
 ```python
 from robotsix_board import render_board
+
 
 def board_page(cards_by_status: dict[str, list[dict]]):
     adapter = MyAdapter()
