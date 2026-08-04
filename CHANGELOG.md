@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Bump `fast-uri` override from `>=3.1.4` to `>=4.1.2` to address GHSA-7p8r-x3mc-p8w7 (host confusion via backslash authority introducer).
 - Bump `brace-expansion` override from `>=5.0.8` to `>=5.0.9` to fix GHSA-rgw5-rvv9-x895 (HIGH severity DoS).
 - Remove stale `move_endpoint_template` / `BoardAdapter.move_endpoint()` references from `SECURITY.md`; rewrite "Consumer responsibility" section to document the current attack surface (duck-typed HTML hooks, `refresh_url`/`gate_endpoint`, `board-config` JSON tag).
 - Add frontend code convention: vendored third-party CSS assets must be excluded from `stylelint` to preserve byte-identical upstream copies.
