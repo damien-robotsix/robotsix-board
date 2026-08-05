@@ -126,6 +126,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gate_endpoint` keyword-only parameter to `render_config_script()` enabling server-to-client gate-blocking endpoint configuration.  `bootConfig()` in `board.js` automatically wires `CFG.gate_endpoint` via `robotsixBoardSetGateEndpoint()`.
 - `readme = "README.md"` field in `pyproject.toml` so `hatchling` includes the README in the package description on PyPI.
 
+### Removed
+
+- Removed the per-card move control from the board chrome. `BoardAdapter.move_endpoint()` and `move_endpoint_template()` are gone, the `JSON_HYDRATION` config no longer emits `move_endpoint_template` / `move_method`, and `board.js` no longer builds a `<form class="board-card-move">` or handles its submit. The board is read-only chrome: moving a card between columns is the owning service's business, exposed through that service's own API. Removing members from the runtime-checkable Protocol only loosens `isinstance()`, so existing structural implementers keep passing. The gate subsystem is retained — consumers drive it directly through `window.robotsixBoardSetGate` and read it via `robotsixBoardInternals.getGateBlockedColumns()`.
+
+### Misc
+
+- Collect 97 accumulated towncrier changelog fragments into CHANGELOG.md
+- Migrate from pip-audit to uv audit for vulnerability scanning
+- robotsix-board: Enable copy_paste periodic workflow
+- robotsix-board: Enable repo_description_sync periodic workflow
+- robotsix-board: Enable state_sync periodic workflow
+- Align ruff version between pyproject.toml and .pre-commit-config.yaml
+- Hoist redundant `other_labels` dict construction out of column loop in `render_board()`
+- robotsix-board: Enable docstring_coverage periodic workflow
+- robotsix-board: Enable health periodic workflow
+- Relax test_periodic_workflows_enabled to use subset check
+- robotsix-board: Enable changelog_autofill periodic workflow
+- robotsix-board: Enable survey periodic workflow
+- Add ARIA roles, keyboard activation, and a11y tests to the shared board UI
+- CI failure: Bump git-pinned deps on main
+- Add missing `aria-expanded` toggle on `.board-card` when drawer opens/closes
+- Add tsc --noEmit typecheck as a pre-commit hook
+- Refactor openDrawer to extract drawer-content building and event-handler setup into smaller helpers
+- Switch ruff pre-commit hooks from remote to local `language: unsupported` + `uv run` to eliminate dual-pin version drift
+- Add JS frontend architecture documentation page to mkdocs site
+- ci_fix: out-of-scope CI failure — JS (lint) / npm audit --audit-level=high in package.json overrides (add fast-uri >=3.1.4 override) or package-lock.json — neither touched by this PR
+- Bump version from 0.1.0 to match 0.2.0 CHANGELOG release
+- Extract focus-trap focus-wrapping logic from `_attachDrawerHandlers` into a dedicated `_trapFocus` helper
+- Move JS test files into a tests/robotsix_board/static/ subdirectory to mirror source structure
+- Add CSS theming documentation page to the mkdocs site
+- Add cross-file test to verify Python and JS `esc()` produce identical output
+- Update stale line ranges, subsystem numbering, and removed variables in architecture.md after focus-trap extraction shifted the IIFE layout
+- Add a minimal Playwright browser smoke test for drawer focus-trap and computed visibility
+- robotsix-board: Remove dead periodic presence files (security_posture.yaml, state_sync.yaml)
+- robotsix-board: Enable module_size periodic workflow
+- ci_fix: out-of-scope CI failure — uv audit (pymdown-extensions GHSA-9xwg-3r6f-jcx2) and npm audit --audit-level=high (brace-expansion GHSA-mh99-v99m-4gvg, js-yaml GHSA-pm4m-ph32-ghv5) in pyproject.toml / uv.lock (to bump pymdown-extensions to >=11.0.0) and package.json overrides / package-lock.json (to bump markdownlint-cli2 js-yaml override and resolve brace-expansion)
+- ci_fix: out-of-scope CI failure — uv audit in uv.lock (bump 13 transitive Python dependencies to latest compatible versions: certifi 2026.5.20→2026.7.22, charset-normalizer 3.4.7→3.4.9, click 8.4.1→8.4.2, coverage 7.14.1→7.15.2, filelock 3.29.1→3.32.0, mkdocstrings 1.0.4→1.0.6, platformdirs 4.10.0→4.11.0, python-discovery 1.4.2→1.5.0, requirements-parser 0.13.0→0.13.1, rpds-py 2026.5.1→2026.6.3, stevedore 5.8.0→5.9.0, typing-extensions 4.15.0→4.16.0, virtualenv 21.5.1→21.7.0)
+- Apply npm-ci simplification to JS (lint) job on origin/main
+- Add `prefers-reduced-motion` support and missing focus styles to `board.css`
+- Fix CHANGELOG autofill heading: `0.0.0` → `0.2.0` to match project version
+- CI failure: Bump git-pinned deps on main
+- Consolidate three identical focus-ring CSS rules in board.css into a single multi-selector rule
+- Add `[tool.uv]` supply-chain security configuration to pyproject.toml
+- Add Hypothesis property-based escaping oracle with round-trip invariant
+- robotsix-board: Enable mypy_baseline periodic workflow
+- Pilot adoption of robotsix-ui shared styling base in robotsix-board
+- Add integrity coverage for vendored robotsix-ui-base.css (existence, @import resolution, parseability)
+- Add fast-check property-based escaping oracle for JS esc()
+- AGENT.md: Frontend code conventions — Vendored third-party CSS assets (e.g. `robotsix-ui-base.css`) must be excluded from `stylelint` to preserve byte-identical copies
+- Reorganize module robotsix-board: align to per-module layout (src/docs/tests)
+- Exclude vendored robotsix-ui-base.css from stylelint (drop from lint:css / add .stylelintignore or ignoreFiles)
+- Update SECURITY.md to remove stale move_endpoint references and realign with current read-only board contract
+- ci_fix: out-of-scope CI failure — JS (lint) / npm audit in package.json / package-lock.json (npm dependency update or audit exception for brace-expansion)
+- Add a consumer integration guide documenting the two-transport markup-parity contract
+- Add integrating.md to mkdocs.yml nav
+- ci_fix: out-of-scope CI failure — JS (lint) — npm audit in package.json — bump `fast-uri` override from `>=3.1.4` to a version that patches GHSA-7p8r-x3mc-p8w7 (likely `>=4.1.2` or newer)
+- Fix wrong parity-test name cited in docs/robotsix_board/integrating.md section 6
+
 ## [0.1.0] - 2026-06-12
 
 ### Added

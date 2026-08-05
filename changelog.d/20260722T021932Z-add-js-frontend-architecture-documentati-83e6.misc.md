@@ -1,1 +1,0 @@
-Add JS frontend architecture documentation page to mkdocs site

@@ -1,1 +1,0 @@
-Refactor openDrawer to extract drawer-content building and event-handler setup into smaller helpers

@@ -1,1 +1,0 @@
-Add tsc --noEmit typecheck as a pre-commit hook
