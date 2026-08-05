@@ -1,1 +1,0 @@
-Align ruff version between pyproject.toml and .pre-commit-config.yaml
