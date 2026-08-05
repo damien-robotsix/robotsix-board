@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Added `Integrating` nav entry to `mkdocs.yml` so the integration guide is accessible from the published docs site.
 - Add `Integrating` nav entry to `mkdocs.yml` for the existing `docs/robotsix_board/integrating.md` integration guide.
 - Add integrating guide to mkdocs.yml nav block so the consumer onboarding page is reachable from the docs site.
 - Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
