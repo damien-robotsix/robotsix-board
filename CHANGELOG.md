@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add Integrating page to mkdocs.yml nav so the consumer onboarding guide is reachable from the published docs site.
 - Added Integrating guide to the mkdocs nav so the consumer onboarding page is reachable from the published docs site.
 - Add Integrating guide to mkdocs.yml nav block between Home and API Reference.
 - Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
