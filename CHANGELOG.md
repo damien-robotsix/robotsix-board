@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add Integrating guide to mkdocs.yml nav block between Home and API Reference.
 - Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
 - Add `Integrating` nav entry to `mkdocs.yml` for the existing `docs/robotsix_board/integrating.md` integration guide, and remove three stale duplicate changelog entries that claimed this was already done.
 - Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
