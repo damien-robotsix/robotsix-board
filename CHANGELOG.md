@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add `Integrating` page to the mkdocs nav between Home and API Reference.
 - Add Integrating nav entry to mkdocs.yml between Home and API Reference.
 - Add Integrating page to mkdocs.yml nav so the consumer onboarding guide is reachable from the published docs site.
 - Added Integrating guide to the mkdocs nav so the consumer onboarding page is reachable from the published docs site.
