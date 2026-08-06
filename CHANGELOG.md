@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
 - Added `Integrating` nav entry to `mkdocs.yml` so the integration guide is accessible from the published docs site.
 - Add `Integrating` nav entry to `mkdocs.yml` for the existing `docs/robotsix_board/integrating.md` integration guide.
 - Add integrating guide to mkdocs.yml nav block so the consumer onboarding page is reachable from the docs site.
