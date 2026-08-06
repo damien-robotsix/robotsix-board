@@ -64,3 +64,98 @@ jobs:
             --title "chore: bump robotsix-modules git pin to ${LATEST:0:12}" \
             --body "Automated bump of the git-pinned robotsix-modules dependency from ${CUR:0:12} to ${LATEST:0:12}." \
             --label dependencies
+
+  bump-robotsix-ui-base:
+    name: Bump robotsix-ui-base CSS
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check robotsix-ui pin
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CSS_FILE="src/robotsix_board/static/robotsix-ui-base.css"
+          CUR=$(sed -n '5s/.*Pinned at: \([0-9a-f]\{40\}\).*/\1/p' "$CSS_FILE")
+          echo "current=$CUR" >> "$GITHUB_OUTPUT"
+          LATEST=$(gh api repos/damien-robotsix/robotsix-ui/commits/main --jq .sha)
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Create bump PR if outdated
+        if: steps.check.outputs.current != steps.check.outputs.latest
+        env:
+          CUR: ${{ steps.check.outputs.current }}
+          LATEST: ${{ steps.check.outputs.latest }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          CSS_FILE: src/robotsix_board/static/robotsix-ui-base.css
+        run: |
+          BRANCH="bump/robotsix-ui-base-${LATEST:0:12}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+
+          # Resolve version tag (lightweight tags first, then annotated)
+          VERSION=$(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" \
+            --jq ".[] | select(.object.sha == \"$LATEST\") | .ref" \
+            | sed 's|refs/tags/||' | head -1)
+          if [ -z "$VERSION" ]; then
+            for TAG_REF in $(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" --jq '.[].ref'); do
+              TAG_NAME="${TAG_REF#refs/tags/}"
+              TAG_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/tags/$TAG_NAME" --jq '.object.sha')
+              if [ "$TAG_SHA" = "$LATEST" ]; then
+                VERSION="$TAG_NAME"
+                break
+              fi
+            done
+          fi
+          VERSION_SUFFIX=""
+          if [ -n "$VERSION" ]; then
+            VERSION_SUFFIX=" ($VERSION)"
+          fi
+
+          # Fetch upstream CSS files at the new SHA
+          BASE_URL="https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/${LATEST}/src/styles"
+          TOKENS=$(curl -sSf "$BASE_URL/tokens.css")
+          BASE=$(curl -sSf "$BASE_URL/base.css")
+          COMPONENTS=$(curl -sSf "$BASE_URL/components.css")
+
+          # Write updated vendored file
+          {
+            printf '/*\n'
+            printf ' * robotsix-ui shared base stylesheet — vendored into robotsix-board.\n'
+            printf ' *\n'
+            printf ' * Source: https://github.com/damien-robotsix/robotsix-ui\n'
+            printf ' * Pinned at: %s%s\n' "$LATEST" "$VERSION_SUFFIX"
+            printf ' *\n'
+            printf ' * This file concatenates tokens.css + base.css + components.css from\n'
+            printf " * robotsix-ui's src/styles/.  It is committed so that Python-only\n"
+            printf ' * consumers of robotsix-board do not need Node.js / npm to get the\n'
+            printf ' * shared base.\n'
+            printf ' *\n'
+            printf " * To update: pull the latest CSS from robotsix-ui's src/styles/ at\n"
+            printf ' * the desired commit SHA and replace this file.\n'
+            printf ' */\n'
+            printf '\n'
+            printf '%s\n' "$TOKENS"
+            printf '\n'
+            printf '%s\n' "$BASE"
+            printf '\n'
+            printf '%s\n' "$COMPONENTS"
+          } > "$CSS_FILE"
+
+          git add "$CSS_FILE"
+          git commit -m "chore: re-vendor robotsix-ui-base.css @ ${LATEST:0:12}"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$BRANCH"
+          gh pr create \
+            --head "$BRANCH" \
+            --base main \
+            --title "chore: re-vendor robotsix-ui-base.css @ ${LATEST:0:12}" \
+            --body "Automated re-vendor of robotsix-ui-base.css from ${CUR:0:12} to ${LATEST:0:12}${VERSION_SUFFIX}." \
+            --label dependencies
