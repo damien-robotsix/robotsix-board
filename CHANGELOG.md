@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Added Integrating guide to the mkdocs nav so the consumer onboarding page is reachable from the published docs site.
 - Add Integrating guide to mkdocs.yml nav block between Home and API Reference.
 - Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
 - Add `Integrating` nav entry to `mkdocs.yml` for the existing `docs/robotsix_board/integrating.md` integration guide, and remove three stale duplicate changelog entries that claimed this was already done.
