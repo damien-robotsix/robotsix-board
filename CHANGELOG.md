@@ -1,5 +1,6 @@
 ## 0.0.0 (unreleased)
 
+- Fix CI on main: replace removed `fc.char16bits()` with `fc.nat({max:0xffff}).map(String.fromCharCode)` (fast-check v4 migration), and bump js-yaml override to `>=4.3.1` to resolve npm audit high-severity CVE-2026-59870.
 - Add `Integrating` page to the mkdocs nav between Home and API Reference.
 - Add Integrating nav entry to mkdocs.yml between Home and API Reference.
 - Add Integrating page to mkdocs.yml nav so the consumer onboarding guide is reachable from the published docs site.
