@@ -267,6 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Render modes: server-rendered HTML and JSON+JS hydration (`RenderMode`).
 ### 0.0.0 (unreleased, pre-release-please)
 
+- Fix CI on main: replace removed `fc.char16bits()` with `fc.nat({max:0xffff}).map(String.fromCharCode)` (fast-check v4 migration), and bump js-yaml override to `>=4.3.1` to resolve npm audit high-severity CVE-2026-59870.
 - Add Integrating nav entry to mkdocs.yml between CSS Theming and Changelog.
 - Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
 - Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
