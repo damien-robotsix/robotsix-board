@@ -34,10 +34,20 @@ describe("esc()", () => {
   // surrogates (U+D800–U+DFFF).  Surrogates are excluded because
   // html.unescape replaces lone surrogates with U+FFFD, which breaks
   // the round-trip invariant.  (Mirrors the Python Hypothesis
-  // blacklist of [Cs,Cc] — Cc would also break round-trip but fast-check
-  // char16bits does generate control chars; they round-trip fine through
+  // blacklist of [Cs,Cc] — Cc would also break round-trip but this
+  // generator does produce control chars; they round-trip fine through
   // esc because esc only touches the five HTML-significant chars.)
-  const nonSurrogateChar = fc.char16bits().filter(
+  //
+  // fast-check v4 removed `fc.char16bits()`. An integer over the 16-bit range
+  // mapped through String.fromCharCode is its exact equivalent — one UTF-16
+  // code unit, always length 1. `fc.string({unit: 'binary', ...})` is NOT a
+  // substitute: it emits astral characters as surrogate PAIRS, so charCodeAt(0)
+  // below would inspect a high surrogate and the filter would silently discard
+  // every one of them.
+  const nonSurrogateChar = fc
+    .integer({ min: 0, max: 0xFFFF })
+    .map((cp) => String.fromCharCode(cp))
+    .filter(
     (c) => {
       const cp = c.charCodeAt(0);
       return cp < 0xD800 || cp > 0xDFFF;
@@ -61,7 +71,8 @@ describe("esc()", () => {
 
   /** Shared arbitrary: BMP strings without surrogates, plus XSS vectors. */
   const anySafeString = fc.oneof(
-    fc.stringOf(nonSurrogateChar, { minLength: 0, maxLength: 200 }),
+    // v4 replaced fc.stringOf(charArb, opts) with fc.string({unit: charArb, ...}).
+    fc.string({ unit: nonSurrogateChar, minLength: 0, maxLength: 200 }),
     fc.constantFrom(
       "<script>alert(1)</script>",
       "<img src=x onerror=alert(1)>",
