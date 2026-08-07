@@ -15,6 +15,12 @@ concurrency:
 jobs:
   deploy:
     permissions:
+      # A caller job's permissions map REPLACES the called workflow's scopes —
+      # anything unlisted is zeroed. contents:read was missing, so the spine's
+      # build job could not check out the repo and the run died at STARTUP:
+      # no logs, no checks, nothing on the PR. See robotsix-standards
+      # docs/docs-site-deployment.md rule 1.
+      contents: read  # the spine's build job checks out this repo
       pages: write  # required for GitHub Pages deployment
       id-token: write  # required for OIDC-based Pages auth
     uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-docs.yml@4c25a782556a8811d7aeed635b91fd9f790df203
