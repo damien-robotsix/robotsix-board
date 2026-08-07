@@ -1,6 +1,6 @@
 # API Reference
 
-::: robotsix_board.__init__
+::: robotsix_board
     options:
       show_root_heading: true
       show_source: false
