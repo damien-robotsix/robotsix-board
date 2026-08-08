@@ -69,8 +69,8 @@ jobs:
     name: Bump robotsix-ui-base CSS
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write  # Needed to push the bump branch
+      pull-requests: write  # Needed to create the PR
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
