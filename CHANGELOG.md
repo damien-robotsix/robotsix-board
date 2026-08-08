@@ -16,6 +16,42 @@
 - Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
 - Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.
 
+## [0.4.0](https://github.com/damien-robotsix/robotsix-board/compare/v0.3.0...v0.4.0) (2026-08-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* `BoardAdapter.move_endpoint()` and `move_endpoint_template()` are removed, and the emitted JSON_HYDRATION config no longer carries `move_endpoint_template` / `move_method`. Structural implementers are unaffected by the Protocol shrinking — removing members only loosens `isinstance()`, so `FrozenV1Adapter` still passes and is deliberately left frozen at the v1 surface.
+
+### Features
+
+* **ci:** wire the shared auto-release workflow ([#316](https://github.com/damien-robotsix/robotsix-board/issues/316)) ([115ba33](https://github.com/damien-robotsix/robotsix-board/commit/115ba33f7bf593f5d7b94511b61fb4e426191d02))
+* **release:** adopt release-please, retire towncrier ([#318](https://github.com/damien-robotsix/robotsix-board/issues/318)) ([20cc945](https://github.com/damien-robotsix/robotsix-board/commit/20cc9450261a9990552ea09d2aefc47c5ace5378))
+* remove the move control from the board chrome ([#281](https://github.com/damien-robotsix/robotsix-board/issues/281)) ([214eba1](https://github.com/damien-robotsix/robotsix-board/commit/214eba160408b3d9e9d5775bc84d1531a2063d4f))
+
+
+### Bug Fixes
+
+* **ci:** grant contents:read so the docs spine can check out ([#310](https://github.com/damien-robotsix/robotsix-board/issues/310)) ([d599ff1](https://github.com/damien-robotsix/robotsix-board/commit/d599ff1c293b8403b865084fa45d6700d5015e44))
+* **ci:** unbreak main — npm audit advisory and fast-check v4 removals ([#311](https://github.com/damien-robotsix/robotsix-board/issues/311)) ([d0d3015](https://github.com/damien-robotsix/robotsix-board/commit/d0d301514d010770238857235d87f92f1c607ffd))
+* **lint:** stop linting the generated CHANGELOG.md ([#323](https://github.com/damien-robotsix/robotsix-board/issues/323)) ([2c64892](https://github.com/damien-robotsix/robotsix-board/commit/2c64892761f592f32b403a201a9eea72f1647444))
+* move extra-html hooks out of the runtime-checkable Protocol — [#40](https://github.com/damien-robotsix/robotsix-board/issues/40) broke isinstance for structural implementers (auto-mail board down) ([#41](https://github.com/damien-robotsix/robotsix-board/issues/41)) ([0e103e2](https://github.com/damien-robotsix/robotsix-board/commit/0e103e21f5fc9d5d3feced026bcb7c566d344178))
+* **release:** have release-please update uv.lock ([#321](https://github.com/damien-robotsix/robotsix-board/issues/321)) ([b54deca](https://github.com/damien-robotsix/robotsix-board/commit/b54decab993e3546181e23ec1ca5bbd011155181))
+* **release:** mint an App token so release PRs get CI ([#320](https://github.com/damien-robotsix/robotsix-board/issues/320)) ([8c14280](https://github.com/damien-robotsix/robotsix-board/commit/8c142802667f4888278afb74e2ce3753e0626989))
+* **release:** regenerate uv.lock on the release branch ([#322](https://github.com/damien-robotsix/robotsix-board/issues/322)) ([0fb9fdf](https://github.com/damien-robotsix/robotsix-board/commit/0fb9fdf00bcaf12188c2ee20922a9e82c2c2cc31))
+* scope Dependency Review concurrency group by PR number ([#207](https://github.com/damien-robotsix/robotsix-board/issues/207)) ([dae799a](https://github.com/damien-robotsix/robotsix-board/commit/dae799a133e4e4323457a6d63622d77b4150f061))
+
+
+### Reverts
+
+* **ci:** drop auto-release.yml — superseded by release-please ([#317](https://github.com/damien-robotsix/robotsix-board/issues/317)) ([94164fe](https://github.com/damien-robotsix/robotsix-board/commit/94164fe53669a0b6a97e98f7326fde685c2a9119))
+
+
+### Documentation
+
+* fix the mkdocstrings identifier and an out-of-docs link ([#312](https://github.com/damien-robotsix/robotsix-board/issues/312)) ([0f76160](https://github.com/damien-robotsix/robotsix-board/commit/0f7616028004bc765ac669c25a1ff35807b71644))
+* give the site a landing page at its root ([#314](https://github.com/damien-robotsix/robotsix-board/issues/314)) ([ac1d1c8](https://github.com/damien-robotsix/robotsix-board/commit/ac1d1c897de3ca75368149d26e2e5434536eb6cd))
+
 ## 0.2.0 (unreleased)
 
 - Consolidate three identical focus-ring CSS rules (`.board-move-select:focus`, `.board-move-submit:focus-visible`, `.drawer-close:focus-visible`) into a single multi-selector rule to eliminate jscpd clone pairs 42 and 43.
