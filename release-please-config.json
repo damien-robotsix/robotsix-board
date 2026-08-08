@@ -6,5 +6,12 @@
   "bump-minor-pre-major": true,
   "packages": {
     ".": {}
-  }
+  },
+  "extra-files": [
+    {
+      "type": "toml",
+      "path": "uv.lock",
+      "jsonpath": "$.package[?(@.name=='robotsix-board')].version"
+    }
+  ]
 }
