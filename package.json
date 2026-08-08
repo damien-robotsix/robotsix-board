@@ -9,7 +9,7 @@
     "audit": "npm audit --audit-level=high",
     "lint:js": "eslint --max-warnings 0 src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
-    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d'",
+    "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d' '#CHANGELOG.md'",
     "test:js": "vitest run --coverage",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
