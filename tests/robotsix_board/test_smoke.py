@@ -253,7 +253,9 @@ def test_board_config_id_consistent_across_python_and_js() -> None:
 
     # 2. Extract the getElementById argument from board.js
     js_source = (robotsix_board.static_dir() / "board.js").read_text()
-    js_match = re.search(r'getElementById\("([^"]+)"\)', js_source)
+    js_match = re.search(
+        r'function bootConfig.*?getElementById\("([^"]+)"\)', js_source, re.DOTALL
+    )
     assert js_match is not None, "Could not find getElementById call in board.js"
     js_id = js_match.group(1)
 
