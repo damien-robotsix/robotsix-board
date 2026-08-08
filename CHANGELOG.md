@@ -73,6 +73,10 @@
 - Document optional duck-typed hooks (`card_extra_html`, `column_extra_html`) in the `docs/robotsix_board/index.md` BoardAdapter contract reference, matching existing method subsections.
 - Fix stale method count in `docs/robotsix_board/index.md`: "eight methods" → "seven methods", matching the actual `BoardAdapter` Protocol.
 - Deactivate all periodic mill workflows by removing every `.yaml` file under `.robotsix-mill/periodic/`
+- Added automated release workflow that triggers on pushes to `main`
+  when a towncrier changelog fragment is present, using the shared
+  `auto-release.yml` reusable workflow for version bumping, CHANGELOG
+  assembly, tagging, and PyPI publishing.
 - Extract agent-badges rendering from `buildCardElement` into private helper `_buildAgentBadgeElements`, reducing nesting depth.
 - Add `triage_boilerplate` periodic workflow config (`.robotsix-mill/periodic/triage_boilerplate.yaml`).
 

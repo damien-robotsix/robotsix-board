@@ -1,0 +1,1 @@
+Add release workflow to restore PyPI publish capability via shared auto-release
