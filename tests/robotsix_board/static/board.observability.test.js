@@ -5,7 +5,6 @@ const {
   init,
   _notifyError,
   _renderErrorStub,
-  performMove,
   doRefresh,
   fetchGateDataAsync,
   applyCardDiff,
@@ -370,93 +369,6 @@ describe("fetchGateDataAsync() error hook", () => {
     });
 
     expect(cb.mock.calls[0][0].code).toBe("GATE_FAILED");
-    window.robotsixBoardOnError(null);
-  });
-});
-
-/* ==================================================================
- * performMove() error hook
- * ================================================================ */
-
-describe("performMove() error hook", () => {
-  beforeEach(() => {
-    setBoardConfig(JSON.stringify(SAMPLE_CONFIG));
-    bootConfig();
-    buildBoardDOM();
-  });
-
-  afterEach(() => {
-    window.robotsixBoardOnError(null);
-  });
-
-  it("dispatches board:error on move fetch failure", async () => {
-    const board = document.getElementById("board");
-    const errorHandler = vi.fn();
-    board.addEventListener("board:error", errorHandler);
-
-    const todoCards = board.querySelector(
-      '.board-column[data-status="todo"] .board-column-cards'
-    );
-    const cardEl = document.createElement("div");
-    cardEl.className = "board-card";
-    cardEl.setAttribute("data-card-id", "move-error");
-
-    const { buildMoveForm } = window.robotsixBoardInternals;
-    const form = buildMoveForm({ id: "move-error", status: "todo" });
-    cardEl.appendChild(form);
-    todoCards.appendChild(cardEl);
-
-    const select = form.querySelector("select[name='target_status']");
-    select.value = "doing";
-    const errorEl = form.querySelector(".board-move-error");
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("move network error"))
-    );
-
-    performMove("move-error", cardEl, form, select, errorEl);
-
-    await vi.waitFor(() => {
-      expect(errorHandler).toHaveBeenCalledTimes(1);
-    });
-
-    expect(errorHandler.mock.calls[0][0].detail.code).toBe("MOVE_FAILED");
-  });
-
-  it("calls the registered onError callback on move failure", async () => {
-    const cb = vi.fn();
-    window.robotsixBoardOnError(cb);
-
-    const board = document.getElementById("board");
-    const todoCards = board.querySelector(
-      '.board-column[data-status="todo"] .board-column-cards'
-    );
-    const cardEl = document.createElement("div");
-    cardEl.className = "board-card";
-    cardEl.setAttribute("data-card-id", "move-cb");
-
-    const { buildMoveForm } = window.robotsixBoardInternals;
-    const form = buildMoveForm({ id: "move-cb", status: "todo" });
-    cardEl.appendChild(form);
-    todoCards.appendChild(cardEl);
-
-    const select = form.querySelector("select[name='target_status']");
-    select.value = "doing";
-    const errorEl = form.querySelector(".board-move-error");
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("move cb error"))
-    );
-
-    performMove("move-cb", cardEl, form, select, errorEl);
-
-    await vi.waitFor(() => {
-      expect(cb).toHaveBeenCalledTimes(1);
-    });
-
-    expect(cb.mock.calls[0][0].code).toBe("MOVE_FAILED");
     window.robotsixBoardOnError(null);
   });
 });

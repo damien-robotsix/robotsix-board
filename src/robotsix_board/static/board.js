@@ -5,9 +5,13 @@
  * type="application/json"> element rendered by the Python-side
  * render_config_script().  When render_mode is "json_hydration" the
  * JS bootstraps the full client-side board: refresh/polling loop,
- * move-control via fetch, detail-panel (#drawer) hydration, gate
+ * detail-panel (#drawer) hydration, gate
  * caching, merge detection, closed-ticket toggle, agent-colour
  * hashing, and an HTML-escape helper.
+ *
+ * The board is read-only chrome: it renders no move-between-columns
+ * control.  Changing a card's state is the owning service's business,
+ * done through that service's own API.
  *
  * Mill-specific chrome (agents menu, cost dashboard, repo selector,
  * and other consumer-only panels) stays in robotsix-mill and is
@@ -24,8 +28,6 @@
    *   gate_endpoint?: string,
    *   refresh_url?: string|null,
    *   refresh_interval_ms?: number,
-   *   move_method?: string,
-   *   move_endpoint_template?: string,
    *   onError?: string
    * }} BoardConfig
    */
@@ -323,101 +325,7 @@
       div.appendChild(tsRow);
     }
 
-    // ── Move form ──
-    var moveForm = buildMoveForm(card);
-    div.appendChild(moveForm);
-
     return div;
-  }
-
-  /**
-   * Populate a <select> element with column options for moving a card.
-   * @param {HTMLSelectElement} select  — the select to populate
-   * @param {string} currentStatus      — status to skip (the card's current column)
-   * @param {Array<string>} gateBlocked — columns blocked by gate checks
-   * @returns {HTMLSelectElement}       — the same select element (for chaining)
-   */
-  function buildSelectOptions(select, currentStatus, gateBlocked) {
-    var defaultOpt = document.createElement("option");
-    defaultOpt.value = "";
-    defaultOpt.textContent = "Move to\u2026";
-    select.appendChild(defaultOpt);
-
-    if (!CFG) { return select; }
-    var cols = CFG.columns || [];
-    for (var i = 0; i < cols.length; i++) {
-      var key = cols[i][0];
-      if (key === currentStatus) { continue; }
-      var opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = cols[i][1];
-      if (gateBlocked.indexOf(key) !== -1) {
-        opt.disabled = true;
-      }
-      select.appendChild(opt);
-    }
-    return select;
-  }
-
-  /**
-   * Build the .board-card-move <form> for a card.
-   * @param {BoardCard} card - The card data object.
-   * @returns {HTMLElement} The built move form element.
-   */
-  function buildMoveForm(card) {
-    var form = document.createElement("form");
-    form.className = "board-card-move";
-    if (!CFG) { return form; }
-    form.setAttribute("method", CFG.move_method || "POST");
-
-    // Build the action URL from the template
-    var actionUrl = (CFG.move_endpoint_template || "/move/{card_id}/{target_status}")
-      .replace("{card_id}", encodeURIComponent(card.id))
-      .replace("{target_status}", "");
-    form.setAttribute("action", actionUrl);
-
-    // ── Select ──
-    var select = document.createElement("select");
-    select.name = "target_status";
-    select.className = "board-move-select";
-    select.setAttribute("aria-label", "Move " + (card.title || "") + " to column");
-    buildSelectOptions(select, card.status, getGateBlockedColumns());
-    form.appendChild(select);
-
-    // ── Submit button ──
-    var btn = document.createElement("button");
-    btn.type = "submit";
-    btn.className = "board-move-submit";
-    btn.textContent = "Move";
-    btn.setAttribute("aria-label", "Move " + (card.title || ""));
-    form.appendChild(btn);
-
-    // ── Inline error placeholder ──
-    var errEl = document.createElement("span");
-    errEl.className = "board-move-error";
-    errEl.setAttribute("role", "alert");
-    form.appendChild(errEl);
-
-    return form;
-  }
-
-  /**
-   * Rebuild the move <select> inside *form* for *card* to reflect the
-   * card's new current status (used after an optimistic move).
-   * @param {HTMLFormElement} form - The move form element.
-   * @param {{id: string, status: string}} card  — requires at minimum { id, status }
-   */
-  function rebuildMoveSelect(form, card) {
-    var oldSelect = form.querySelector("select[name='target_status']");
-    if (!oldSelect) { return; }
-
-    var select = document.createElement("select");
-    select.name = "target_status";
-    select.className = "board-move-select";
-    buildSelectOptions(select, card.status, getGateBlockedColumns());
-    if (oldSelect.parentNode) {
-      oldSelect.parentNode.replaceChild(select, oldSelect);
-    }
   }
 
   /* ==================================================================
@@ -598,130 +506,18 @@
   }
 
   /* ==================================================================
-   * 5.  Move control
-   * ================================================================ */
-
-  /**
-   * Perform a card move via fetch().  On success, moves the card DOM
-   * element to the target column, rebuilds the select, and updates
-   * column counts.  On failure, reverts the select and shows an
-   * inline error.
-   * @param {string} cardId - The card ID.
-   * @param {HTMLElement} cardEl - The card DOM element.
-   * @param {HTMLFormElement} form - The move form element.
-   * @param {HTMLSelectElement} select - The target status select.
-   * @param {HTMLElement} errorEl - The error display element.
-   */
-  function performMove(cardId, cardEl, form, select, errorEl) {
-    if (!cardId) { return; }
-    if (!CFG) { return; }
-
-    var targetStatus = select.value;
-    var oldValue = targetStatus;
-
-    // Build the move URL from the configured template
-    var url = (
-      CFG.move_endpoint_template || "/move/{card_id}/{target_status}"
-    )
-      .replace("{card_id}", encodeURIComponent(cardId))
-      .replace("{target_status}", encodeURIComponent(targetStatus));
-
-    fetch(url, { method: CFG.move_method || "POST" })
-      .then(function (resp) {
-        if (!resp.ok) {
-          throw new Error("move returned " + resp.status);
-        }
-        return resp;
-      })
-      .then(function () {
-        // Success — clear any previous error
-        if (errorEl) {
-          errorEl.style.display = "none";
-          errorEl.textContent = "";
-        }
-
-        // Optimistically move the card DOM element to the target column
-        var board = document.getElementById("board");
-        if (!board) { return; }
-        var targetCol = findColumnByStatus(board, targetStatus);
-        if (targetCol) {
-          var cardList = targetCol.querySelector(".board-column-cards");
-          if (cardList) {
-            cardList.appendChild(cardEl);
-          }
-        }
-
-        // Rebuild the move select so the old column becomes an
-        // option and the new column is removed from the list.
-        rebuildMoveSelect(form, { id: cardId, status: targetStatus });
-        updateColumnCounts();
-      })
-      .catch(function (err) {
-        _notifyError("MOVE_FAILED", "Move fetch failed", err, "move");
-
-        // Revert the select to its original value
-        select.value = oldValue;
-
-        // Display an inline error message
-        if (errorEl) {
-          errorEl.textContent = "Move failed: " + err.message;
-          errorEl.style.display = "inline";
-        }
-      });
-  }
-
-  /**
-   * Attach delegated submit handler on #board for .board-card-move
-   * forms.  Uses event delegation — no per-card listeners — so it
-   * scales to large boards.
-   */
-  function attachMoveDelegation() {
-    var board = document.getElementById("board");
-    if (!board) { return; }
-
-    board.addEventListener("submit", function (evt) {
-      var form = /** @type {HTMLFormElement} */ (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move"));
-      if (!form) { return; } // not our form — let it bubble
-
-      evt.preventDefault();
-
-      var select = /** @type {HTMLSelectElement} */ (form.querySelector("select[name='target_status']"));
-      if (!select) { return; }
-
-      var targetStatus = select.value;
-      if (!targetStatus) { return; } // placeholder "Move to…" selected
-
-      var cardEl = /** @type {HTMLElement} */ (form.closest(".board-card"));
-      if (!cardEl) { return; }
-
-      var cardId = cardEl.getAttribute("data-card-id");
-      if (!cardId) { return; }
-
-      var errorEl = /** @type {HTMLElement} */ (form.querySelector(".board-move-error"));
-
-      performMove(cardId, cardEl, form, select, errorEl);
-    });
-  }
-
-  /* ==================================================================
-   * 6.  Detail panel (#drawer)
+   * 5.  Detail panel (#drawer)
    * ================================================================ */
 
   /**
    * Attach click handler on #board to open #drawer when a .board-card
-   * is clicked.  Clicks on or inside the .board-card-move form are
-   * ignored (they should not open the drawer).
+   * is clicked.
    */
   function attachDrawerDelegation() {
     var board = document.getElementById("board");
     if (!board) { return; }
 
     board.addEventListener("click", function (evt) {
-      // Ignore clicks on or inside the move form
-      if (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move")) {
-        return;
-      }
-
       var target = /** @type {HTMLElement} */ (evt.target);
       var cardEl = /** @type {HTMLElement} */ (target.closest(".board-card"));
       if (!cardEl) { return; }
@@ -732,11 +528,6 @@
     // Keyboard activation: Enter / Space on a .board-card opens the drawer
     board.addEventListener("keydown", function (evt) {
       if (evt.key !== "Enter" && evt.key !== " ") { return; }
-
-      // Ignore key events on or inside the move form
-      if (/** @type {HTMLElement} */ (evt.target).closest(".board-card-move")) {
-        return;
-      }
 
       var target = /** @type {HTMLElement} */ (evt.target);
       var cardEl = /** @type {HTMLElement} */ (target.closest(".board-card"));
@@ -1283,7 +1074,6 @@
         return; // not json_hydration mode or missing config
       }
 
-      attachMoveDelegation();
       attachDrawerDelegation();
       attachClosedToggle();
       applyColumnA11y();
@@ -1315,9 +1105,6 @@
   w["robotsixBoardInternals"] = {
     esc: esc,
     bootConfig: bootConfig,
-    buildSelectOptions: buildSelectOptions,
-    buildMoveForm: buildMoveForm,
-    rebuildMoveSelect: rebuildMoveSelect,
     _setupDrawerA11y: _setupDrawerA11y,
     hashStr: hashStr,
     agentColor: agentColor,
@@ -1342,8 +1129,6 @@
     stopRefreshLoop: robotsixBoardStopRefresh,
     doRefresh: doRefresh,
     fetchGateDataAsync: fetchGateDataAsync,
-    performMove: performMove,
-    attachMoveDelegation: attachMoveDelegation,
     attachDrawerDelegation: attachDrawerDelegation,
     applyColumnA11y: applyColumnA11y,
     init: init,
