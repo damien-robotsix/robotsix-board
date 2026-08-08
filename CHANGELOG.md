@@ -100,14 +100,13 @@
   had stopped loading entirely because fast-check v4 removed `char16bits()` and
   `stringOf()`. The second was the quieter one — the suite reported as a failed
   file rather than failed assertions, so its ten tests had simply not been running. (unbreak-main-ci)
-- Removed the towncrier `auto-release.yml` added earlier today. It implements a **superseded** convention: `changelog-driven-releases.md` is marked superseded by `release-please.md`, the fleet-wide release automation. Left in place it would have fired on Monday and pushed a version bump and `v*` tag that release-please is meant to own. (20260808T120500Z-revert-auto-release)
+- Removed the towncrier `auto-release.yml` added earlier today. It implements a __superseded__ convention: `changelog-driven-releases.md` is marked superseded by `release-please.md`, the fleet-wide release automation. Left in place it would have fired on Monday and pushed a version bump and `v*` tag that release-please is meant to own. (20260808T120500Z-revert-auto-release)
 - Fix mkdocstrings build failure on main: replace `::: robotsix_board.__init__` with `::: robotsix_board` in API docs so mkdocstrings correctly resolves the package init module. (20260807T185900Z-ci-failure-docs-on-main-367c)
 - Fix `lint-workflows / zizmor` CI failure by adding explanatory comments to undocumented permissions in `bump-git-deps.yml`. (20260807T203846Z-ci-failure-lint-workflows-on-main-b7db)
 
 ## Misc
 
 - 20260805T001914Z-run-towncrier-build-to-collect-52-change-1313, 20260806T003710Z-add-exclude-newer-cooldown-window-to-too-f87c, 20260806T005418Z-restore-changelog-d-1313-misc-md-fragmen-36ce, 20260806T020635Z-add-integrating-robotsix-board-integrati-d8fe, 20260805T120126Z-add-integrating-nav-entry-to-mkdocs-yml-16d4, 20260802T153258Z-add-consumer-facing-error-observability-d1f8, 20260724T161847Z-ci-failure-ci-on-main-4aeb, 20260806T174738Z-extend-bump-git-deps-yml-to-detect-stale-bc99
-
 
 # robotsix_board 0.2.0 (2026-07-17)
 

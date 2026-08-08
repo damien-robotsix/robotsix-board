@@ -90,4 +90,3 @@ optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
 DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "pymdown-extensions", "vulture", "check-jsonschema", "pytest-xdist", "robotsix-modules"]  # CLI tools used via workflows, not imported
-
