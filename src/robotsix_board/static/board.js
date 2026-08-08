@@ -27,7 +27,8 @@
    *   columns: Array<[string, string]>,
    *   gate_endpoint?: string,
    *   refresh_url?: string|null,
-   *   refresh_interval_ms?: number
+   *   refresh_interval_ms?: number,
+   *   onError?: string
    * }} BoardConfig
    */
 
@@ -121,6 +122,48 @@
   /** @type {string|null}  status_key of the terminal / closed column. */
   var CLOSED_KEY = null;
 
+  // eslint-disable-next-line jsdoc/reject-function-type -- callback stored as var
+  /** @type {Function|null} Consumer-supplied error callback. */
+  var _onErrorCallback = null;
+
+  /* eslint-disable jsdoc/reject-any-type */
+  /**
+   * Notify the consumer of a board error through all available channels:
+   * the onError callback (if set), console.warn, and a namespaced
+   * CustomEvent on the board container.
+   * @param {string} code - Machine-readable error code.
+   * @param {string} message - Human-readable error message.
+   * @param {*} cause - The originating error or value.
+   * @param {string} phase - Lifecycle phase (init, render, move, refresh, gate).
+   */
+  function _notifyError(code, message, cause, phase) {
+    var errorObj = { code: code, message: message, cause: cause, phase: phase };
+    if (typeof _onErrorCallback === "function") {
+      try { _onErrorCallback(errorObj); } catch (_) { /* consumer callback must not break the board */ }
+    }
+    console.warn("board.js: " + message, cause);
+    var board = document.getElementById("board");
+    if (board) {
+      board.dispatchEvent(new CustomEvent("board:error", { detail: errorObj }));
+    }
+  }
+  /* eslint-enable jsdoc/reject-any-type */
+
+  /**
+   * Render a visible error stub inside the board container so the widget
+   * never silently vanishes.
+   * @param {string} message - Human-readable error message.
+   */
+  function _renderErrorStub(message) {
+    var board = document.getElementById("board");
+    if (!board) { return; }
+    var stub = document.createElement("div");
+    stub.className = "board-error";
+    stub.setAttribute("role", "alert");
+    stub.textContent = message;
+    board.appendChild(stub);
+  }
+
   /**
    * Boot: locate #board-config, parse, validate, and store globally.
    * Returns true on success, false when the page is not in
@@ -158,6 +201,14 @@
 
     if (CFG.gate_endpoint) {
       robotsixBoardSetGateEndpoint(CFG.gate_endpoint);
+    }
+
+    if (typeof CFG.onError === "string") {
+      // eslint-disable-next-line jsdoc/reject-function-type, jsdoc/reject-any-type -- dynamic window access
+      var fn = /** @type {Function|undefined} */ (/** @type {any} */ (window)[CFG.onError]);
+      if (typeof fn === "function") {
+        _onErrorCallback = fn;
+      }
     }
 
     return true;
@@ -354,7 +405,7 @@
         updateColumnCounts();
       })
       .catch(function (err) {
-        console.warn("board.js: refresh fetch failed:", err);
+        _notifyError("REFRESH_FAILED", "Refresh fetch failed", err, "refresh");
         // Retry on next interval — do not break the loop.
       });
   }
@@ -369,55 +420,59 @@
     if (!board) { return; }
     if (!Array.isArray(cards)) { return; }
 
-    // Index incoming cards by id
-    /** @type {Record<string, BoardCard>} */
-    var incoming = {};
-    for (var i = 0; i < cards.length; i++) {
-      incoming[cards[i].id] = cards[i];
-    }
-
-    // Index current DOM cards by data-card-id
-    var currentEls = board.querySelectorAll(".board-card");
-    /** @type {Record<string, {el: HTMLElement, columnStatus: string|null}>} */
-    var currentMap = {}; // cardId → { el, columnStatus }
-    for (var j = 0; j < currentEls.length; j++) {
-      var el = currentEls[j];
-      var cid = el.getAttribute("data-card-id");
-      if (cid) {
-        var col = /** @type {HTMLElement} */ (el).closest(".board-column");
-        currentMap[cid] = {
-          el: /** @type {HTMLElement} */ (el),
-          columnStatus: col ? col.getAttribute("data-status") : null,
-        };
+    try {
+      // Index incoming cards by id
+      /** @type {Record<string, BoardCard>} */
+      var incoming = {};
+      for (var i = 0; i < cards.length; i++) {
+        incoming[cards[i].id] = cards[i];
       }
-    }
 
-    // Walk incoming cards: add new, move changed-status, skip unchanged
-    /** @type {Record<string, boolean>} */
-    var seen = {};
-    for (var k = 0; k < cards.length; k++) {
-      var card = cards[k];
-      seen[card.id] = true;
-
-      var existing = currentMap[card.id];
-      if (!existing) {
-        // New card — render into the correct column
-        appendCardToColumn(card, board, card.status);
-      } else if (existing.columnStatus !== card.status) {
-        // Moved card — remove from old column, render into new
-        existing.el.remove();
-        appendCardToColumn(card, board, card.status);
+      // Index current DOM cards by data-card-id
+      var currentEls = board.querySelectorAll(".board-card");
+      /** @type {Record<string, {el: HTMLElement, columnStatus: string|null}>} */
+      var currentMap = {}; // cardId → { el, columnStatus }
+      for (var j = 0; j < currentEls.length; j++) {
+        var el = currentEls[j];
+        var cid = el.getAttribute("data-card-id");
+        if (cid) {
+          var col = /** @type {HTMLElement} */ (el).closest(".board-column");
+          currentMap[cid] = {
+            el: /** @type {HTMLElement} */ (el),
+            columnStatus: col ? col.getAttribute("data-status") : null,
+          };
+        }
       }
-      // else: unchanged — leave the existing DOM element alone to
-      // avoid flicker and preserve user interaction state.
-    }
 
-    // Remove cards no longer present in the response
-    var currentIds = Object.keys(currentMap);
-    for (var m = 0; m < currentIds.length; m++) {
-      if (!seen[currentIds[m]]) {
-        currentMap[currentIds[m]].el.remove();
+      // Walk incoming cards: add new, move changed-status, skip unchanged
+      /** @type {Record<string, boolean>} */
+      var seen = {};
+      for (var k = 0; k < cards.length; k++) {
+        var card = cards[k];
+        seen[card.id] = true;
+
+        var existing = currentMap[card.id];
+        if (!existing) {
+          // New card — render into the correct column
+          appendCardToColumn(card, board, card.status);
+        } else if (existing.columnStatus !== card.status) {
+          // Moved card — remove from old column, render into new
+          existing.el.remove();
+          appendCardToColumn(card, board, card.status);
+        }
+        // else: unchanged — leave the existing DOM element alone to
+        // avoid flicker and preserve user interaction state.
       }
+
+      // Remove cards no longer present in the response
+      var currentIds = Object.keys(currentMap);
+      for (var m = 0; m < currentIds.length; m++) {
+        if (!seen[currentIds[m]]) {
+          currentMap[currentIds[m]].el.remove();
+        }
+      }
+    } catch (err) {
+      _notifyError("RENDER_FAILED", "Card diff rendering failed", err, "render");
     }
   }
 
@@ -650,7 +705,12 @@
       timestamps.push(tsEls[j].textContent || "");
     }
 
-    content.innerHTML = _buildDrawerHtml(title, cardId, badges, timestamps);
+    try {
+      content.innerHTML = _buildDrawerHtml(title, cardId, badges, timestamps);
+    } catch (err) {
+      _notifyError("HYDRATE_FAILED", "Drawer hydration failed", err, "hydrate");
+      return;
+    }
     drawer.classList.remove("hidden");
 
     _setupDrawerA11y(drawer, cardEl, content.querySelector(".drawer-close"));
@@ -690,7 +750,7 @@
   }
 
   /* ==================================================================
-   * 6.  Gate caching
+   * 7.  Gate caching
    * ================================================================ */
 
   /** @type {string} sessionStorage key for gate cache. */
@@ -706,12 +766,8 @@
   var _gateEndpoint = null;
 
   /**
-   * Return the list of column status_keys that are currently blocked.
-   *
-   * Nothing inside this file consumes it since the move control was
-   * removed; it stays because consumers read it through
-   * ``window.robotsixBoardInternals`` and prime the cache via
-   * ``window.robotsixBoardSetGate`` (mill does exactly this).
+   * Return the list of column status_keys that are currently blocked
+   * (moves into them should be prevented or warned).
    * @returns {string[]} Array of blocked column status keys.
    */
   function getGateBlockedColumns() {
@@ -783,7 +839,7 @@
         robotsixBoardSetGate(data);
       })
       .catch(function (err) {
-        console.warn("board.js: gate fetch failed:", err);
+        _notifyError("GATE_FAILED", "Gate fetch failed", err, "gate");
       });
   }
 
@@ -817,7 +873,7 @@
   }
 
   /* ==================================================================
-   * 7.  Closed-ticket toggle
+   * 8.  Closed-ticket toggle
    * ================================================================ */
 
   /** @type {string} localStorage key for the toggle preference. */
@@ -904,7 +960,7 @@
   }
 
   /* ==================================================================
-   * 8.  Public API
+   * 9.  Public API
    * ================================================================ */
 
   /**
@@ -957,6 +1013,18 @@
     startRefreshLoop();  // clears old timer, starts new one at updated interval
   }
 
+  /* eslint-disable jsdoc/reject-function-type */
+  /**
+   * Register a consumer error callback.  The function receives a
+   * structured error object: ``{code, message, cause, phase}``.
+   * Pass ``null`` to unregister.
+   * @param {Function|null} fn - Error callback or null.
+   */
+  function robotsixBoardOnError(fn) {
+    _onErrorCallback = fn;
+  }
+  /* eslint-enable jsdoc/reject-function-type */
+
   /**
    * Apply column-level ARIA attributes to the pre-rendered board DOM.
    * Ensures every .board-column-cards has role="list" and every
@@ -993,7 +1061,7 @@
   }
 
   /* ==================================================================
-   * 9.  Bootstrap
+   * 10.  Bootstrap
    * ================================================================ */
 
   /**
@@ -1001,14 +1069,19 @@
    * the refresh loop, and mount UI controls.
    */
   function init() {
-    if (!bootConfig()) {
-      return; // not json_hydration mode or missing config
-    }
+    try {
+      if (!bootConfig()) {
+        return; // not json_hydration mode or missing config
+      }
 
-    attachDrawerDelegation();
-    attachClosedToggle();
-    applyColumnA11y();
-    startRefreshLoop();
+      attachDrawerDelegation();
+      attachClosedToggle();
+      applyColumnA11y();
+      startRefreshLoop();
+    } catch (err) {
+      _notifyError("INIT_FAILED", "Board initialisation failed", err, "init");
+      _renderErrorStub("The board failed to load. Please refresh the page.");
+    }
   }
 
   // ── Wire up on DOM ready ─────────────────────────────────────────
@@ -1026,6 +1099,7 @@
   w["robotsixBoardSetGateEndpoint"] = robotsixBoardSetGateEndpoint;
   w["robotsixBoardSetRefreshUrl"] = robotsixBoardSetRefreshUrl;
   w["robotsixBoardSetRefreshInterval"] = robotsixBoardSetRefreshInterval;
+  w["robotsixBoardOnError"] = robotsixBoardOnError;
 
   // Expose pure IIFE-private helpers so they can be unit-tested.
   w["robotsixBoardInternals"] = {
@@ -1058,5 +1132,7 @@
     attachDrawerDelegation: attachDrawerDelegation,
     applyColumnA11y: applyColumnA11y,
     init: init,
+    _notifyError: _notifyError,
+    _renderErrorStub: _renderErrorStub,
   };
 })();
