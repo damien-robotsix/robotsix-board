@@ -1,12 +1,7 @@
 ## 0.0.0 (unreleased)
 
-- Add `Integrating` page to the mkdocs nav between Home and API Reference.
-- Add Integrating nav entry to mkdocs.yml between Home and API Reference.
-- Add Integrating page to mkdocs.yml nav so the consumer onboarding guide is reachable from the published docs site.
-- Added Integrating guide to the mkdocs nav so the consumer onboarding page is reachable from the published docs site.
-- Add Integrating guide to mkdocs.yml nav block between Home and API Reference.
+- Add Integrating nav entry to mkdocs.yml between CSS Theming and Changelog.
 - Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
-- Add `Integrating` nav entry to `mkdocs.yml` for the existing `docs/robotsix_board/integrating.md` integration guide, and remove three stale duplicate changelog entries that claimed this was already done.
 - Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
 - Bump `fast-uri` override from `>=3.1.4` to `>=4.1.2` to address GHSA-7p8r-x3mc-p8w7 (host confusion via backslash authority introducer).
 - Added consumer integration guide (`docs/robotsix_board/integrating.md`) — transport selection, parity-contract explanation, minimal mount examples for JSON hydration and server fragments, and escaping guarantees.
