@@ -7,9 +7,10 @@ modules:
       - docs/**
       - .github/**
       - .robotsix-mill/**
-      - changelog.d/**
       - AGENT.md
       - CHANGELOG.md
+      - release-please-config.json
+      - .release-please-manifest.json
       - CONTRIBUTING.md
       - LICENSE
       - README.md
