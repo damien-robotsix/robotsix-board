@@ -1,21 +1,3 @@
-## 0.0.0 (unreleased)
-
-- Add Integrating nav entry to mkdocs.yml between CSS Theming and Changelog.
-- Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
-- Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
-- Bump `fast-uri` override from `>=3.1.4` to `>=4.1.2` to address GHSA-7p8r-x3mc-p8w7 (host confusion via backslash authority introducer).
-- Added consumer integration guide (`docs/robotsix_board/integrating.md`) — transport selection, parity-contract explanation, minimal mount examples for JSON hydration and server fragments, and escaping guarantees.
-- Enable `pin_bump` periodic to keep `robotsix-modules` git pin current in `pyproject.toml`.
-- Bump `brace-expansion` override from `>=5.0.8` to `>=5.0.9` to fix GHSA-rgw5-rvv9-x895 (HIGH severity DoS).
-- Remove stale `move_endpoint_template` / `BoardAdapter.move_endpoint()` references from `SECURITY.md`; rewrite "Consumer responsibility" section to document the current attack surface (duck-typed HTML hooks, `refresh_url`/`gate_endpoint`, `board-config` JSON tag).
-- Add consumer-facing error observability to the board JS widget: a `robotsixBoardOnError(fn)` public API, a `board:error` CustomEvent on `#board`, and a visible `.board-error` stub rendered on hard init failure so the widget never silently vanishes.  The new channel receives a structured `{code, message, cause, phase}` error object from all guarded entrypoints (init, render/diff, refresh, gate, move, drawer hydration). (mill: Add consumer-facing error observability to board.js bootstrap/render (onError hook + board:error CustomEvent + visible error stub) (20260802T153258Z-add-consumer-facing-error-observability-d1f8))
-- Add frontend code convention: vendored third-party CSS assets must be excluded from `stylelint` to preserve byte-identical upstream copies.
-- Add fast-check property-based escaping oracle for JS `esc()` with raw-sigil and round-trip invariants, mirroring the Python Hypothesis oracle from PR #273.
-- Adopt robotsix-ui shared base stylesheet: vendored `robotsix-ui-base.css` provides `--rsu-*` design tokens, a minimal reset, and shared component styles.  Board-specific styles now use `--rsu-*` tokens for colors, spacing, radii, fonts, and transitions, with board-only `--board-*` tokens kept for kanban-specific properties (header bg, card bg, merged accent, source badges, shadows).
-- Enable `mypy_baseline` periodic agent to track mypy baseline entry counts, triage growth by error category, and file targeted draft tickets for new type errors.
-- Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
-- Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.
-
 ## [0.4.0](https://github.com/damien-robotsix/robotsix-board/compare/v0.3.0...v0.4.0) (2026-08-08)
 
 
@@ -51,6 +33,12 @@
 
 * fix the mkdocstrings identifier and an out-of-docs link ([#312](https://github.com/damien-robotsix/robotsix-board/issues/312)) ([0f76160](https://github.com/damien-robotsix/robotsix-board/commit/0f7616028004bc765ac669c25a1ff35807b71644))
 * give the site a landing page at its root ([#314](https://github.com/damien-robotsix/robotsix-board/issues/314)) ([ac1d1c8](https://github.com/damien-robotsix/robotsix-board/commit/ac1d1c897de3ca75368149d26e2e5434536eb6cd))
+
+## Pre-release-please history
+
+Everything below predates the release-please migration and was
+maintained by hand or by towncrier. It is kept verbatim; new entries
+are added above by release-please.
 
 ## 0.2.0 (unreleased)
 
@@ -263,3 +251,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial public release of the board HTML/CSS/JS chrome (`src/robotsix_board/static/`).
 - Data adapter contract: the `BoardAdapter` runtime-checkable Protocol (`src/robotsix_board/__init__.py`).
 - Render modes: server-rendered HTML and JSON+JS hydration (`RenderMode`).
+### 0.0.0 (unreleased, pre-release-please)
+
+- Add Integrating nav entry to mkdocs.yml between CSS Theming and Changelog.
+- Add `exclude-newer = "3 days"` to `[tool.uv]` in `pyproject.toml` for supply-chain security cooldown window.
+- Fix incorrect test name in consumer integration guide §6: `test_board_config_script_id_consistent` → `test_board_config_id_consistent_across_python_and_js`.
+- Bump `fast-uri` override from `>=3.1.4` to `>=4.1.2` to address GHSA-7p8r-x3mc-p8w7 (host confusion via backslash authority introducer).
+- Added consumer integration guide (`docs/robotsix_board/integrating.md`) — transport selection, parity-contract explanation, minimal mount examples for JSON hydration and server fragments, and escaping guarantees.
+- Enable `pin_bump` periodic to keep `robotsix-modules` git pin current in `pyproject.toml`.
+- Bump `brace-expansion` override from `>=5.0.8` to `>=5.0.9` to fix GHSA-rgw5-rvv9-x895 (HIGH severity DoS).
+- Remove stale `move_endpoint_template` / `BoardAdapter.move_endpoint()` references from `SECURITY.md`; rewrite "Consumer responsibility" section to document the current attack surface (duck-typed HTML hooks, `refresh_url`/`gate_endpoint`, `board-config` JSON tag).
+- Add consumer-facing error observability to the board JS widget: a `robotsixBoardOnError(fn)` public API, a `board:error` CustomEvent on `#board`, and a visible `.board-error` stub rendered on hard init failure so the widget never silently vanishes.  The new channel receives a structured `{code, message, cause, phase}` error object from all guarded entrypoints (init, render/diff, refresh, gate, move, drawer hydration). (mill: Add consumer-facing error observability to board.js bootstrap/render (onError hook + board:error CustomEvent + visible error stub) (20260802T153258Z-add-consumer-facing-error-observability-d1f8))
+- Add frontend code convention: vendored third-party CSS assets must be excluded from `stylelint` to preserve byte-identical upstream copies.
+- Add fast-check property-based escaping oracle for JS `esc()` with raw-sigil and round-trip invariants, mirroring the Python Hypothesis oracle from PR #273.
+- Adopt robotsix-ui shared base stylesheet: vendored `robotsix-ui-base.css` provides `--rsu-*` design tokens, a minimal reset, and shared component styles.  Board-specific styles now use `--rsu-*` tokens for colors, spacing, radii, fonts, and transitions, with board-only `--board-*` tokens kept for kanban-specific properties (header bg, card bg, merged accent, source badges, shadows).
+- Enable `mypy_baseline` periodic agent to track mypy baseline entry counts, triage growth by error category, and file targeted draft tickets for new type errors.
+- Add Hypothesis property-based escaping oracle with round-trip invariant and raw-special-character checks
+- Add `[tool.uv]` and `[tool.uv.audit]` sections to `pyproject.toml` for supply-chain security: `exclude-newer = "7 days"` cooldown window, `index-strategy = "first-index"` dependency-confusion protection, and `malware-check = true` pre-install malware blocking.
