@@ -175,8 +175,16 @@
     if (!el) {
       return false;
     }
+    // Preferred carrier: a data- attribute on a hidden <div>. Falls back to
+    // the element's text for consumers still emitting the older
+    // <script id="board-config" type="application/json"> block, so a consumer
+    // can upgrade this library without changing its renderer in lockstep.
+    var raw =
+      el.dataset && el.dataset.boardConfig != null
+        ? el.dataset.boardConfig
+        : el.textContent;
     try {
-      CFG = JSON.parse(el.textContent || "{}");
+      CFG = JSON.parse(raw || "{}");
     } catch (_err) {
       console.warn("board.js: failed to parse #board-config JSON", _err);
       return false;

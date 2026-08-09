@@ -178,11 +178,23 @@ def render_config_script(
     refresh_interval_ms: int = 30_000,
     gate_endpoint: str | None = None,
 ) -> str:
-    """Render a ``<script id="board-config" type="application/json">`` tag.
+    """Render the ``#board-config`` element consumed by ``board.js``.
 
     Emits JSON configuration consumed by ``board.js`` in JSON_HYDRATION
     mode.  The config includes column definitions from *adapter* plus
     JS-specific keyword-only parameters.
+
+    The payload rides in a ``data-board-config`` attribute on a hidden
+    ``<div>`` rather than in a ``<script type="application/json">`` block.
+    That block is a data carrier and is never executed, but Firefox still
+    applies ``script-src-elem`` to it, so every consumer whose
+    Content-Security-Policy lacks ``'unsafe-inline'`` logs a violation for it
+    on each page load — noise that buries real CSP failures. A ``data-``
+    attribute carries the same JSON with no script element involved.
+
+    The value is HTML-escaped including quotes, so a string inside the config
+    cannot terminate the attribute or inject markup; ``dataset`` unescapes it
+    on read.
     """
     from . import RenderMode  # lazy — avoids circular import at module level
 
@@ -205,4 +217,5 @@ def render_config_script(
         config["gate_endpoint"] = gate_endpoint
 
     json_str = _json.dumps(config, separators=(",", ":"), sort_keys=True)
-    return f'<script id="board-config" type="application/json">\n{json_str}\n</script>'
+    escaped = _html.escape(json_str, quote=True)
+    return f'<div id="board-config" hidden data-board-config="{escaped}"></div>'

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import html
 import importlib
+import json
 import logging
+import re
 
 import pytest
 
@@ -191,4 +194,8 @@ class TestRenderConfigScriptErrorResilience:
 
         assert "Failed to fetch columns from adapter" in caplog.text
         assert "columns failed" in caplog.text
-        assert '"columns":[]' in result
+        # The payload is HTML-escaped inside data-board-config, so assert on
+        # the decoded config rather than on raw JSON text.
+        match = re.search(r'data-board-config="([^"]*)"', result)
+        assert match is not None
+        assert json.loads(html.unescape(match.group(1)))["columns"] == []
