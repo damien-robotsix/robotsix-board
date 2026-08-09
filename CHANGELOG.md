@@ -40,6 +40,13 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.4.1](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.0...v0.4.1) (2026-08-09)
+
+
+### Documentation
+
+* **changelog:** put the newest release at the top ([#324](https://github.com/damien-robotsix/robotsix-board/issues/324)) ([74091c5](https://github.com/damien-robotsix/robotsix-board/commit/74091c57ae04d60b627c3f9c598405a03315b335))
+
 ## 0.2.0 (unreleased)
 
 - Consolidate three identical focus-ring CSS rules (`.board-move-select:focus`, `.board-move-submit:focus-visible`, `.drawer-close:focus-visible`) into a single multi-selector rule to eliminate jscpd clone pairs 42 and 43.
