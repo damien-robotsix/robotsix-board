@@ -29,7 +29,7 @@ from ._render import esc, render_board, render_config_script
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "BoardAdapter",
