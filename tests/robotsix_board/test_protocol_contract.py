@@ -27,11 +27,15 @@ class FrozenV1Adapter:
 
     This class deliberately does **NOT** inherit from ``BoardAdapter``: it is a
     *structural* implementer, exactly like real downstream consumers. It
-    implements precisely the seven v1 Protocol methods and MUST NOT gain new
-    members when the Protocol grows — that is the entire point of this test.
-    Its members are the immutable v1 contract; if a Protocol change makes this
-    frozen adapter stop satisfying ``isinstance()``, the change is the #40-class
-    break and must be reworked as an optional duck-typed hook instead.
+    implements the five current v1 Protocol methods (``columns``, ``card_id``,
+    ``card_title``, ``card_badges``, ``card_timestamps``) plus the two
+    historical extras ``move_endpoint`` and ``move_endpoint_template`` that were
+    removed from the Protocol in v0.1.0 — retained here to verify extras don't
+    break ``isinstance()``. The class MUST NOT gain new members when the
+    Protocol grows — that is the entire point of this test. Its current members
+    are the frozen v1 contract; if a Protocol change makes this adapter stop
+    satisfying ``isinstance()``, the change is the #40-class break and must be
+    reworked as an optional duck-typed hook instead.
     """
 
     def columns(self) -> list[tuple[str, str]]:
