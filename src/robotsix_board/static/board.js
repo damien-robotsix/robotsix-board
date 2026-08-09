@@ -1,9 +1,11 @@
 /*
  * robotsix-board — shared Kanban board behaviour.
  *
- * Reads its configuration from a <script id="board-config"
- * type="application/json"> element rendered by the Python-side
- * render_config_script().  When render_mode is "json_hydration" the
+ * Reads its configuration from the data-board-config attribute of the
+ * #board-config element rendered by the Python-side
+ * render_config_script(), falling back to the element's text for a
+ * consumer still emitting the older <script type="application/json">
+ * block.  When render_mode is "json_hydration" the
  * JS bootstraps the full client-side board: refresh/polling loop,
  * detail-panel (#drawer) hydration, gate
  * caching, merge detection, closed-ticket toggle, agent-colour
@@ -175,8 +177,16 @@
     if (!el) {
       return false;
     }
+    // Preferred carrier: a data- attribute on a hidden <div>. Falls back to
+    // the element's text for consumers still emitting the older
+    // <script id="board-config" type="application/json"> block, so a consumer
+    // can upgrade this library without changing its renderer in lockstep.
+    var raw =
+      el.dataset && typeof el.dataset.boardConfig === "string"
+        ? el.dataset.boardConfig
+        : el.textContent;
     try {
-      CFG = JSON.parse(el.textContent || "{}");
+      CFG = JSON.parse(raw || "{}");
     } catch (_err) {
       console.warn("board.js: failed to parse #board-config JSON", _err);
       return false;

@@ -21,10 +21,10 @@ def _adapter() -> MockAdapter:
 
 
 def _extract_script_json(result: str) -> dict[str, Any]:
-    """Extract and parse the JSON embedded in the rendered <script> tag."""
-    match = re.search(r"<script[^>]*>\s*(.*?)\s*</script>", result, re.DOTALL)
-    assert match is not None, "Could not find script tag in rendered output"
-    return json.loads(match.group(1))  # type: ignore[no-any-return]
+    """Extract and parse the JSON carried by the rendered #board-config element."""
+    match = re.search(r'data-board-config="([^"]*)"', result)
+    assert match is not None, "Could not find data-board-config in rendered output"
+    return json.loads(html.unescape(match.group(1)))  # type: ignore[no-any-return]
 
 
 # ── tests ─────────────────────────────────────────────────────────────
@@ -524,6 +524,31 @@ class TestRenderBoard:
         # Extract JSON between <script> tags
         parsed = _extract_script_json(result)
         assert isinstance(parsed, dict)
+
+    def test_render_config_script_emits_no_script_element(self) -> None:
+        """The config must not ride in a <script> block.
+
+        A ``<script type="application/json">`` block is a data carrier and is
+        never executed, but Firefox still applies ``script-src-elem`` to it, so
+        every consumer with a strict Content-Security-Policy logged a violation
+        for it on each page load. That noise buries real CSP failures.
+        """
+        result = render_config_script(_adapter())
+        assert "<script" not in result
+        assert "data-board-config=" in result
+
+    def test_render_config_script_escapes_quotes_in_payload(self) -> None:
+        """A quote inside the config must not terminate the attribute."""
+
+        class QuoteAdapter(MockAdapter):
+            def columns(self) -> list[tuple[str, str]]:
+                return [("todo", 'He said "hi" <b>')]
+
+        result = render_config_script(QuoteAdapter())
+        # One attribute, correctly delimited, and the raw quote is escaped.
+        assert result.count('data-board-config="') == 1
+        assert '"hi"' not in result
+        assert _extract_script_json(result)["columns"] == [["todo", 'He said "hi" <b>']]
 
     def test_render_config_script_has_expected_keys(self) -> None:
         adapter = _adapter()
