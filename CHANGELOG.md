@@ -40,6 +40,13 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.4.2](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.1...v0.4.2) (2026-08-09)
+
+
+### Bug Fixes
+
+* **release:** don't fail lock-sync when the release branch is gone ([#326](https://github.com/damien-robotsix/robotsix-board/issues/326)) ([8767b58](https://github.com/damien-robotsix/robotsix-board/commit/8767b58679e453fb639a64dc3a6b752971f4fc4c))
+
 ## [0.4.1](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.0...v0.4.1) (2026-08-09)
 
 
