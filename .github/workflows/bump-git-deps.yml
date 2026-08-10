@@ -101,14 +101,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
 
-          # Resolve version tag (lightweight tags first, then annotated)
+          # Resolve version tag (lightweight tags first, then annotated).
+          # gh api returns 404 when a repo has zero tags — handle gracefully.
           VERSION=$(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" \
             --jq ".[] | select(.object.sha == \"$LATEST\") | .ref" \
-            | sed 's|refs/tags/||' | head -1)
+            | sed 's|refs/tags/||' | head -1) || true
           if [ -z "$VERSION" ]; then
-            for TAG_REF in $(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" --jq '.[].ref'); do
+            for TAG_REF in $(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" --jq '.[].ref' || true); do
               TAG_NAME="${TAG_REF#refs/tags/}"
-              TAG_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/tags/$TAG_NAME" --jq '.object.sha')
+              TAG_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/tags/$TAG_NAME" --jq '.object.sha' || true)
               if [ "$TAG_SHA" = "$LATEST" ]; then
                 VERSION="$TAG_NAME"
                 break
