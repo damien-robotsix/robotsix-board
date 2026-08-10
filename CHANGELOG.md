@@ -40,6 +40,19 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.4.3](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.2...v0.4.3) (2026-08-09)
+
+
+### Bug Fixes
+
+* Bump @eslint/js from ^9 to ^10 to match ESLint 10.8.0 and avoid peer dependency mismatch (20260807T010538Z-bump-eslint-js-from-9-to-10-to-match-esl-cf17) ([#334](https://github.com/damien-robotsix/robotsix-board/issues/334)) ([b1800cb](https://github.com/damien-robotsix/robotsix-board/commit/b1800cbe125e2048ed18ebdb3e783a46cae7982b))
+* **render:** carry board config in a data- attribute, not a script block ([#328](https://github.com/damien-robotsix/robotsix-board/issues/328)) ([7a8cc93](https://github.com/damien-robotsix/robotsix-board/commit/7a8cc931a45eca6b0dcc0d91db18f390405194b9))
+
+
+### Documentation
+
+* Fix stale 'seven methods' Protocol count in docs and test to reflect current five-method BoardAdapter (20260807T010537Z-fix-stale-seven-methods-protocol-count-i-dcd2) ([#333](https://github.com/damien-robotsix/robotsix-board/issues/333)) ([8940dd4](https://github.com/damien-robotsix/robotsix-board/commit/8940dd4ba649d89e5176a434cc4e9ad2f700b96b))
+
 ## [0.4.2](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.1...v0.4.2) (2026-08-09)
 
 
