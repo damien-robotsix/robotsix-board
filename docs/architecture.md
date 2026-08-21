@@ -1,6 +1,6 @@
 # JS Frontend Architecture
 
-The kanban-board client is a single ~1 273‑line IIFE at
+The kanban-board client is a single ~1 148‑line IIFE at
 `src/robotsix_board/static/board.js`.  This page documents its
 structure so contributors can navigate the file without
 reverse-engineering the full source.
@@ -35,7 +35,7 @@ Expression:
 | `window.robotsixBoardInternals` | Test-only — exposes pure functions for vitest |
 
 The exports are assigned at the bottom of the file (lines
-≈1 235–1 273).
+≈1 106–1 148).
 
 ## 2. Subsystem map
 
@@ -44,16 +44,16 @@ Every subsystem is delimited by a section-header comment of the form
 
 | # | Subsystem | Lines (approx.) | Key functions |
 |---|---|---|---|
-| 0 | Helpers | 55–113 | `esc()`, `hashStr()`, `agentColor()` |
-| 1 | Configuration | 114–165 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
-| 2 | Card rendering | 166–279 | `buildCardElement()`, `_buildAgentBadgeElements()` |
-| 3 | Column count update | 280–305 | `updateColumnCounts()` |
-| 4 | Refresh loop | 306–452 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
-| 5 | Drawer / detail panel | 453–691 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_trapFocus()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
-| 6 | Gate caching | 692–818 | `getGateBlockedColumns()`, `getGateData()`, `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `robotsixBoardSetGateEndpoint()` |
-| 7 | Closed-ticket toggle | 819–905 | `attachClosedToggle()`, `getClosedToggleState()`, `setClosedToggleState()`, `applyClosedToggle()` |
-| 8 | Public API | 906–994 | `robotsixBoardRefresh()`, `robotsixBoardStopRefresh()`, `robotsixBoardSetRefreshUrl()`, `robotsixBoardSetRefreshInterval()`, `applyColumnA11y()` |
-| 9 | Bootstrap | 995–1 063 | `init()`, DOM-ready wiring, public API + internals export |
+| 0 | Helpers | 58–116 | `esc()`, `hashStr()`, `agentColor()` |
+| 1 | Configuration | 117–226 | `bootConfig()`, `CFG`, `CLOSED_KEY` |
+| 2 | Card rendering | 227–340 | `buildCardElement()`, `_buildAgentBadgeElements()` |
+| 3 | Column count update | 341–366 | `updateColumnCounts()` |
+| 4 | Refresh loop | 367–517 | `startRefreshLoop()`, `doRefresh()`, `applyCardDiff()`, `findColumnByStatus()`, `appendCardToColumn()` |
+| 5 | Drawer / detail panel | 518–761 | `attachDrawerDelegation()`, `_buildDrawerHtml()`, `_setupDrawerA11y()`, `_trapFocus()`, `_attachDrawerHandlers()`, `openDrawer()`, `closeDrawer()` |
+| 6 | Gate caching | 762–884 | `getGateBlockedColumns()`, `getGateData()`, `fetchGateDataAsync()`, `robotsixBoardSetGate()`, `robotsixBoardSetGateEndpoint()` |
+| 7 | Closed-ticket toggle | 885–971 | `attachClosedToggle()`, `getClosedToggleState()`, `setClosedToggleState()`, `applyClosedToggle()` |
+| 8 | Public API | 972–1 072 | `robotsixBoardRefresh()`, `robotsixBoardStopRefresh()`, `robotsixBoardSetRefreshUrl()`, `robotsixBoardSetRefreshInterval()`, `applyColumnA11y()` |
+| 9 | Bootstrap | 1 073–1 148 | `init()`, DOM-ready wiring, public API + internals export |
 
 > Line ranges are approximate and reflect the file at the time of
 > writing.  Subsystems 6–7 (gate cache and closed toggle) intentionally
@@ -109,6 +109,12 @@ Change the refresh URL at runtime and restart the polling loop.
 
 Change the polling interval.  Clears the old timer and starts a new
 one at the new interval.
+
+### `robotsixBoardOnError(fn)`
+
+Register a consumer error callback.  The callback receives a structured
+error object `{code, message, cause, phase}` whenever the board reports an
+error.  Pass `null` to unregister.
 
 ## 5. Testing
 
