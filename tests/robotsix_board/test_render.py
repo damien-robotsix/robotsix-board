@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import html
 import json
 import re
-from collections.abc import Callable
 from typing import Any, cast
 
 import pytest
+
 try:
     from hypothesis import example, given
     from hypothesis import strategies as st
