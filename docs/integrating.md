@@ -107,12 +107,14 @@ def board_page():
         refresh_url="/api/board-data",
         refresh_interval_ms=30_000,
     )
-    appshell = render_appshell({
-        "brand": "My Board",
-        "nav_items": [
-            {"label": "Board", "href": "/", "active": True},
-        ],
-    })
+    appshell = render_appshell(
+        {
+            "brand": "My Board",
+            "nav_items": [
+                {"label": "Board", "href": "/", "active": True},
+            ],
+        }
+    )
     return HTMLResponse(f"""<!doctype html>
 <html lang="en">
 <head>
@@ -158,12 +160,14 @@ from robotsix_board import render_appshell, render_board
 def board_page(cards_by_status: dict[str, list[dict]]):
     adapter = MyAdapter()
     board_html = render_board(adapter, cards_by_status)
-    appshell = render_appshell({
-        "brand": "My Board",
-        "nav_items": [
-            {"label": "Board", "href": "/", "active": True},
-        ],
-    })
+    appshell = render_appshell(
+        {
+            "brand": "My Board",
+            "nav_items": [
+                {"label": "Board", "href": "/", "active": True},
+            ],
+        }
+    )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -198,15 +202,17 @@ Call `render_appshell()` and embed the result at the top of your `<body>`:
 ```python
 from robotsix_board import render_appshell
 
-appshell_html = render_appshell({
-    "brand": "My Board",
-    "nav_items": [
-        {"label": "Board", "href": "/", "active": True},
-        {"label": "Settings", "href": "/settings"},
-    ],
-    "settings_href": "/settings",
-    "right_slot": "v1.0",
-})
+appshell_html = render_appshell(
+    {
+        "brand": "My Board",
+        "nav_items": [
+            {"label": "Board", "href": "/", "active": True},
+            {"label": "Settings", "href": "/settings"},
+        ],
+        "settings_href": "/settings",
+        "right_slot": "v1.0",
+    }
+)
 ```
 
 The function emits a `<header id="app-shell">` placeholder and a

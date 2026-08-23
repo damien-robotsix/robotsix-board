@@ -41,6 +41,14 @@ export default [
     },
   },
   {
+    files: ["src/robotsix_board/static/vanilla.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.browser },
+    },
+  },
+  {
     files: ["eslint.config.mjs"],
     languageOptions: {
       ecmaVersion: "latest",

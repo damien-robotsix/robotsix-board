@@ -624,10 +624,8 @@ class TestRenderAppshell:
     def test_empty_config_renders_container_and_script(self) -> None:
         result = render_appshell()
         assert '<header id="app-shell">' in result
-        assert (
-            'import { mountAppShell } from "/static/vanilla.js";' in result
-        )
-        assert 'mountAppShell(' in result
+        assert 'import { mountAppShell } from "/static/vanilla.js";' in result
+        assert "mountAppShell(" in result
 
     def test_brand_injected_in_script(self) -> None:
         result = render_appshell({"brand": "Test Board"})
@@ -677,4 +675,4 @@ class TestRenderAppshell:
         cfg: AppShellConfig = {}
         result = render_appshell(cfg)
         assert '<header id="app-shell">' in result
-        assert 'mountAppShell(' in result
+        assert "mountAppShell(" in result
