@@ -96,7 +96,7 @@ app.mount("/board/static", StaticFiles(directory=static_dir()), name="board_stat
 ### 4b. Emit the config script in your page template
 
 ```python
-from robotsix_board import render_config_script
+from robotsix_board import render_appshell, render_config_script
 
 
 @app.get("/board")
@@ -107,6 +107,12 @@ def board_page():
         refresh_url="/api/board-data",
         refresh_interval_ms=30_000,
     )
+    appshell = render_appshell({
+        "brand": "My Board",
+        "nav_items": [
+            {"label": "Board", "href": "/", "active": True},
+        ],
+    })
     return HTMLResponse(f"""<!doctype html>
 <html lang="en">
 <head>
@@ -115,6 +121,7 @@ def board_page():
   <link rel="stylesheet" href="/board/static/board.css">
 </head>
 <body>
+  {appshell}
   <div id="board" class="board"></div>
   {config_tag}
   <script src="/board/static/board.js"></script>
@@ -145,12 +152,18 @@ js = (static_dir() / "board.js").read_text()
 ### 5b. Call `render_board()` and embed the output
 
 ```python
-from robotsix_board import render_board
+from robotsix_board import render_appshell, render_board
 
 
 def board_page(cards_by_status: dict[str, list[dict]]):
     adapter = MyAdapter()
     board_html = render_board(adapter, cards_by_status)
+    appshell = render_appshell({
+        "brand": "My Board",
+        "nav_items": [
+            {"label": "Board", "href": "/", "active": True},
+        ],
+    })
 
     return f"""<!doctype html>
 <html lang="en">
@@ -160,6 +173,7 @@ def board_page(cards_by_status: dict[str, list[dict]]):
   <style>{css}</style>
 </head>
 <body>
+  {appshell}
   {board_html}
   <script>{js}</script>
 </body>
@@ -172,7 +186,48 @@ card-fetching logic — `robotsix-board` only renders what it is given.
 
 ---
 
-## 6. The parity contract
+## 6. Add the shared AppShell navigation chrome
+
+Once the board is rendering, wrap it in the shared AppShell for consistent
+navigation across the fleet.
+
+### 6a. Render the shell in your page
+
+Call `render_appshell()` and embed the result at the top of your `<body>`:
+
+```python
+from robotsix_board import render_appshell
+
+appshell_html = render_appshell({
+    "brand": "My Board",
+    "nav_items": [
+        {"label": "Board", "href": "/", "active": True},
+        {"label": "Settings", "href": "/settings"},
+    ],
+    "settings_href": "/settings",
+    "right_slot": "v1.0",
+})
+```
+
+The function emits a `<header id="app-shell">` placeholder and a
+`<script type="module">` that imports `vanilla.js` and calls
+`mountAppShell()`.  The shell is styled by the vendored
+`robotsix-ui-base.css` (already imported by `board.css`).
+
+### 6b. Available configuration keys
+
+All keys on `AppShellConfig` are optional:
+
+| Key | JS option | Description |
+|---|---|---|
+| `brand` | `brand` | Product name shown on the left |
+| `nav_items` | `navItems` | Ordered list of `{label, href, active?, icon?}` |
+| `settings_href` | `settingsHref` | Target for the Settings link |
+| `right_slot` | `rightSlot` | Plain text for the far-right slot |
+
+---
+
+## 7. The parity contract
 
 Both transports **must** produce byte-identical markup.  This invariant is
 load-bearing: if one transport's DOM drifts from the other's, cards that
