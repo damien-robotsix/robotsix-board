@@ -12,7 +12,14 @@ from hypothesis import example, given
 from hypothesis import strategies as st
 
 from robotsix_board import BoardAdapter
-from robotsix_board._render import _render_card, esc, render_board, render_config_script
+from robotsix_board._render import (
+    AppShellConfig,
+    _render_card,
+    esc,
+    render_appshell,
+    render_board,
+    render_config_script,
+)
 from tests.robotsix_board.conftest import MockAdapter, sample_cards
 
 
@@ -606,3 +613,66 @@ class TestRenderBoard:
             assert parsed["gate_endpoint"] == gate_endpoint
         else:
             assert "gate_endpoint" not in parsed
+
+
+# ── AppShell rendering ───────────────────────────────────────────────
+
+
+class TestRenderAppshell:
+    """Tests for render_appshell()."""
+
+    def test_empty_config_renders_container_and_script(self) -> None:
+        result = render_appshell()
+        assert '<header id="app-shell">' in result
+        assert 'import { mountAppShell } from "/static/vanilla.js";' in result
+        assert "mountAppShell(" in result
+
+    def test_brand_injected_in_script(self) -> None:
+        result = render_appshell({"brand": "Test Board"})
+        assert '"brand": "Test Board"' in result
+
+    def test_nav_items_injected_in_script(self) -> None:
+        result = render_appshell(
+            {
+                "nav_items": [
+                    {"label": "Board", "href": "/", "active": True},
+                    {"label": "Settings", "href": "/settings"},
+                ]
+            }
+        )
+        assert '"navItems"' in result
+        assert '"label": "Board"' in result
+        assert '"active": true' in result
+        assert '"label": "Settings"' in result
+
+    def test_settings_href_injected_in_script(self) -> None:
+        result = render_appshell({"settings_href": "/config"})
+        assert '"settingsHref": "/config"' in result
+
+    def test_right_slot_injected_in_script(self) -> None:
+        result = render_appshell({"right_slot": "Healthy"})
+        assert '"rightSlot": "Healthy"' in result
+
+    def test_none_config_same_as_empty(self) -> None:
+        assert render_appshell(None) == render_appshell()
+
+    def test_full_config_renders_all_keys(self) -> None:
+        result = render_appshell(
+            {
+                "brand": "My Board",
+                "nav_items": [{"label": "Home", "href": "/"}],
+                "settings_href": "/settings",
+                "right_slot": "v1.0",
+            }
+        )
+        assert '"brand": "My Board"' in result
+        assert '"navItems"' in result
+        assert '"settingsHref": "/settings"' in result
+        assert '"rightSlot": "v1.0"' in result
+
+    def test_appshell_config_typeddict_total_false(self) -> None:
+        """AppShellConfig accepts an empty dict (total=False)."""
+        cfg: AppShellConfig = {}
+        result = render_appshell(cfg)
+        assert '<header id="app-shell">' in result
+        assert "mountAppShell(" in result

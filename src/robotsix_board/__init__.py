@@ -25,17 +25,25 @@ import pathlib
 from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
-from ._render import esc, render_board, render_config_script
+from ._render import (
+    AppShellConfig,
+    esc,
+    render_appshell,
+    render_board,
+    render_config_script,
+)
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "0.4.3"
 
 __all__ = [
+    "AppShellConfig",
     "BoardAdapter",
     "RenderMode",
     "__version__",
     "esc",
+    "render_appshell",
     "render_board",
     "render_config_script",
     "static_dir",

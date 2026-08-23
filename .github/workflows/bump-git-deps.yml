@@ -84,60 +84,50 @@ jobs:
           CSS_FILE="src/robotsix_board/static/robotsix-ui-base.css"
           CUR=$(sed -n '5s/.*Pinned at: \([0-9a-f]\{40\}\).*/\1/p' "$CSS_FILE")
           echo "current=$CUR" >> "$GITHUB_OUTPUT"
-          LATEST=$(gh api repos/damien-robotsix/robotsix-ui/commits/main --jq .sha)
-          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          # Track the latest v0.1.* tag rather than main HEAD (fleet rollout):
+          # the v0.1.x line is the stable series; main may contain unreleased
+          # changes.  The workflow auto-bumps within v0.1.x only.
+          LATEST_TAG=$(gh api repos/damien-robotsix/robotsix-ui/git/refs/tags \
+            --jq '.[].ref' | grep 'refs/tags/v0\.1\.' | sort -V | tail -1)
+          VERSION="${LATEST_TAG#refs/tags/}"
+          LATEST_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags/${VERSION}" --jq .object.sha)
+          echo "latest=$LATEST_SHA" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create bump PR if outdated
         if: steps.check.outputs.current != steps.check.outputs.latest
         env:
           CUR: ${{ steps.check.outputs.current }}
           LATEST: ${{ steps.check.outputs.latest }}
+          VERSION: ${{ steps.check.outputs.version }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           CSS_FILE: src/robotsix_board/static/robotsix-ui-base.css
+          VANILLA_FILE: src/robotsix_board/static/vanilla.js
         run: |
           BRANCH="bump/robotsix-ui-base-${LATEST:0:12}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
 
-          # Resolve version tag (lightweight tags first, then annotated).
-          # gh api returns 404 when a repo has zero tags — handle gracefully.
-          VERSION=$(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" \
-            --jq ".[] | select(.object.sha == \"$LATEST\") | .ref" \
-            | sed 's|refs/tags/||' | head -1) || true
-          if [ -z "$VERSION" ]; then
-            for TAG_REF in $(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags" --jq '.[].ref' || true); do
-              TAG_NAME="${TAG_REF#refs/tags/}"
-              TAG_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/tags/$TAG_NAME" --jq '.object.sha' || true)
-              if [ "$TAG_SHA" = "$LATEST" ]; then
-                VERSION="$TAG_NAME"
-                break
-              fi
-            done
-          fi
-          VERSION_SUFFIX=""
-          if [ -n "$VERSION" ]; then
-            VERSION_SUFFIX=" ($VERSION)"
-          fi
-
           # Fetch upstream CSS files at the new SHA
           BASE_URL="https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/${LATEST}/src/styles"
           TOKENS=$(curl -sSf "$BASE_URL/tokens.css")
           BASE=$(curl -sSf "$BASE_URL/base.css")
           COMPONENTS=$(curl -sSf "$BASE_URL/components.css")
+          UTILITIES=$(curl -sSf "$BASE_URL/utilities.css")
 
-          # Write updated vendored file
+          # Write updated vendored CSS file
           {
             printf '/*\n'
             printf ' * robotsix-ui shared base stylesheet — vendored into robotsix-board.\n'
             printf ' *\n'
             printf ' * Source: https://github.com/damien-robotsix/robotsix-ui\n'
-            printf ' * Pinned at: %s%s\n' "$LATEST" "$VERSION_SUFFIX"
+            printf ' * Pinned at: %s (%s)\n' "$LATEST" "$VERSION"
             printf ' *\n'
-            printf ' * This file concatenates tokens.css + base.css + components.css from\n'
-            printf " * robotsix-ui's src/styles/.  It is committed so that Python-only\n"
-            printf ' * consumers of robotsix-board do not need Node.js / npm to get the\n'
+            printf ' * This file concatenates tokens.css + base.css + components.css +\n'
+            printf " * utilities.css from robotsix-ui's src/styles/.  It is committed so that\n"
+            printf ' * Python-only consumers of robotsix-board do not need Node.js / npm to get the\n'
             printf ' * shared base.\n'
             printf ' *\n'
             printf " * To update: pull the latest CSS from robotsix-ui's src/styles/ at\n"
@@ -149,14 +139,21 @@ jobs:
             printf '%s\n' "$BASE"
             printf '\n'
             printf '%s\n' "$COMPONENTS"
+            printf '\n'
+            printf '%s\n' "$UTILITIES"
           } > "$CSS_FILE"
 
-          git add "$CSS_FILE"
-          git commit -m "chore: re-vendor robotsix-ui-base.css @ ${LATEST:0:12}"
+          # Fetch and write the framework-free vanilla.js from the GitHub release
+          curl -sSfL \
+            "https://github.com/damien-robotsix/robotsix-ui/releases/download/${VERSION}/vanilla.js" \
+            -o "$VANILLA_FILE"
+
+          git add "$CSS_FILE" "$VANILLA_FILE"
+          git commit -m "chore: re-vendor robotsix-ui @ ${VERSION}"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$BRANCH"
           gh pr create \
             --head "$BRANCH" \
             --base main \
-            --title "chore: re-vendor robotsix-ui-base.css @ ${LATEST:0:12}" \
-            --body "Automated re-vendor of robotsix-ui-base.css from ${CUR:0:12} to ${LATEST:0:12}${VERSION_SUFFIX}." \
+            --title "chore: re-vendor robotsix-ui @ ${VERSION}" \
+            --body "Automated re-vendor of robotsix-ui-base.css and vanilla.js from ${CUR:0:12} to ${LATEST:0:12} (${VERSION})." \
             --label dependencies

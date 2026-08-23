@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="/src/robotsix_board/static/board.css">
 </head>
 <body>
+  <!-- Shared AppShell navigation chrome -->
+  <header id="app-shell"></header>
+
   <script id="board-config" type="application/json">
   {
     "render_mode": "json_hydration",
@@ -56,6 +59,17 @@
     </div>
   </div>
 
+  <script type="module">
+    import { mountAppShell } from "/src/robotsix_board/static/vanilla.js";
+    mountAppShell(document.getElementById("app-shell"), {
+      brand: "Robotsix Board",
+      navItems: [
+        { label: "Board", href: "/", active: true },
+        { label: "Settings", href: "/settings" }
+      ],
+      settingsHref: "/settings"
+    });
+  </script>
   <script src="/src/robotsix_board/static/board.js"></script>
 </body>
 </html>
