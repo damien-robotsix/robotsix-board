@@ -1,6 +1,7 @@
 test_command: pytest -q
 languages: [python]
 extra_sandbox_packages:
+  - pip:hypothesis
   - pip:pytest
   - pip:pytest-xdist
   - pip:pytest-cov

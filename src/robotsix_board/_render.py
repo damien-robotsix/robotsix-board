@@ -4,6 +4,8 @@ Exports:
     esc                  — HTML-escape a string.
     render_board         — Produce full #board HTML for SERVER_FRAGMENTS mode.
     render_config_script — Emit a <script id="board-config"> tag for JSON_HYDRATION.
+    AppShellConfig       — TypedDict for AppShell configuration.
+    render_appshell      — Render the shared AppShell container + mount script.
 """
 
 from __future__ import annotations
@@ -12,7 +14,7 @@ import html as _html
 import json as _json
 import logging
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 _logger = logging.getLogger(__name__)
 
@@ -20,7 +22,9 @@ if TYPE_CHECKING:
     from . import BoardAdapter
 
 __all__ = [
+    "AppShellConfig",
     "esc",
+    "render_appshell",
     "render_board",
     "render_config_script",
 ]
@@ -219,3 +223,83 @@ def render_config_script(
     json_str = _json.dumps(config, separators=(",", ":"), sort_keys=True)
     escaped = _html.escape(json_str, quote=True)
     return f'<div id="board-config" hidden data-board-config="{escaped}"></div>'
+
+
+class AppShellConfig(TypedDict, total=False):
+    """Configuration for the shared AppShell navigation chrome.
+
+    All keys are optional — omit a key to accept the shell default (e.g.
+    no brand text, no nav items, no settings link, no right-slot content).
+    """
+
+    brand: str
+    """Product name shown on the left of the shell."""
+
+    nav_items: list[dict[str, object]]
+    """Ordered list of primary navigation links.
+
+    Each item is a dict with keys:
+      label (str)  — visible link text
+      href  (str)  — link target
+      active (bool, optional) — highlight as current page
+      icon  (str, optional) — decorative emoji / symbol before label
+    """
+
+    settings_href: str
+    """Target for the standard Settings link.  Omit to hide the link."""
+
+    right_slot: str
+    """Per-app controls text at the far right (plain text, not markup)."""
+
+
+def render_appshell(config: AppShellConfig | None = None) -> str:
+    """Render the shared AppShell container and mount script.
+
+    Returns an HTML fragment (a ``<header id="app-shell">`` placeholder
+    followed by a ``<script type="module">`` that imports ``vanilla.js``
+    and calls ``mountAppShell`` with *config*).  Consumers embed this
+    fragment at the top of their ``<body>``.
+
+    The shell is styled by the vendored ``robotsix-ui-base.css``, which
+    ships ``rsu-appshell-*`` classes.  Consumer pages must either serve
+    ``robotsix-ui-base.css`` (via ``board.css``'s ``@import``) or include
+    it directly via a ``<link>``.
+    """
+    cfg: AppShellConfig = config or {}
+
+    script_config = _json.dumps(
+        _build_appshell_config(cfg),
+        indent=2,
+        sort_keys=True,
+    )
+
+    return (
+        '<header id="app-shell"></header>\n'
+        '<script type="module">\n'
+        'import { mountAppShell } from "/static/vanilla.js";\n'
+        f'mountAppShell(document.getElementById("app-shell"), {script_config});\n'
+        "</script>"
+    )
+
+
+def _build_appshell_config(cfg: AppShellConfig) -> dict[str, object]:
+    """Build the options dict passed to ``mountAppShell()``."""
+    options: dict[str, object] = {}
+
+    brand = cfg.get("brand")
+    if brand is not None:
+        options["brand"] = brand
+
+    nav_items = cfg.get("nav_items")
+    if nav_items is not None:
+        options["navItems"] = nav_items
+
+    settings_href = cfg.get("settings_href")
+    if settings_href is not None:
+        options["settingsHref"] = settings_href
+
+    right_slot = cfg.get("right_slot")
+    if right_slot is not None:
+        options["rightSlot"] = right_slot
+
+    return options
