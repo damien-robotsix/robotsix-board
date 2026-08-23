@@ -8,8 +8,63 @@ import re
 from typing import Any, cast
 
 import pytest
-from hypothesis import example, given
-from hypothesis import strategies as st
+try:
+    from hypothesis import example, given
+    from hypothesis import strategies as st
+
+    _hypothesis_available = True
+except ImportError:
+    _hypothesis_available = False
+
+    def given(*args, **kwargs):  # type: ignore[no-redef]
+        """Return a wrapper that skips the test when hypothesis is not installed.
+
+        The wrapper uses ``*args, **kwargs`` so pytest never sees the
+        original function's parameters (e.g. ``s``) as required fixtures.
+        """
+
+        def decorator(fn):
+            def wrapper(*_args: object, **_kwargs: object) -> None:
+                pytest.skip("hypothesis not installed")
+
+            return wrapper
+
+        return decorator
+
+    def example(*args, **kwargs):  # type: ignore[no-redef]
+        """Return a wrapper that skips the test when hypothesis is not installed."""
+
+        def decorator(fn):
+            def wrapper(*_args: object, **_kwargs: object) -> None:
+                pytest.skip("hypothesis not installed")
+
+            return wrapper
+
+        return decorator
+
+    class _DummyStrategy:
+        """A stand-in for a hypothesis strategy that supports ``|`` chaining
+        and can be passed to ``@given`` without crashing."""
+
+        def __or__(self, _other: object) -> "_DummyStrategy":
+            return self
+
+        def __ror__(self, _other: object) -> "_DummyStrategy":
+            return self
+
+    class _DummyStrategies:
+        """A dummy strategies module whose attribute lookups return a
+        callable that produces a ``_DummyStrategy`` — enough to keep
+        ``@given(...)`` decorators from crashing at definition time when
+        hypothesis is absent."""
+
+        def __getattr__(self, name: str):
+            def _factory(*args: object, **kwargs: object) -> _DummyStrategy:
+                return _DummyStrategy()
+
+            return _factory
+
+    st = _DummyStrategies()  # type: ignore[assignment]
 
 from robotsix_board import BoardAdapter
 from robotsix_board._render import (
@@ -85,6 +140,7 @@ class TestEsc:
     @example(s="hello world")
     def test_esc_round_trip_and_no_raw_specials(self, s: str) -> None:
         """Property: esc escapes all HTML specials and round-trips via html.unescape."""
+        pytest.importorskip("hypothesis")
         result = esc(s)
 
         # Invariant 1: no raw <, >, &, double-quote, or single-quote survives escaping

@@ -10,7 +10,10 @@ readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
-dependencies = ["robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d56fd5d0ae36e2226a471ef276a38faa5d611e6b"]
+dependencies = [
+    "robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d56fd5d0ae36e2226a471ef276a38faa5d611e6b",
+    "hypothesis",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -31,7 +34,6 @@ dev = [
     "ruff==0.16.3",
     "pytest",
     "deptry",
-    "hypothesis",
     "mypy",
     "pytest-cov",
     "pytest-xdist",
