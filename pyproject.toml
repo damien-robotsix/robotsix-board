@@ -91,4 +91,4 @@ known_first_party = ["robotsix_board"]
 optional_dependencies_dev_groups = ["dev"]
 
 [tool.deptry.per_rule_ignores]
-DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "pymdown-extensions", "vulture", "check-jsonschema", "pytest-xdist", "robotsix-modules"]  # CLI tools used via workflows, not imported
+DEP002 = ["mkdocs", "mkdocs-material", "mkdocstrings", "pymdown-extensions", "vulture", "check-jsonschema", "pytest-xdist", "robotsix-modules", "hypothesis"]  # CLI tools used via workflows, not imported
