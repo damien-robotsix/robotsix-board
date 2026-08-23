@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from collections.abc import Callable
 from typing import Any, cast
 
 import pytest
@@ -16,14 +17,14 @@ try:
 except ImportError:
     _hypothesis_available = False
 
-    def given(*args, **kwargs):  # type: ignore[no-redef]
+    def given(*args: Any, **kwargs: Any) -> Any:  # type: ignore[no-redef]
         """Return a wrapper that skips the test when hypothesis is not installed.
 
         The wrapper uses ``*args, **kwargs`` so pytest never sees the
         original function's parameters (e.g. ``s``) as required fixtures.
         """
 
-        def decorator(fn):
+        def decorator(fn: Any) -> Any:
             def wrapper(*_args: object, **_kwargs: object) -> None:
                 pytest.skip("hypothesis not installed")
 
@@ -31,10 +32,10 @@ except ImportError:
 
         return decorator
 
-    def example(*args, **kwargs):  # type: ignore[no-redef]
+    def example(*args: Any, **kwargs: Any) -> Any:  # type: ignore[no-redef]
         """Return a wrapper that skips the test when hypothesis is not installed."""
 
-        def decorator(fn):
+        def decorator(fn: Any) -> Any:
             def wrapper(*_args: object, **_kwargs: object) -> None:
                 pytest.skip("hypothesis not installed")
 
@@ -46,10 +47,10 @@ except ImportError:
         """A stand-in for a hypothesis strategy that supports ``|`` chaining
         and can be passed to ``@given`` without crashing."""
 
-        def __or__(self, _other: object) -> "_DummyStrategy":
+        def __or__(self, _other: object) -> _DummyStrategy:
             return self
 
-        def __ror__(self, _other: object) -> "_DummyStrategy":
+        def __ror__(self, _other: object) -> _DummyStrategy:
             return self
 
     class _DummyStrategies:
@@ -58,7 +59,7 @@ except ImportError:
         ``@given(...)`` decorators from crashing at definition time when
         hypothesis is absent."""
 
-        def __getattr__(self, name: str):
+        def __getattr__(self, name: str) -> Callable[..., _DummyStrategy]:
             def _factory(*args: object, **kwargs: object) -> _DummyStrategy:
                 return _DummyStrategy()
 
