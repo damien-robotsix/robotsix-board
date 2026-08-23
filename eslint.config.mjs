@@ -4,6 +4,9 @@ import jsdoc from "eslint-plugin-jsdoc";
 import vitest from "@vitest/eslint-plugin";
 
 export default [
+  {
+    ignores: ["src/robotsix_board/static/vanilla.js"],
+  },
   js.configs.recommended,
   jsdoc.configs["flat/recommended"],
   {

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mountAppShell } from "../../src/robotsix_board/static/vanilla.js";
+import { mountAppShell } from "../../../src/robotsix_board/static/vanilla.js";
 
 describe("mountAppShell", () => {
   let container;
