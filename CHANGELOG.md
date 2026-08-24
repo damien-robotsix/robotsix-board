@@ -40,6 +40,24 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.0](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.3...v0.5.0) (2026-08-23)
+
+
+### Features
+
+* integrate @axe-core/playwright a11y audit into E2E test suite (20260820T183908Z-feat-integrate-axe-core-playwright-a11y-b8cd) ([#354](https://github.com/damien-robotsix/robotsix-board/issues/354)) ([a4869ac](https://github.com/damien-robotsix/robotsix-board/commit/a4869ac217a08448b57e20b71c8e640e1e9881ce))
+* robotsix-board: Enable triage_boilerplate periodic workflow (20260822T185427Z-robotsix-board-enable-triage-boilerplate-08eb) ([#353](https://github.com/damien-robotsix/robotsix-board/issues/353)) ([7899a62](https://github.com/damien-robotsix/robotsix-board/commit/7899a62d7b67f11f174c5fe2fbf75e69eb0f061c))
+
+
+### Bug Fixes
+
+* Adopt the shared AppShell navigation and align vendored robotsix-ui to v0.1.40 (board) (20260823T113802Z-adopt-the-shared-appshell-navigation-and-8c62) ([#350](https://github.com/damien-robotsix/robotsix-board/issues/350)) ([7595826](https://github.com/damien-robotsix/robotsix-board/commit/7595826b391c27135febcd6ba93fbb952f054927))
+
+
+### Documentation
+
+* Reorganize module robotsix-board: align docs/ to per-module layout (src/docs/tests) (20260820T185036Z-reorganize-module-robotsix-board-align-d-609e) ([#355](https://github.com/damien-robotsix/robotsix-board/issues/355)) ([d5c9d61](https://github.com/damien-robotsix/robotsix-board/commit/d5c9d61b581c286da247b5a0a5ee6470a702e4e4))
+
 ## [0.4.3](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.2...v0.4.3) (2026-08-09)
 
 
