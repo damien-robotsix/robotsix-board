@@ -31,7 +31,7 @@ Changelog = "https://github.com/damien-robotsix/robotsix-board/blob/main/CHANGEL
 
 [project.optional-dependencies]
 dev = [
-    "ruff==0.16.3",
+    "ruff==0.16.4",
     "pytest",
     "deptry",
     "mypy",
