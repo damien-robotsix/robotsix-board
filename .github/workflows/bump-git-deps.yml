@@ -143,17 +143,29 @@ jobs:
             printf '%s\n' "$UTILITIES"
           } > "$CSS_FILE"
 
-          # Fetch and write the framework-free vanilla.js from the GitHub release
-          curl -sSfL \
+          # Fetch and write the framework-free vanilla.js from the GitHub release.
+          # The asset may be absent from older releases; treat a missing
+          # vanilla.js as non-fatal so CSS updates can still land.
+          VANILLA_OK=false
+          if curl -sSfL \
             "https://github.com/damien-robotsix/robotsix-ui/releases/download/${VERSION}/vanilla.js" \
-            -o "$VANILLA_FILE"
+            -o "$VANILLA_FILE"; then
+            VANILLA_OK=true
+          fi
 
-          git add "$CSS_FILE" "$VANILLA_FILE"
+          git add "$CSS_FILE"
+          FILES_CHANGED="robotsix-ui-base.css"
+          if [ "$VANILLA_OK" = true ]; then
+            git add "$VANILLA_FILE"
+            FILES_CHANGED="${FILES_CHANGED} and vanilla.js"
+          else
+            echo "::warning::vanilla.js release asset not found for ${VERSION}; skipping vanilla.js update"
+          fi
           git commit -m "chore: re-vendor robotsix-ui @ ${VERSION}"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$BRANCH"
           gh pr create \
             --head "$BRANCH" \
             --base main \
             --title "chore: re-vendor robotsix-ui @ ${VERSION}" \
-            --body "Automated re-vendor of robotsix-ui-base.css and vanilla.js from ${CUR:0:12} to ${LATEST:0:12} (${VERSION})." \
+            --body "Automated re-vendor of ${FILES_CHANGED} from ${CUR:0:12} to ${LATEST:0:12} (${VERSION})." \
             --label dependencies
