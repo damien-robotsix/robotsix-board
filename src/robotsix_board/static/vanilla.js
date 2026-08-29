@@ -1,89 +1,129 @@
-var X = Object.defineProperty;
-var Z = (e, t, s) => t in e ? X(e, t, { enumerable: !0, configurable: !0, writable: !0, value: s }) : e[t] = s;
-var h = (e, t, s) => Z(e, typeof t != "symbol" ? t + "" : t, s);
-class D extends Error {
-  constructor(s) {
-    const n = s.detail || s.title || "Config validation failed";
-    super(n);
+var Y = Object.defineProperty;
+var x = (e, t, n) => t in e ? Y(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[t] = n;
+var h = (e, t, n) => x(e, typeof t != "symbol" ? t + "" : t, n);
+class L extends Error {
+  constructor(n, s) {
+    super(`${n} did not return the standard config envelope: ${s}`);
+    /** The route that answered off-contract, e.g. `"GET /config"`. */
+    h(this, "route");
+    this.name = "ConfigContractError", this.route = n;
+  }
+}
+class K extends Error {
+  constructor(n) {
+    const s = n.detail || n.title || "Config validation failed";
+    super(s);
     h(this, "problem");
     /** The dotted key the message blames, when the detail names one. */
     h(this, "key");
-    this.name = "ConfigValidationError", this.problem = s, this.key = Q(n);
+    this.name = "ConfigValidationError", this.problem = n, this.key = ee(s);
   }
 }
-function Q(e) {
+function ee(e) {
   const t = /^([A-Za-z_][\w.]*)\s*:\s*\S/.exec(e);
   return t ? t[1] : null;
 }
-class Y {
+function F(e) {
+  return typeof e == "object" && e !== null && !Array.isArray(e);
+}
+function I(e, t) {
+  if (!F(e))
+    throw new L(t, "the response body is not a JSON object");
+  if (!F(e.config)) {
+    const n = Object.keys(e).slice(0, 8).join(", ");
+    throw new L(
+      t,
+      `no "config" object in the response (top-level keys: ${n || "none"})`
+    );
+  }
+}
+class te {
   constructor(t = {}) {
     h(this, "baseUrl");
     h(this, "headers");
     h(this, "fetchImpl");
     this.baseUrl = (t.baseUrl || "").replace(/\/$/, ""), this.headers = t.headers || {}, this.fetchImpl = t.fetchImpl || globalThis.fetch.bind(globalThis);
   }
-  /** `GET /config` — effective values (secrets masked), schema and version. */
+  /**
+   * `GET /config` — effective values (secrets masked), schema and version.
+   *
+   * Throws {@link ConfigContractError} when the component answers without a
+   * `config` document, rather than reporting an empty config the panel would
+   * render — and then save — as schema defaults.
+   */
   async getConfig() {
-    return this.request("GET", "/config");
+    const t = await this.request("GET", "/config");
+    return I(t, "GET /config"), t;
   }
-  /** `PUT /config` — partial update.  Throws {@link ConfigValidationError} on 422. */
+  /**
+   * `PUT /config` — partial update.  Throws {@link ConfigValidationError} on
+   * 422, {@link ConfigContractError} when the write succeeded but the response
+   * carries no `config` document.
+   */
   async putConfig(t) {
-    return this.request("PUT", "/config", t);
+    const n = await this.request("PUT", "/config", t);
+    return I(n, "PUT /config"), n;
   }
   /** `GET /config/versions` — recent versions, newest first. */
   async getVersions() {
-    return this.request("GET", "/config/versions");
+    const t = await this.request("GET", "/config/versions");
+    if (!Array.isArray(t == null ? void 0 : t.versions))
+      throw new L("GET /config/versions", 'no "versions" array in the response');
+    return t;
   }
   /** `POST /config/rollback` — revert to *version*, itself a versioned write. */
   async rollback(t) {
-    return this.request("POST", "/config/rollback", { version: t });
+    const n = await this.request("POST", "/config/rollback", {
+      version: t
+    });
+    return I(n, "POST /config/rollback"), n;
   }
-  async request(t, s, n) {
+  async request(t, n, s) {
     const r = { Accept: "application/json", ...this.headers };
-    n !== void 0 && (r["Content-Type"] = "application/json");
-    const a = await this.fetchImpl(`${this.baseUrl}${s}`, {
+    s !== void 0 && (r["Content-Type"] = "application/json");
+    const o = await this.fetchImpl(`${this.baseUrl}${n}`, {
       method: t,
       headers: r,
       credentials: "same-origin",
-      body: n === void 0 ? void 0 : JSON.stringify(n)
-    }), o = await a.json().catch(() => null);
-    if (!a.ok) {
-      if (a.status === 422 && o && typeof o == "object")
-        throw new D(o);
-      const i = o || {};
-      throw new Error(i.detail || i.title || `HTTP ${a.status}`);
+      body: s === void 0 ? void 0 : JSON.stringify(s)
+    }), a = await o.json().catch(() => null);
+    if (!o.ok) {
+      if (o.status === 422 && a && typeof a == "object")
+        throw new K(a);
+      const i = a || {};
+      throw new Error(i.detail || i.title || `HTTP ${o.status}`);
     }
-    return o;
+    return a;
   }
 }
-const x = ["advanced", "description", "default", "title", "x-deploy-plane"];
-function R(e, t) {
-  const s = { ...t };
-  for (const n of x) {
-    const r = e[n];
-    r !== void 0 && s[n] === void 0 && (s[n] = r);
+const ne = ["advanced", "description", "default", "title", "x-deploy-plane"];
+function J(e, t) {
+  const n = { ...t };
+  for (const s of ne) {
+    const r = e[s];
+    r !== void 0 && n[s] === void 0 && (n[s] = r);
   }
-  return s;
+  return n;
 }
 function $(e, t) {
   if (!e) return {};
-  const s = e.anyOf || e.oneOf;
-  if (Array.isArray(s)) {
-    const r = s.filter((a) => a && a.type !== "null");
-    return r.length === 1 ? R(e, $(r[0], t)) : e;
+  const n = e.anyOf || e.oneOf;
+  if (Array.isArray(n)) {
+    const r = n.filter((o) => o && o.type !== "null");
+    return r.length === 1 ? J(e, $(r[0], t)) : e;
   }
   if (!e.$ref || !t) return e;
-  const n = "#/$defs/";
-  if (e.$ref.startsWith(n)) {
-    const r = e.$ref.slice(n.length), a = t[r];
-    if (a) return R(e, a);
+  const s = "#/$defs/";
+  if (e.$ref.startsWith(s)) {
+    const r = e.$ref.slice(s.length), o = t[r];
+    if (o) return J(e, o);
   }
   return e;
 }
-function U(e) {
+function W(e) {
   return e.format === "password" && e.writeOnly === !0;
 }
-function G(e) {
+function z(e) {
   return e["x-deploy-plane"] || "component";
 }
 function k(e) {
@@ -92,40 +132,40 @@ function k(e) {
 function S(e) {
   return e !== null && typeof e == "object" && !Array.isArray(e);
 }
-function I(e, t) {
+function M(e, t) {
   if (e.type !== "array" || !e.items) return null;
-  const s = Array.isArray(e.items) ? e.items[0] : e.items;
-  if (!s) return null;
-  const n = $(s, t);
-  return k(n) ? n : null;
+  const n = Array.isArray(e.items) ? e.items[0] : e.items;
+  if (!n) return null;
+  const s = $(n, t);
+  return k(s) ? s : null;
 }
-function T(e, t) {
+function A(e, t) {
   if (e.type !== "object" || e.properties) return null;
-  const s = e.additionalProperties;
-  return !s || typeof s != "object" ? null : $(s, t);
+  const n = e.additionalProperties;
+  return !n || typeof n != "object" ? null : $(n, t);
 }
-function O(e) {
-  return e && typeof e == "object" && "properties" in e ? e : K(e || {});
+function _(e) {
+  return e && typeof e == "object" && "properties" in e ? e : X(e || {});
 }
-function K(e) {
+function X(e) {
   const t = {};
-  for (const [s, n] of Object.entries(e))
-    t[s] = ee(n);
+  for (const [n, s] of Object.entries(e))
+    t[n] = se(s);
   return { type: "object", properties: t };
 }
-function ee(e) {
-  return e === "SECRET" ? { type: "string", format: "password", writeOnly: !0 } : typeof e == "boolean" ? { type: "boolean", default: e } : typeof e == "number" ? Number.isInteger(e) ? { type: "integer", default: e } : { type: "number", default: e } : Array.isArray(e) ? { type: "array", default: e } : e !== null && typeof e == "object" ? K(e) : { type: "string", default: e ?? "" };
+function se(e) {
+  return e === "SECRET" ? { type: "string", format: "password", writeOnly: !0 } : typeof e == "boolean" ? { type: "boolean", default: e } : typeof e == "number" ? Number.isInteger(e) ? { type: "integer", default: e } : { type: "number", default: e } : Array.isArray(e) ? { type: "array", default: e } : e !== null && typeof e == "object" ? X(e) : { type: "string", default: e ?? "" };
 }
-function Ae(e, t, s) {
-  const n = t.split(".");
+function je(e, t, n) {
+  const s = t.split(".");
   let r = e;
-  for (let a = 0; a < n.length - 1; a++) {
-    const o = n[a], i = /^\d+$/.test(n[a + 1]);
-    (r[o] === void 0 || r[o] === null) && (r[o] = i ? [] : {}), r = r[o];
+  for (let o = 0; o < s.length - 1; o++) {
+    const a = s[o], i = /^\d+$/.test(s[o + 1]);
+    (r[a] === void 0 || r[a] === null) && (r[a] = i ? [] : {}), r = r[a];
   }
-  r[n[n.length - 1]] = s;
+  r[s[s.length - 1]] = n;
 }
-const te = {
+const re = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
@@ -133,135 +173,135 @@ const te = {
   "'": "&#39;"
 };
 function m(e) {
-  return String(e).replace(/[&<>"']/g, (t) => te[t]);
+  return String(e).replace(/[&<>"']/g, (t) => re[t]);
 }
 function b(e) {
   return m(e);
 }
-function A(e) {
+function N(e) {
   const t = globalThis.CSS;
   return t && typeof t.escape == "function" ? t.escape(e) : e;
 }
-function M(e) {
+function O(e) {
   if (!e) return "";
   let t = m(e);
   return t = t.replace(/`([^`]+)`/g, "<code>$1</code>"), t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>"), t = t.replace(/__([^_]+)__/g, "<strong>$1</strong>"), t = t.replace(/\*([^*]+)\*/g, "<em>$1</em>"), t = t.replace(/_([^_]+)_/g, "<em>$1</em>"), t = t.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    (s, n, r) => /^https?:\/\//i.test(r) ? `<a href="${r}" target="_blank" rel="noopener">${n}</a>` : n
+    (n, s, r) => /^https?:\/\//i.test(r) ? `<a href="${r}" target="_blank" rel="noopener">${s}</a>` : s
   ), t;
 }
-function ne(e, t, s = {}) {
-  const n = O(e), r = {
-    plane: s.plane || "component",
-    defs: n.$defs,
+function oe(e, t, n = {}) {
+  const s = _(e), r = {
+    plane: n.plane || "component",
+    defs: s.$defs,
     container: t
-  }, a = {};
-  return N(n, a, "", r), a;
+  }, o = {};
+  return q(s, o, "", r), o;
 }
-function N(e, t, s, n) {
+function q(e, t, n, s) {
   const r = e.properties;
   if (r)
-    for (const [a, o] of Object.entries(r)) {
-      const i = s ? `${s}.${a}` : a, c = $(o, n.defs);
-      if (G(c) !== n.plane) continue;
-      const l = I(c, n.defs);
+    for (const [o, a] of Object.entries(r)) {
+      const i = n ? `${n}.${o}` : o, c = $(a, s.defs);
+      if (z(c) !== s.plane) continue;
+      const l = M(c, s.defs);
       if (l) {
-        const u = se(i, l, n);
-        u !== null && (t[a] = u);
+        const u = ae(i, l, s);
+        u !== null && (t[o] = u);
         continue;
       }
-      const d = T(c, n.defs);
+      const d = A(c, s.defs);
       if (d) {
-        const u = re(i, d, n);
-        u !== null && (t[a] = u);
+        const u = ie(i, d, s);
+        u !== null && (t[o] = u);
         continue;
       }
       if (k(c)) {
         const u = {};
-        N(c, u, i, n), Object.keys(u).length > 0 && (t[a] = u);
+        q(c, u, i, s), Object.keys(u).length > 0 && (t[o] = u);
         continue;
       }
-      const f = W(i, c, n);
-      f !== E && (t[a] = f);
+      const f = Z(i, c, s);
+      f !== E && (t[o] = f);
     }
 }
-function se(e, t, s) {
-  const n = s.container.querySelector(`[data-array-key="${A(e)}"]`);
-  if (!n) return null;
+function ae(e, t, n) {
+  const s = n.container.querySelector(`[data-array-key="${N(e)}"]`);
+  if (!s) return null;
   const r = [];
-  return n.querySelectorAll(":scope > .rsu-config-array-items > .rsu-config-array-item").forEach((a) => {
-    const o = a.dataset.arrayIndex;
-    if (o === void 0) return;
+  return s.querySelectorAll(":scope > .rsu-config-array-items > .rsu-config-array-item").forEach((o) => {
+    const a = o.dataset.arrayIndex;
+    if (a === void 0) return;
     const i = {};
-    N(t, i, `${e}.${o}`, s), r.push(i);
+    q(t, i, `${e}.${a}`, n), r.push(i);
   }), r;
 }
-function re(e, t, s) {
-  const n = s.container.querySelector(`[data-map-key="${A(e)}"]`);
-  if (!n) return null;
+function ie(e, t, n) {
+  const s = n.container.querySelector(`[data-map-key="${N(e)}"]`);
+  if (!s) return null;
   const r = {};
-  return n.querySelectorAll(":scope > .rsu-config-map-entries > .rsu-config-map-entry").forEach((a) => {
-    const o = (a.dataset.mapName || "").trim();
-    if (!o) return;
-    const i = `${e}.${o}`;
+  return s.querySelectorAll(":scope > .rsu-config-map-entries > .rsu-config-map-entry").forEach((o) => {
+    const a = (o.dataset.mapName || "").trim();
+    if (!a) return;
+    const i = `${e}.${a}`;
     if (k(t)) {
       const l = {};
-      N(t, l, i, s), r[o] = l;
+      q(t, l, i, n), r[a] = l;
       return;
     }
-    const c = W(i, t, s);
-    r[o] = c === E ? "" : c;
+    const c = Z(i, t, n);
+    r[a] = c === E ? "" : c;
   }), r;
 }
 const E = Symbol("omit");
-function W(e, t, s) {
-  const n = s.container.querySelector(`[data-key="${A(e)}"]`);
-  if (!n) return E;
-  if (n instanceof HTMLInputElement && n.dataset.json === "1")
+function Z(e, t, n) {
+  const s = n.container.querySelector(`[data-key="${N(e)}"]`);
+  if (!s) return E;
+  if (s instanceof HTMLInputElement && s.dataset.json === "1")
     try {
-      return JSON.parse(n.value);
+      return JSON.parse(s.value);
     } catch {
       return E;
     }
-  if (n instanceof HTMLInputElement && n.type === "checkbox")
-    return n.checked;
-  if (n instanceof HTMLInputElement && n.type === "number")
-    return n.value === "" ? E : t.type === "integer" ? parseInt(n.value, 10) : parseFloat(n.value);
-  const r = n.value;
-  return U(t), r === "" ? E : r;
+  if (s instanceof HTMLInputElement && s.type === "checkbox")
+    return s.checked;
+  if (s instanceof HTMLInputElement && s.type === "number")
+    return s.value === "" ? E : t.type === "integer" ? parseInt(s.value, 10) : parseFloat(s.value);
+  const r = s.value;
+  return W(t), r === "" ? E : r;
 }
-function ae(e, t, s) {
-  const n = s === void 0 ? void 0 : O(s);
-  return z(e, t, n, n == null ? void 0 : n.$defs);
+function le(e, t, n) {
+  const s = n === void 0 ? void 0 : _(n);
+  return Q(e, t, s, s == null ? void 0 : s.$defs);
 }
-function z(e, t, s, n) {
+function Q(e, t, n, s) {
   const r = {};
-  for (const [a, o] of Object.entries(t)) {
-    const i = e[a], c = s != null && s.properties ? $(s.properties[a], n) : void 0;
-    if (!(c ? T(c, n) !== null : !1) && S(o) && S(i)) {
-      const d = z(i, o, c, n);
-      Object.keys(d).length > 0 && (r[a] = d);
+  for (const [o, a] of Object.entries(t)) {
+    const i = e[o], c = n != null && n.properties ? $(n.properties[o], s) : void 0;
+    if (!(c ? A(c, s) !== null : !1) && S(a) && S(i)) {
+      const d = Q(i, a, c, s);
+      Object.keys(d).length > 0 && (r[o] = d);
       continue;
     }
-    oe(i, o) || (r[a] = o);
+    ce(i, a) || (r[o] = a);
   }
   return r;
 }
-function oe(e, t) {
+function ce(e, t) {
   return e === t ? !0 : typeof e != typeof t || e === null || t === null || typeof e != "object" ? !1 : JSON.stringify(e) === JSON.stringify(t);
 }
-const V = "rsu-advanced", ie = "rsu-config-foreign";
-function le(e, t, s, n = {}) {
-  const r = O(t);
+const R = "rsu-advanced", de = "rsu-config-foreign";
+function ue(e, t, n, s = {}) {
+  const r = _(t);
   e.innerHTML = "";
-  const a = {
-    plane: n.plane || "component",
+  const o = {
+    plane: s.plane || "component",
     defs: r.$defs,
-    onChange: n.onChange,
-    componentId: n.componentId
+    onChange: s.onChange,
+    componentId: s.componentId
   };
-  B(r, s ?? {}, "", e, a), q(e, !1), e.addEventListener("click", (o) => {
-    const i = o.target.closest(".rsu-config-desc-toggle");
+  B(r, n ?? {}, "", e, o), j(e, !1), e.addEventListener("click", (a) => {
+    const i = a.target.closest(".rsu-config-desc-toggle");
     if (!i) return;
     const c = i.parentElement;
     if (!c) return;
@@ -269,228 +309,228 @@ function le(e, t, s, n = {}) {
     i.textContent = l ? "more…" : "less";
   });
 }
-function ce(e) {
-  return e.querySelector(`.${V}`) !== null;
+function fe(e) {
+  return e.querySelector(`.${R}`) !== null;
 }
-function q(e, t) {
-  e.querySelectorAll(`.${V}`).forEach((s) => {
-    s.hidden = !t;
+function j(e, t) {
+  e.querySelectorAll(`.${R}`).forEach((n) => {
+    n.hidden = !t;
   });
 }
-function de(e) {
+function pe(e) {
   e.querySelectorAll(".rsu-config-error").forEach((t) => t.remove()), e.querySelectorAll(".rsu-config-row--invalid").forEach((t) => t.classList.remove("rsu-config-row--invalid"));
 }
-function ue(e, t, s) {
-  const n = e.querySelector(`[data-key="${A(t)}"]`), r = n == null ? void 0 : n.closest(".rsu-config-row");
+function he(e, t, n) {
+  const s = e.querySelector(`[data-key="${N(t)}"]`), r = s == null ? void 0 : s.closest(".rsu-config-row");
   if (!r) return !1;
   r.classList.add("rsu-config-row--invalid");
-  const a = document.createElement("span");
-  return a.className = "rsu-config-error", a.textContent = s, r.appendChild(a), !0;
+  const o = document.createElement("span");
+  return o.className = "rsu-config-error", o.textContent = n, r.appendChild(o), !0;
 }
-function B(e, t, s, n, r) {
-  const a = e.properties;
-  if (!a) return;
-  const o = e.required || [], i = S(t) ? t : {};
-  let c = Object.entries(a);
-  if (s === "") {
+function B(e, t, n, s, r) {
+  const o = e.properties;
+  if (!o) return;
+  const a = e.required || [], i = S(t) ? t : {};
+  let c = Object.entries(o);
+  if (n === "") {
     const l = [], d = [];
     for (const f of c) {
       const u = $(f[1], r.defs);
-      (k(u) || I(u, r.defs) || T(u, r.defs) ? d : l).push(f);
+      (k(u) || M(u, r.defs) || A(u, r.defs) ? d : l).push(f);
     }
     if (l.length > 0) {
-      const f = F("General");
+      const f = G("General");
       for (const [u, p] of l)
-        f.appendChild(j(u, u, p, i[u], o, r));
-      n.appendChild(f);
+        f.appendChild(V(u, u, p, i[u], a, r));
+      s.appendChild(f);
     }
     c = d;
   }
   for (const [l, d] of c) {
-    const f = s ? `${s}.${l}` : l, u = $(d, r.defs), p = i[l], g = I(u, r.defs);
+    const f = n ? `${n}.${l}` : l, u = $(d, r.defs), p = i[l], g = M(u, r.defs);
     if (g) {
-      n.appendChild(be(l, f, u, g, p, r));
+      s.appendChild(Ee(l, f, u, g, p, r));
       continue;
     }
-    const y = T(u, r.defs);
+    const y = A(u, r.defs);
     if (y) {
-      n.appendChild(ve(l, f, u, y, p, r));
+      s.appendChild(Se(l, f, u, y, p, r));
       continue;
     }
     if (k(u)) {
-      const v = F(l, u.description);
-      H(v, u, r), B(u, p, f, v, r), n.appendChild(v);
+      const v = G(l, u.description);
+      H(v, u, r), B(u, p, f, v, r), s.appendChild(v);
       continue;
     }
-    n.appendChild(j(f, l, d, p, o, r));
+    s.appendChild(V(f, l, d, p, a, r));
   }
 }
-function F(e, t) {
-  const s = document.createElement("div");
-  return s.className = "rsu-config-section", s.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (t ? _(t) : ""), s;
+function G(e, t) {
+  const n = document.createElement("div");
+  return n.className = "rsu-config-section", n.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (t ? P(t) : ""), n;
 }
-function _(e) {
-  const t = M(e);
+function P(e) {
+  const t = O(e);
   if (!(e.length > 140 || e.includes(`
 `))) return `<p class="rsu-config-desc">${t}</p>`;
-  let n = e.split(`
+  let s = e.split(`
 `)[0];
-  return n.length > 120 && (n = `${n.slice(0, 120)}…`), `<div class="rsu-config-desc rsu-config-desc--collapsed"><span class="rsu-config-desc-short">${M(n)}</span><span class="rsu-config-desc-full">${t}</span><button type="button" class="rsu-config-desc-toggle">more…</button></div>`;
+  return s.length > 120 && (s = `${s.slice(0, 120)}…`), `<div class="rsu-config-desc rsu-config-desc--collapsed"><span class="rsu-config-desc-short">${O(s)}</span><span class="rsu-config-desc-full">${t}</span><button type="button" class="rsu-config-desc-toggle">more…</button></div>`;
 }
-function H(e, t, s) {
-  t.advanced && e.classList.add(V);
-  const n = G(t) !== s.plane;
-  return n && e.classList.add(ie), n;
+function H(e, t, n) {
+  t.advanced && e.classList.add(R);
+  const s = z(t) !== n.plane;
+  return s && e.classList.add(de), s;
 }
 function w(e, t) {
-  return t.onChange && e.querySelectorAll("[data-key]").forEach((s) => {
-    s.addEventListener("change", () => {
-      var n;
-      return (n = t.onChange) == null ? void 0 : n.call(t);
-    }), s.addEventListener("input", () => {
-      var n;
-      return (n = t.onChange) == null ? void 0 : n.call(t);
+  return t.onChange && e.querySelectorAll("[data-key]").forEach((n) => {
+    n.addEventListener("change", () => {
+      var s;
+      return (s = t.onChange) == null ? void 0 : s.call(t);
+    }), n.addEventListener("input", () => {
+      var s;
+      return (s = t.onChange) == null ? void 0 : s.call(t);
     });
   }), e;
 }
-function j(e, t, s, n, r, a) {
-  const o = $(s, a.defs), i = document.createElement("div");
+function V(e, t, n, s, r, o) {
+  const a = $(n, o.defs), i = document.createElement("div");
   i.className = "rsu-config-row";
-  const l = H(i, o, a) ? " disabled" : "", d = r.includes(t), f = o.default ?? "", u = n ?? f, p = o.description ? `${o.description}
-(${e})` : e !== t ? e : "", y = `<span class="rsu-config-key"${p ? ` title="${b(p)}"` : ""}>${m(t)}${d ? " *" : ""}</span>`, v = o.description ? `<span class="rsu-config-help">${M(o.description)}</span>` : "", C = {
+  const l = H(i, a, o) ? " disabled" : "", d = r.includes(t), f = a.default ?? "", u = s ?? f, p = a.description ? `${a.description}
+(${e})` : e !== t ? e : "", y = `<span class="rsu-config-key"${p ? ` title="${b(p)}"` : ""}>${m(t)}${d ? " *" : ""}</span>`, v = a.description ? `<span class="rsu-config-help">${O(a.description)}</span>` : "", C = {
     row: i,
     fullKey: e,
     label: y,
     help: v,
     disabled: l,
     displayVal: u,
-    node: o,
-    currentVal: n,
+    node: a,
+    currentVal: s,
     defaultVal: f,
-    ctx: a
+    ctx: o
   };
-  return U(o) ? fe(C) : o.type === "array" || Array.isArray(u) ? pe(C) : Array.isArray(o.enum) ? he(C) : o.type === "integer" || o.type === "number" ? ge(C) : o.type === "boolean" ? ye(C) : me(C);
+  return W(a) ? ge(C) : a.type === "array" || Array.isArray(u) ? ye(C) : Array.isArray(a.enum) ? me(C) : a.type === "integer" || a.type === "number" ? be(C) : a.type === "boolean" ? ve(C) : $e(C);
 }
-function fe(e) {
-  const t = e.currentVal !== void 0 && e.currentVal !== null && e.currentVal !== "", s = t ? "(already set — enter a new value to change)" : "(not set — can be saved later)";
-  return e.row.innerHTML = e.label + `<input type="password" class="rsu-config-value" data-key="${b(e.fullKey)}" data-secret="1" value="" placeholder="${b(s)}" autocomplete="off"${e.disabled}><span class="rsu-badge ${t ? "rsu-badge--success" : "rsu-badge--warning"}">${t ? "set" : "not set"}</span>` + e.help, w(e.row, e.ctx);
+function ge(e) {
+  const t = e.currentVal !== void 0 && e.currentVal !== null && e.currentVal !== "", n = t ? "(already set — enter a new value to change)" : "(not set — can be saved later)";
+  return e.row.innerHTML = e.label + `<input type="password" class="rsu-config-value" data-key="${b(e.fullKey)}" data-secret="1" value="" placeholder="${b(n)}" autocomplete="off"${e.disabled}><span class="rsu-badge ${t ? "rsu-badge--success" : "rsu-badge--warning"}">${t ? "set" : "not set"}</span>` + e.help, w(e.row, e.ctx);
 }
-function pe(e) {
+function ye(e) {
   const t = JSON.stringify(e.displayVal === "" ? [] : e.displayVal);
   return e.row.innerHTML = e.label + `<input type="text" class="rsu-config-value" data-key="${b(e.fullKey)}" data-json="1" value="${b(t)}" spellcheck="false"${e.disabled}><span class="rsu-config-hint">JSON list</span>` + e.help, w(e.row, e.ctx);
 }
-function he(e) {
-  const t = String(e.currentVal ?? e.defaultVal ?? ""), s = e.node.enum.map((n) => {
-    const r = String(n);
+function me(e) {
+  const t = String(e.currentVal ?? e.defaultVal ?? ""), n = e.node.enum.map((s) => {
+    const r = String(s);
     return `<option value="${b(r)}"${r === t ? " selected" : ""}>${m(
       r
     )}</option>`;
   }).join("");
-  return e.row.innerHTML = e.label + `<select class="rsu-config-value" data-key="${b(e.fullKey)}"${e.disabled}>${s}</select>` + e.help, w(e.row, e.ctx);
+  return e.row.innerHTML = e.label + `<select class="rsu-config-value" data-key="${b(e.fullKey)}"${e.disabled}>${n}</select>` + e.help, w(e.row, e.ctx);
 }
-function ge(e) {
+function be(e) {
   const t = e.node.type === "integer" ? ' step="1"' : "";
   return e.row.innerHTML = e.label + `<input type="number" class="rsu-config-value" data-key="${b(e.fullKey)}" value="${b(String(e.displayVal))}"${t}${e.disabled}>` + e.help, w(e.row, e.ctx);
 }
-function ye(e) {
+function ve(e) {
   const t = e.displayVal === !0 || e.displayVal === "true" || e.displayVal === 1;
   return e.row.innerHTML = e.label + `<input type="checkbox" class="rsu-config-value" data-key="${b(e.fullKey)}"${t ? " checked" : ""}${e.disabled}>` + e.help, w(e.row, e.ctx);
 }
-function me(e) {
+function $e(e) {
   return e.row.innerHTML = e.label + `<input type="text" class="rsu-config-value" data-key="${b(e.fullKey)}" value="${b(String(e.displayVal))}"${e.disabled}>` + e.help, w(e.row, e.ctx);
 }
-function be(e, t, s, n, r, a) {
-  const o = document.createElement("div");
-  o.className = "rsu-config-section rsu-config-array", o.dataset.arrayKey = t, H(o, s, a), o.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (s.description ? _(s.description) : "");
+function Ee(e, t, n, s, r, o) {
+  const a = document.createElement("div");
+  a.className = "rsu-config-section rsu-config-array", a.dataset.arrayKey = t, H(a, n, o), a.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (n.description ? P(n.description) : "");
   const i = document.createElement("div");
-  i.className = "rsu-config-array-items", o.appendChild(i), (Array.isArray(r) ? r : []).forEach((d, f) => P(i, t, f, n, d, a));
+  i.className = "rsu-config-array-items", a.appendChild(i), (Array.isArray(r) ? r : []).forEach((d, f) => D(i, t, f, s, d, o));
   const l = document.createElement("button");
   return l.type = "button", l.className = "rsu-btn rsu-config-array-add", l.textContent = `+ Add ${e} item`, l.addEventListener("click", () => {
     var f;
     const d = i.querySelectorAll(":scope > .rsu-config-array-item").length;
-    P(i, t, d, n, {}, a), q(i, !1), (f = a.onChange) == null || f.call(a);
-  }), o.appendChild(l), o;
+    D(i, t, d, s, {}, o), j(i, !1), (f = o.onChange) == null || f.call(o);
+  }), a.appendChild(l), a;
 }
-function P(e, t, s, n, r, a) {
-  const o = document.createElement("div");
-  o.className = "rsu-config-array-item", o.dataset.arrayIndex = String(s), o.dataset.arrayPrefix = t;
-  const i = S(r) ? r : {}, c = i.id ?? i.name ?? i.email ?? i.account_id ?? `[${s}]`, l = document.createElement("div");
+function D(e, t, n, s, r, o) {
+  const a = document.createElement("div");
+  a.className = "rsu-config-array-item", a.dataset.arrayIndex = String(n), a.dataset.arrayPrefix = t;
+  const i = S(r) ? r : {}, c = i.id ?? i.name ?? i.email ?? i.account_id ?? `[${n}]`, l = document.createElement("div");
   l.className = "rsu-config-array-item-header", l.innerHTML = `<span>${m(String(c))}</span>`;
   const d = document.createElement("button");
   d.type = "button", d.className = "rsu-config-array-remove", d.textContent = "Remove", d.addEventListener("click", () => {
     var u;
-    o.remove(), Ee(e), (u = a.onChange) == null || u.call(a);
-  }), l.appendChild(d), o.appendChild(l);
+    a.remove(), ke(e), (u = o.onChange) == null || u.call(o);
+  }), l.appendChild(d), a.appendChild(l);
   const f = document.createElement("div");
-  f.className = "rsu-config-array-item-body", B(n, i, `${t}.${s}`, f, a), o.appendChild(f), e.appendChild(o);
+  f.className = "rsu-config-array-item-body", B(s, i, `${t}.${n}`, f, o), a.appendChild(f), e.appendChild(a);
 }
-function ve(e, t, s, n, r, a) {
-  const o = document.createElement("div");
-  o.className = "rsu-config-section rsu-config-map", o.dataset.mapKey = t, H(o, s, a), o.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (s.description ? _(s.description) : "");
+function Se(e, t, n, s, r, o) {
+  const a = document.createElement("div");
+  a.className = "rsu-config-section rsu-config-map", a.dataset.mapKey = t, H(a, n, o), a.innerHTML = `<h3 class="rsu-config-section-title">${m(e)}</h3>` + (n.description ? P(n.description) : "");
   const i = document.createElement("div");
-  i.className = "rsu-config-map-entries", o.appendChild(i);
+  i.className = "rsu-config-map-entries", a.appendChild(i);
   const c = S(r) ? r : {};
   for (const [d, f] of Object.entries(c))
-    J(i, t, d, n, f, a);
+    U(i, t, d, s, f, o);
   const l = document.createElement("button");
   return l.type = "button", l.className = "rsu-btn rsu-config-map-add", l.textContent = `+ Add ${e} entry`, l.addEventListener("click", () => {
     var d;
-    J(i, t, "", n, void 0, a), q(i, !1), (d = a.onChange) == null || d.call(a);
-  }), o.appendChild(l), o;
+    U(i, t, "", s, void 0, o), j(i, !1), (d = o.onChange) == null || d.call(o);
+  }), a.appendChild(l), a;
 }
-function J(e, t, s, n, r, a) {
-  const o = s || a.componentId || "", i = a.componentId !== void 0, c = document.createElement("div");
-  c.className = "rsu-config-array-item rsu-config-map-entry", c.dataset.mapPrefix = t, c.dataset.mapName = o;
+function U(e, t, n, s, r, o) {
+  const a = n || o.componentId || "", i = o.componentId !== void 0, c = document.createElement("div");
+  c.className = "rsu-config-array-item rsu-config-map-entry", c.dataset.mapPrefix = t, c.dataset.mapName = a;
   const l = document.createElement("div");
-  l.className = "rsu-config-array-item-header rsu-config-map-entry-header", i ? l.innerHTML = `<span class="rsu-config-map-name">${m(o)}</span>` : l.innerHTML = `<input type="text" class="rsu-config-map-name" value="${b(o)}" spellcheck="false" placeholder="name">`, c.appendChild(l);
+  l.className = "rsu-config-array-item-header rsu-config-map-entry-header", i ? l.innerHTML = `<span class="rsu-config-map-name">${m(a)}</span>` : l.innerHTML = `<input type="text" class="rsu-config-map-name" value="${b(a)}" spellcheck="false" placeholder="name">`, c.appendChild(l);
   const d = document.createElement("div");
   if (d.className = "rsu-config-array-item-body", c.appendChild(d), ((p) => {
     d.innerHTML = "";
     const g = `${t}.${p}`;
-    if (k(n)) {
+    if (k(s)) {
       let y = r;
-      a.componentId && S(n.properties) && "project_id" in n.properties && (y = {
+      o.componentId && S(s.properties) && "project_id" in s.properties && (y = {
         ...S(y) ? y : {},
-        project_id: a.componentId
-      }), B(n, y, g, d, a);
+        project_id: o.componentId
+      }), B(s, y, g, d, o);
     } else
-      d.appendChild(j(g, "value", n, r, [], a));
-  })(o), !i) {
+      d.appendChild(V(g, "value", s, r, [], o));
+  })(a), !i) {
     const p = l.querySelector(".rsu-config-map-name");
     p.addEventListener("input", () => {
       var y;
       const g = p.value.trim();
-      g !== c.dataset.mapName && (c.dataset.mapName = g, $e(d, t, g), (y = a.onChange) == null || y.call(a));
+      g !== c.dataset.mapName && (c.dataset.mapName = g, Ce(d, t, g), (y = o.onChange) == null || y.call(o));
     });
   }
   const u = document.createElement("button");
   u.type = "button", u.className = "rsu-config-array-remove", u.textContent = "Remove", u.addEventListener("click", () => {
     var p;
-    c.remove(), (p = a.onChange) == null || p.call(a);
+    c.remove(), (p = o.onChange) == null || p.call(o);
   }), l.appendChild(u), e.appendChild(c);
 }
-function $e(e, t, s) {
-  e.querySelectorAll("[data-key]").forEach((n) => {
-    const r = n, a = r.dataset.key;
-    if (!a || !a.startsWith(`${t}.`)) return;
-    const o = a.slice(t.length + 1), i = o.includes(".") ? o.slice(o.indexOf(".")) : "";
-    r.dataset.key = `${t}.${s}${i}`;
+function Ce(e, t, n) {
+  e.querySelectorAll("[data-key]").forEach((s) => {
+    const r = s, o = r.dataset.key;
+    if (!o || !o.startsWith(`${t}.`)) return;
+    const a = o.slice(t.length + 1), i = a.includes(".") ? a.slice(a.indexOf(".")) : "";
+    r.dataset.key = `${t}.${n}${i}`;
   });
 }
-function Ee(e) {
-  e.querySelectorAll(":scope > .rsu-config-array-item").forEach((t, s) => {
-    const n = t, r = Number(n.dataset.arrayIndex), a = n.dataset.arrayPrefix;
-    if (a !== void 0 && r !== s) {
-      const o = `${a}.${r}.`, i = `${a}.${s}.`;
-      n.querySelectorAll("[data-key]").forEach((c) => {
+function ke(e) {
+  e.querySelectorAll(":scope > .rsu-config-array-item").forEach((t, n) => {
+    const s = t, r = Number(s.dataset.arrayIndex), o = s.dataset.arrayPrefix;
+    if (o !== void 0 && r !== n) {
+      const a = `${o}.${r}.`, i = `${o}.${n}.`;
+      s.querySelectorAll("[data-key]").forEach((c) => {
         const l = c, d = l.dataset.key;
-        d && d.startsWith(o) && (l.dataset.key = i + d.slice(o.length));
+        d && d.startsWith(a) && (l.dataset.key = i + d.slice(a.length));
       });
     }
-    n.dataset.arrayIndex = String(s);
+    s.dataset.arrayIndex = String(n);
   });
 }
-const Se = `
+const we = `
 <div class="rsu-config-panel">
   <div class="rsu-config-panel-header">
     <h2 class="rsu-config-panel-title"></h2>
@@ -519,7 +559,7 @@ const Se = `
   </div>
 </div>
 `;
-class Ce {
+class Le {
   constructor(t) {
     h(this, "client");
     h(this, "plane");
@@ -543,21 +583,28 @@ class Ce {
       const t = await this.client.getConfig();
       this.renderForm(t), this.hideBanner();
     } catch (t) {
-      this.showBanner(`Failed to load config: ${L(t)}`, "error");
+      this.showBanner(`Failed to load config: ${T(t)}`, "error");
     }
   }
   /** Save the changed keys.  Resolves `false` when validation rejected them. */
   async save() {
-    var n;
-    de(this.formEl), this.hideBanner(), this.saveBtn.disabled = !0;
-    const t = ne(this.schema, this.formEl, { plane: this.plane }), s = ae(this.loaded, t, this.schema);
-    if (Object.keys(s).length === 0)
+    var s;
+    pe(this.formEl), this.hideBanner(), this.saveBtn.disabled = !0;
+    const t = oe(this.schema, this.formEl, { plane: this.plane }), n = le(this.loaded, t, this.schema);
+    if (Object.keys(n).length === 0)
       return this.showBanner("No changes to save.", "success"), !0;
     try {
-      const r = await this.client.putConfig(s);
-      return this.renderForm({ config: r.config, schema: this.schema, version: r.version }), this.showBanner(`Saved — now at version ${r.version}.`, "success"), (n = this.onSaved) == null || n.call(this, r), !0;
+      const r = await this.client.putConfig(n);
+      return this.renderForm({ config: r.config, schema: this.schema, version: r.version }), this.showBanner(`Saved — now at version ${r.version}.`, "success"), (s = this.onSaved) == null || s.call(this, r), !0;
     } catch (r) {
-      return this.saveBtn.disabled = !1, r instanceof D ? r.key && ue(this.formEl, r.key, r.message) || this.showBanner(r.message, "error") : this.showBanner(`Save failed: ${L(r)}`, "error"), !1;
+      if (this.saveBtn.disabled = !1, r instanceof K)
+        (r.key ? he(this.formEl, r.key, r.message) : !1) || this.showBanner(r.message, "error");
+      else {
+        if (r instanceof L)
+          return this.showBanner(`Saved, but ${r.message}. Re-reading the config.`, "error"), this.reload(), !0;
+        this.showBanner(`Save failed: ${T(r)}`, "error");
+      }
+      return !1;
     }
   }
   /** Re-fetch and render the version history. */
@@ -567,28 +614,38 @@ class Ce {
       const { versions: t } = await this.client.getVersions();
       this.renderHistory(t || []);
     } catch (t) {
-      this.historyBody.innerHTML = `<tr><td colspan="4">${m(L(t))}</td></tr>`;
+      this.historyBody.innerHTML = `<tr><td colspan="4">${m(T(t))}</td></tr>`;
     }
   }
   /** Roll back to *version*, re-rendering the form on success. */
   async rollback(t) {
-    var s;
+    var n;
     try {
-      const n = await this.client.rollback(t);
-      this.renderForm({ config: n.config, schema: this.schema, version: n.version }), this.showBanner(`Rolled back — now at version ${n.version}.`, "success"), (s = this.onSaved) == null || s.call(this, n), this.selectTab("fields");
-    } catch (n) {
-      this.showBanner(`Rollback failed: ${L(n)}`, "error");
+      const s = await this.client.rollback(t);
+      this.renderForm({ config: s.config, schema: this.schema, version: s.version }), this.showBanner(`Rolled back — now at version ${s.version}.`, "success"), (n = this.onSaved) == null || n.call(this, s), this.selectTab("fields");
+    } catch (s) {
+      this.showBanner(`Rollback failed: ${T(s)}`, "error");
     }
   }
-  /** Render *response* into the form, resetting schema/loaded and the save button. */
+  /**
+   * Render *response* into the form, resetting schema/loaded and the save button.
+   *
+   * Throws {@link ConfigContractError} when the payload carries no `config`
+   * document: rendering one anyway means every field falls back to its schema
+   * default, and the operator's next Save writes those defaults over the live
+   * config.
+   */
   renderForm(t) {
-    this.schema = t.schema, this.loaded = t.config || {}, le(this.formEl, this.schema, this.loaded, {
+    const n = t.config;
+    if (typeof n != "object" || n === null || Array.isArray(n))
+      throw new L("GET /config", 'no "config" object in the response');
+    this.schema = t.schema, this.loaded = n, ue(this.formEl, this.schema, this.loaded, {
       plane: this.plane,
       componentId: this.componentId,
       onChange: () => {
         this.saveBtn.disabled = !1;
       }
-    }), this.advancedBar.hidden = !ce(this.formEl), this.advancedToggle.checked = !1, this.versionEl.textContent = t.version ? `version ${t.version}` : "", this.saveBtn.disabled = !0;
+    }), this.advancedBar.hidden = !fe(this.formEl), this.advancedToggle.checked = !1, this.versionEl.textContent = t.version ? `version ${t.version}` : "", this.saveBtn.disabled = !0;
   }
   /** Render *versions* into the history table. */
   renderHistory(t) {
@@ -597,33 +654,33 @@ class Ce {
       return;
     }
     this.historyBody.innerHTML = t.map(
-      (s) => `<tr><td>${m(s.version)}</td><td>${m(s.timestamp)}</td><td>${m((s.changed_keys || []).join(", "))}</td><td><button type="button" class="rsu-config-rollback" data-version="${m(s.version)}">Roll back</button></td></tr>`
+      (n) => `<tr><td>${m(n.version)}</td><td>${m(n.timestamp)}</td><td>${m((n.changed_keys || []).join(", "))}</td><td><button type="button" class="rsu-config-rollback" data-version="${m(n.version)}">Roll back</button></td></tr>`
     ).join("");
   }
   /** Switch the visible tab, loading history the first time it is shown. */
   selectTab(t) {
-    this.root.querySelectorAll(".rsu-config-tab").forEach((s) => {
-      s.classList.toggle("rsu-config-tab--active", s.dataset.tab === t);
-    }), this.root.querySelectorAll(".rsu-config-tabpanel").forEach((s) => {
-      s.hidden = s.dataset.tab !== t;
+    this.root.querySelectorAll(".rsu-config-tab").forEach((n) => {
+      n.classList.toggle("rsu-config-tab--active", n.dataset.tab === t);
+    }), this.root.querySelectorAll(".rsu-config-tabpanel").forEach((n) => {
+      n.hidden = n.dataset.tab !== t;
     }), t === "history" && this.loadHistory();
   }
-  showBanner(t, s) {
-    this.banner.textContent = t, this.banner.className = `rsu-config-banner rsu-config-banner--${s}`, this.banner.hidden = !1;
+  showBanner(t, n) {
+    this.banner.textContent = t, this.banner.className = `rsu-config-banner rsu-config-banner--${n}`, this.banner.hidden = !1;
   }
   hideBanner() {
     this.banner.hidden = !0;
   }
 }
-function Ne(e, t = {}) {
-  const s = t.client || new Y(t), n = t.plane || "component", r = t.history !== !1;
-  e.innerHTML = Se;
-  const a = e.querySelector(".rsu-config-panel"), o = a.querySelector(".rsu-config-panel-title"), i = a.querySelector(".rsu-config-banner"), c = a.querySelector(".rsu-config-form"), l = a.querySelector(".rsu-config-advanced-bar"), d = a.querySelector(".rsu-config-advanced-toggle"), f = a.querySelector(".rsu-config-save"), u = a.querySelector(".rsu-config-version"), p = a.querySelector(".rsu-config-history tbody");
-  o.textContent = t.title || "Settings", r || (a.querySelector('.rsu-config-tab[data-tab="history"]').hidden = !0);
-  const g = new Ce({
-    root: a,
-    client: s,
-    plane: n,
+function Be(e, t = {}) {
+  const n = t.client || new te(t), s = t.plane || "component", r = t.history !== !1;
+  e.innerHTML = we;
+  const o = e.querySelector(".rsu-config-panel"), a = o.querySelector(".rsu-config-panel-title"), i = o.querySelector(".rsu-config-banner"), c = o.querySelector(".rsu-config-form"), l = o.querySelector(".rsu-config-advanced-bar"), d = o.querySelector(".rsu-config-advanced-toggle"), f = o.querySelector(".rsu-config-save"), u = o.querySelector(".rsu-config-version"), p = o.querySelector(".rsu-config-history tbody");
+  a.textContent = t.title || "Settings", r || (o.querySelector('.rsu-config-tab[data-tab="history"]').hidden = !0);
+  const g = new Le({
+    root: o,
+    client: n,
+    plane: s,
     onSaved: t.onSaved,
     componentId: t.componentId,
     formEl: c,
@@ -636,19 +693,19 @@ function Ne(e, t = {}) {
     schema: { type: "object", properties: {} },
     loaded: {}
   });
-  return a.querySelectorAll(".rsu-config-tab").forEach((y) => {
+  return o.querySelectorAll(".rsu-config-tab").forEach((y) => {
     y.addEventListener(
       "click",
       () => g.selectTab(y.dataset.tab || "fields")
     );
   }), d.addEventListener(
     "change",
-    () => q(c, d.checked)
+    () => j(c, d.checked)
   ), f.addEventListener("click", () => void g.save()), p.addEventListener("click", (y) => {
     const v = y.target.closest(".rsu-config-rollback");
     v && g.rollback(Number(v.dataset.version));
   }), g.selectTab("fields"), t.initial ? g.renderForm(t.initial) : g.reload(), {
-    element: a,
+    element: o,
     reload: () => g.reload(),
     save: () => g.save(),
     destroy: () => {
@@ -656,10 +713,10 @@ function Ne(e, t = {}) {
     }
   };
 }
-function L(e) {
+function T(e) {
   return e instanceof Error ? e.message : String(e);
 }
-const ke = `
+const Te = `
 <header class="rsu-appshell">
   <span class="rsu-appshell-brand"></span>
   <button
@@ -681,62 +738,63 @@ const ke = `
   </div>
 </header>
 `;
-function qe(e, t = {}) {
-  e.innerHTML = ke;
-  const s = e.querySelector(".rsu-appshell"), n = s.querySelector(".rsu-appshell-brand"), r = s.querySelector(".rsu-appshell-nav-list"), a = s.querySelector(".rsu-appshell-toggle"), o = s.querySelector(".rsu-appshell-settings"), i = s.querySelector(".rsu-appshell-slot");
-  return t.brand ? n.textContent = t.brand : n.hidden = !0, we(r, t.navItems || []), t.settingsHref && (o.setAttribute("href", t.settingsHref), o.hidden = !1), t.rightSlot != null && Le(i, t.rightSlot), a.addEventListener("click", () => {
-    const c = s.classList.toggle("rsu-appshell--open");
-    a.setAttribute("aria-expanded", String(c));
+function He(e, t = {}) {
+  e.innerHTML = Te;
+  const n = e.querySelector(".rsu-appshell"), s = n.querySelector(".rsu-appshell-brand"), r = n.querySelector(".rsu-appshell-nav-list"), o = n.querySelector(".rsu-appshell-toggle"), a = n.querySelector(".rsu-appshell-settings"), i = n.querySelector(".rsu-appshell-slot");
+  return t.brand ? s.textContent = t.brand : s.hidden = !0, Ae(r, t.navItems || []), t.settingsHref && (a.setAttribute("href", t.settingsHref), a.hidden = !1), t.rightSlot != null && Ne(i, t.rightSlot), o.addEventListener("click", () => {
+    const c = n.classList.toggle("rsu-appshell--open");
+    o.setAttribute("aria-expanded", String(c));
   }), {
-    element: s,
+    element: n,
     rightSlot: i,
     destroy: () => {
       e.innerHTML = "";
     }
   };
 }
-function we(e, t) {
+function Ae(e, t) {
   e.textContent = "";
-  for (const s of t) {
-    const n = document.createElement("li");
-    n.className = "rsu-appshell-nav-item";
+  for (const n of t) {
+    const s = document.createElement("li");
+    s.className = "rsu-appshell-nav-item";
     const r = document.createElement("a");
-    if (r.className = "rsu-appshell-link", r.setAttribute("href", s.href), s.active && (r.classList.add("rsu-appshell-link--active"), r.setAttribute("aria-current", "page")), s.icon) {
-      const o = document.createElement("span");
-      o.className = "rsu-appshell-icon", o.setAttribute("aria-hidden", "true"), o.textContent = s.icon, r.appendChild(o);
+    if (r.className = "rsu-appshell-link", r.setAttribute("href", n.href), n.active && (r.classList.add("rsu-appshell-link--active"), r.setAttribute("aria-current", "page")), n.icon) {
+      const a = document.createElement("span");
+      a.className = "rsu-appshell-icon", a.setAttribute("aria-hidden", "true"), a.textContent = n.icon, r.appendChild(a);
     }
-    const a = document.createElement("span");
-    a.className = "rsu-appshell-label", a.textContent = s.label, r.appendChild(a), n.appendChild(r), e.appendChild(n);
+    const o = document.createElement("span");
+    o.className = "rsu-appshell-label", o.textContent = n.label, r.appendChild(o), s.appendChild(r), e.appendChild(s);
   }
 }
-function Le(e, t) {
+function Ne(e, t) {
   e.textContent = "", typeof t == "string" ? e.textContent = t : e.appendChild(t);
 }
 export {
-  V as ADVANCED_CLASS,
-  Y as ConfigClient,
-  D as ConfigValidationError,
-  ie as FOREIGN_CLASS,
-  I as arrayItemObject,
-  de as clearFieldErrors,
-  ne as collectConfigValues,
-  ae as diffConfigValues,
-  O as ensureJsonSchema,
+  R as ADVANCED_CLASS,
+  te as ConfigClient,
+  L as ConfigContractError,
+  K as ConfigValidationError,
+  de as FOREIGN_CLASS,
+  M as arrayItemObject,
+  pe as clearFieldErrors,
+  oe as collectConfigValues,
+  le as diffConfigValues,
+  _ as ensureJsonSchema,
   b as escAttr,
   m as escHtml,
-  G as fieldPlane,
-  ce as hasAdvancedFields,
+  z as fieldPlane,
+  fe as hasAdvancedFields,
   k as isObjectNode,
-  U as isSecretField,
-  T as mapValueSchema,
-  qe as mountAppShell,
-  Ne as mountConfigPanel,
-  Q as parseProblemKey,
-  le as renderConfigForm,
-  M as renderInlineMarkdown,
+  W as isSecretField,
+  A as mapValueSchema,
+  He as mountAppShell,
+  Be as mountConfigPanel,
+  ee as parseProblemKey,
+  ue as renderConfigForm,
+  O as renderInlineMarkdown,
   $ as resolveRef,
-  q as setAdvancedVisible,
-  Ae as setNestedValue,
-  ue as showFieldError
+  j as setAdvancedVisible,
+  je as setNestedValue,
+  he as showFieldError
 };
 //# sourceMappingURL=vanilla.js.map

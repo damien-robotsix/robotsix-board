@@ -2,12 +2,12 @@
  * robotsix-ui shared base stylesheet — vendored into robotsix-board.
  *
  * Source: https://github.com/damien-robotsix/robotsix-ui
- * Pinned at: 738a2518375943faf0b2105a972f0a923a5416be (v0.1.40)
+ * Pinned at: dae969d9b69fd58aea014cd23082bf1d17430c8f (v0.1.41)
  *
  * This file concatenates tokens.css + base.css + components.css +
  * utilities.css from robotsix-ui's src/styles/.  It is committed so that
- * Python-only consumers of robotsix-board do not need Node.js / npm to
- * get the shared base.
+ * Python-only consumers of robotsix-board do not need Node.js / npm to get the
+ * shared base.
  *
  * To update: pull the latest CSS from robotsix-ui's src/styles/ at
  * the desired commit SHA and replace this file.
