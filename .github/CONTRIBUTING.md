@@ -78,8 +78,10 @@ uv run pre-commit run --all-files
    be green before a maintainer will review. Run the checks locally
    first (see the table above).
 
-5. **Add a changelog entry** — if your change is user-visible, add
-   a `[Unreleased]` entry to `CHANGELOG.md`.
+5. **Conventional commit messages** — use `feat:`, `fix:`, `docs:`,
+   `chore:`, `refactor:`, `test:`, or `ci:` prefixes. release-please
+   generates `CHANGELOG.md` from these automatically; do not add
+   manual entries or fragments.
 
 6. **AGENT.md rules** — the repo has an `AGENT.md` that documents
    tooling constraints every contributor must follow:

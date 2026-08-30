@@ -152,7 +152,6 @@ def test_periodic_workflows_enabled() -> None:
     expected = {
         "audit.yaml",
         "bc_check.yaml",
-        "changelog_autofill.yaml",
         "completeness_check.yaml",
         "copy_paste.yaml",
         "docstring_coverage.yaml",
