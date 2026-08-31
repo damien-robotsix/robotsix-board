@@ -90,7 +90,10 @@ jobs:
           LATEST_TAG=$(gh api repos/damien-robotsix/robotsix-ui/git/refs/tags \
             --jq '.[].ref' | grep 'refs/tags/v0\.1\.' | sort -V | tail -1)
           VERSION="${LATEST_TAG#refs/tags/}"
-          LATEST_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/git/refs/tags/${VERSION}" --jq .object.sha)
+          # refs/tags gives the TAG OBJECT sha for annotated tags (which
+          # release-please now creates) — raw.githubusercontent 404s on it.
+          # commits/{tag} always dereferences to the commit sha.
+          LATEST_SHA=$(gh api "repos/damien-robotsix/robotsix-ui/commits/${VERSION}" --jq .sha)
           echo "latest=$LATEST_SHA" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
