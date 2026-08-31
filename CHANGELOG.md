@@ -40,6 +40,13 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.1](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.0...v0.5.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **ci:** dereference annotated robotsix-ui tags to the commit sha ([#365](https://github.com/damien-robotsix/robotsix-board/issues/365)) ([2579505](https://github.com/damien-robotsix/robotsix-board/commit/257950531cf24870b1689117c54a31503bc23f03))
+
 ## [0.5.0](https://github.com/damien-robotsix/robotsix-board/compare/v0.4.3...v0.5.0) (2026-08-23)
 
 

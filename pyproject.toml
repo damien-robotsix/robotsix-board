@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robotsix-board"
-version = "0.5.0"
+version = "0.5.1"
 description = "Shared kanban-board frontend library: column-per-status board chrome parameterized by a data adapter and render mode."
 readme = "README.md"
 requires-python = ">=3.14"
