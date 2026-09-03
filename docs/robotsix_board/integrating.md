@@ -233,7 +233,86 @@ All keys on `AppShellConfig` are optional:
 
 ---
 
-## 7. The parity contract
+## 7. Error handling and observability
+
+`board.js` reports every failure through a single public surface so
+consumers can log, alert, or show user-facing messages without patching
+the library.  There are two ways to receive errors — a registration
+callback and a DOM `CustomEvent` — and both deliver the same error object.
+
+### 7a. Register an error callback
+
+Call `window.robotsixBoardOnError()` with a handler.  It fires for every
+board error, regardless of which lifecycle phase raised it:
+
+```javascript
+window.robotsixBoardOnError((error) => {
+  console.error(`Board error [${error.code}]:`, error.message, error.cause);
+  // Send to your observability platform, show a user message, etc.
+});
+```
+
+### 7b. Error object structure
+
+Each error passed to the callback (and carried on the `CustomEvent`) is a
+plain object with these fields:
+
+| Field | Description |
+|---|---|
+| `code` | Machine-readable error code (see below) |
+| `message` | Human-readable summary of what failed |
+| `cause` | The underlying `Error` (or value) that triggered the failure, when available |
+| `phase` | The board lifecycle phase during which the error occurred |
+
+### 7c. Common error codes and phases
+
+| Code | Meaning |
+|---|---|
+| `INIT_FAILED` | The board could not initialise (e.g. bad config script). |
+| `REFRESH_FAILED` | A periodic/manual refresh request failed. |
+| `RENDER_FAILED` | Building the DOM from card data threw. |
+| `HYDRATE_FAILED` | Client-side hydration of server markup failed. |
+
+The `phase` field is one of `init`, `render`, `refresh`, `hydrate`, or
+`gate`.
+
+### 7d. Using CustomEvents as an alternative
+
+Every error is also dispatched as a `board:error` `CustomEvent` on the
+board element.  Listen for it when you prefer DOM events over a global
+callback:
+
+```javascript
+document.getElementById('board').addEventListener('board:error', (evt) => {
+  const error = evt.detail;
+  console.error(`Board error [${error.code}]:`, error.message, error.cause);
+});
+```
+
+The event's `detail` is the same `{code, message, cause, phase}` object
+described above.
+
+### 7e. Graceful degradation
+
+The board is designed to keep working when individual operations fail:
+
+- When **initialisation** fails, the board renders an error stub in place
+  of the column so the page stays usable instead of showing a blank area.
+- When a **refresh** or **render** operation fails, the board keeps the
+  last-known-good content and continues functioning; the failure is
+  reported through the error surface rather than crashing the page.
+
+### 7f. Callback safety
+
+Exceptions thrown from your error handler are caught and logged by the
+board — a faulty consumer callback cannot break board rendering or
+suppress subsequent error notifications.  Keep handlers side-effect-safe,
+but you do not need to wrap them in your own `try`/`catch` to protect the
+board.
+
+---
+
+## 8. The parity contract
 
 Both transports **must** produce byte-identical markup.  This invariant is
 load-bearing: if one transport's DOM drifts from the other's, cards that
@@ -267,7 +346,7 @@ As a consumer, you are bound to this contract in two ways:
 
 ---
 
-## 7. Escaping guarantees
+## 9. Escaping guarantees
 
 The library provides a single centralized escaping helper:
 
@@ -293,7 +372,7 @@ behaviour exactly, as verified by the cross-language parity test.
 
 ---
 
-## 8. Next steps
+## 10. Next steps
 
 - **[API Reference](api.md)** — full signatures for `render_board()`,
   `render_config_script()`, `esc()`, `static_dir()`, `BoardAdapter`, and
