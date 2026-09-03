@@ -272,6 +272,7 @@ plain object with these fields:
 | `REFRESH_FAILED` | A periodic/manual refresh request failed. |
 | `RENDER_FAILED` | Building the DOM from card data threw. |
 | `HYDRATE_FAILED` | Client-side hydration of server markup failed. |
+| `GATE_FAILED` | Fetching gate data (blocked columns) failed. |
 
 The `phase` field is one of `init`, `render`, `refresh`, `hydrate`, or
 `gate`.
