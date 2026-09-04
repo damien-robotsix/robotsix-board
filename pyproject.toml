@@ -66,7 +66,7 @@ malware-check = true
 packages = ["src/robotsix_board"]
 
 [tool.pytest.ini_options]
-addopts = "-n auto --cov=robotsix_board --cov-branch --cov-report=term-missing"
+addopts = "-n 2 --cov=robotsix_board --cov-branch --cov-report=term-missing"
 
 [tool.coverage.report]
 fail_under = 80
