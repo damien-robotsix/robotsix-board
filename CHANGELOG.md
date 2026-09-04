@@ -40,6 +40,14 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.2](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.1...v0.5.2) (2026-09-03)
+
+
+### Bug Fixes
+
+* **ci:** restore contents/actions read on the CodeQL caller job ([#369](https://github.com/damien-robotsix/robotsix-board/issues/369)) ([53000db](https://github.com/damien-robotsix/robotsix-board/commit/53000db1ab6c9e6bd49e0f4bbdd12125605f6be9))
+* **deps:** bump fast-uri 4.1.2 -&gt; 4.1.4 (npm audit high advisories) ([#370](https://github.com/damien-robotsix/robotsix-board/issues/370)) ([992755a](https://github.com/damien-robotsix/robotsix-board/commit/992755a5fe28dc21d7a260bc745e0e376a7ba98d))
+
 ## [0.5.1](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.0...v0.5.1) (2026-08-31)
 
 
