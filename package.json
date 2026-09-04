@@ -6,7 +6,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "audit": "npm audit --audit-level=high",
+    "audit": "sh .github/scripts/npm-audit.sh",
     "lint:js": "eslint --max-warnings 0 src/robotsix_board/static/board.js",
     "lint:css": "stylelint src/robotsix_board/static/board.css",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules' '#.venv' '#changelog.d' '#CHANGELOG.md'",
