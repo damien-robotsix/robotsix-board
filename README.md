@@ -137,8 +137,11 @@ data. Resolve it at runtime via `robotsix_board.static_dir()`:
 - A FastAPI consumer mounts the directory as a static-files route.
 - A stdlib consumer reads the asset files and inlines them into responses.
 
-The create step ships **skeleton placeholder** assets; the real chrome lands
-in the build-out ticket.
+The packaged assets ship the **real board chrome** — `board.js` (the
+client-side hydration behaviour ported from robotsix-mill's `static/board.js`)
+and `board.css` (the styling ported from mill's `static/board.css` plus the
+server-fragment markup formerly built inline in robotsix-auto-mail). Consumers
+migrate onto these shared assets rather than maintaining their own copies.
 
 ### CSS custom properties (theming)
 
