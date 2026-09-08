@@ -39,7 +39,7 @@ from ._render import (
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 __all__ = [
     "AppShellConfig",

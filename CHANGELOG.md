@@ -40,6 +40,14 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.3](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.2...v0.5.3) (2026-09-08)
+
+
+### Documentation
+
+* Add compliant SECURITY.md to repo root (20260907T101437Z-add-compliant-security-md-to-repo-root-b57b) ([#377](https://github.com/damien-robotsix/robotsix-board/issues/377)) ([704d0f9](https://github.com/damien-robotsix/robotsix-board/commit/704d0f90199d794024016bccceb9b0311d81925b))
+* Build out robotsix-board: port board UI from mill + auto-mail (20260908T032407Z-build-out-robotsix-board-port-board-ui-f-b504) ([#380](https://github.com/damien-robotsix/robotsix-board/issues/380)) ([ec68ff0](https://github.com/damien-robotsix/robotsix-board/commit/ec68ff08c3c699a9d819a7712aa57288c3df5230))
+
 ## [0.5.2](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.1...v0.5.2) (2026-09-03)
 
 
