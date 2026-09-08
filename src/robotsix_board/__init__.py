@@ -8,12 +8,16 @@ parameterized by a small data adapter
 (see :class:`BoardAdapter`) and a render mode (server-rendered HTML
 fragments vs JSON + client-side JS hydration).
 
-The public surface is intentionally minimal for the create step:
+The public surface:
 
 * :data:`__version__` — the package version, matching ``[project].version``.
-* :func:`static_dir` — on-disk path to the packaged ``static/`` assets.
-* :class:`BoardAdapter` — the adapter contract anchor the build-out targets.
+* :func:`static_dir` — on-disk path to the packaged ``static/`` assets
+  (``board.js`` / ``board.css``, the shared chrome ported from the mill and
+  auto-mail consumers).
+* :class:`BoardAdapter` — the adapter contract a consumer implements.
 * :class:`RenderMode` — the render-mode selector.
+* :func:`render_board`, :func:`render_config_script`, :func:`render_appshell`,
+  :func:`esc` — the server-side rendering helpers.
 
 See ``README.md`` for the full design contract.
 """
@@ -77,9 +81,9 @@ class RenderMode(StrEnum):
 class BoardAdapter(Protocol):
     """Contract a consumer implements to drive the shared board chrome.
 
-    This is the stable import target the follow-on build-out fills in. The
-    create step ships a skeleton: methods document the contract but are not
-    implemented. See ``README.md`` for the authoritative description of the
+    This is the stable import target a consumer implements. The Protocol
+    methods document the contract only; a consumer supplies the concrete
+    behaviour. See ``README.md`` for the authoritative description of the
     column order/labels, card-field accessors, and render mode.
 
     OPTIONAL duck-typed hooks (deliberately NOT part of this runtime-checkable
