@@ -13,7 +13,7 @@ concurrency:
 jobs:
   baseline:
     name: Baseline
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/baseline-check.yml@a6378accaf26c75b12fac324c3056255647c107b  # main
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/baseline-check.yml@fb907a46b00693a117ca6b975da6e7b0f8238491  # main
     with:
       has-board: true
       python-version: "3.14"
