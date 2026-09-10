@@ -28,7 +28,7 @@
     "@axe-core/playwright": "^4",
     "@eslint/js": "^10",
     "@playwright/test": "^1.63.0",
-    "@vitest/coverage-v8": "^4",
+    "@vitest/coverage-v8": "^5",
     "@vitest/eslint-plugin": "^1",
     "eslint": "^10.10.0",
     "eslint-plugin-jsdoc": "^64.3.6",
