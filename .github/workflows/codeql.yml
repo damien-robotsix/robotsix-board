@@ -15,6 +15,6 @@ jobs:
       actions: read  # job-level permissions REPLACE the top-level set for reusable workflows
       contents: read  # the called workflow's checkout needs this; omitting it = startup_failure with no logs
       security-events: write  # required for SARIF uploads
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/codeql.yml@7314c9b6c2b536ca81023e8841f272b72733262e  # main
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/codeql.yml@fb907a46b00693a117ca6b975da6e7b0f8238491  # main
     with:
       languages: python,javascript
