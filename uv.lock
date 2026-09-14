@@ -1040,7 +1040,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pytest-xdist", marker = "extra == 'dev'" },
-    { name = "robotsix-modules", git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=d916d1c14198dd00bb136605224177289c73352c" },
+    { name = "robotsix-modules", git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=7bb8157088dc8599c44b11803dbb83403bca8f98" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.16.5" },
     { name = "vulture", marker = "extra == 'dev'" },
 ]
@@ -1048,8 +1048,8 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "robotsix-modules"
-version = "0.4.2"
-source = { git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=d916d1c14198dd00bb136605224177289c73352c#d916d1c14198dd00bb136605224177289c73352c" }
+version = "0.5.1"
+source = { git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=7bb8157088dc8599c44b11803dbb83403bca8f98#7bb8157088dc8599c44b11803dbb83403bca8f98" }
 dependencies = [
     { name = "jsonschema" },
     { name = "pyyaml" },
