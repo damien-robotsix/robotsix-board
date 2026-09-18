@@ -23,8 +23,7 @@
     },
     "markdownlint-cli2": {
       "js-yaml": ">=5.2.2 <6.0.0"
-    },
-    "smol-toml": ">=1.7.1"
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "^4",
