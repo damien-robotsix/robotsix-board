@@ -87,6 +87,7 @@ Beyond the five required methods, you may optionally implement these hooks to in
 Called for each card after timestamps are rendered. Return raw HTML to be appended inside the `.board-card` div.
 
 **Example:** render a delete button on each card:
+
 ```python
 from robotsix_board import BoardAdapter, BoardAdapterExtensions, esc
 
@@ -107,6 +108,7 @@ class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
 Called once per column after all cards are rendered. Return raw HTML to be appended inside the `.board-column` div.
 
 **Example:** render a count badge in each column header:
+
 ```python
 class MyAdapter(BoardAdapter, BoardAdapterExtensions):
     # ...
@@ -115,6 +117,7 @@ class MyAdapter(BoardAdapter, BoardAdapterExtensions):
 ```
 
 **Important:** Both hooks return *trusted HTML*. You are responsible for escaping any user-controlled data:
+
 ```python
 from robotsix_board import esc
 
@@ -126,6 +129,7 @@ def card_extra_html(self, card: object) -> str:
 ```
 
 **Type hints:** Inherit from both `BoardAdapter` and `BoardAdapterExtensions` for full IDE support:
+
 ```python
 from typing import Union
 from robotsix_board import BoardAdapter, BoardAdapterExtensions
