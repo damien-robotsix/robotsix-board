@@ -88,7 +88,7 @@ Called for each card after timestamps are rendered. Return raw HTML to be append
 
 **Example:** render a delete button on each card:
 ```python
-from robotsix_board import BoardAdapter, BoardAdapterExtensions
+from robotsix_board import BoardAdapter, BoardAdapterExtensions, esc
 
 class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
     def columns(self) -> list[tuple[str, str]]: ...
