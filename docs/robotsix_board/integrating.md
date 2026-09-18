@@ -84,14 +84,10 @@ contract including optional hooks, see the [API Reference](api.md).
 
 ### 4a. Serve the static assets
 
-```python
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from robotsix_board import static_dir
-
-app = FastAPI()
-app.mount("/board/static", StaticFiles(directory=static_dir()), name="board_static")
-```
+Mount the packaged `static/` directory as a static-files route — use the
+canonical snippet under [Asset-mounting pattern: FastAPI
+consumer](index.md#fastapi-consumer-robotsix-mill) in the integration
+reference.
 
 ### 4b. Emit the config script in your page template
 
@@ -144,12 +140,11 @@ and optionally `badges`, `timestamps`, `merged`, `agent_badges`, and
 
 ### 5a. Read and inline the static assets
 
-```python
-from robotsix_board import static_dir
-
-css = (static_dir() / "board.css").read_text()
-js = (static_dir() / "board.js").read_text()
-```
+Read `board.css` and `board.js` from the packaged `static/` directory and
+inline them into your responses — use the canonical snippet under
+[Asset-mounting pattern: stdlib
+consumer](index.md#stdlib-consumer-robotsix-auto-mail) in the integration
+reference.
 
 ### 5b. Call `render_board()` and embed the output
 
