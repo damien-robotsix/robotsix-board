@@ -25,10 +25,16 @@ process.stdin.on("end", () => {
   const keys = new Set();
   for (const [name, vuln] of Object.entries(report.vulnerabilities || {})) {
     for (const via of vuln.via || []) {
-      if (typeof via !== "object" || !via.url || !via.severity) continue;
-      if (levels[via.severity] < minLevel) continue;
+      if (typeof via !== "object" || !via.url || !via.severity) {
+        continue;
+      }
+      if (levels[via.severity] < minLevel) {
+        continue;
+      }
       const match = /GHSA-[0-9A-Za-z-]+/.exec(via.url);
-      if (match) keys.add(`${name} ${match[0]} (${via.severity})`);
+      if (match) {
+        keys.add(`${name} ${match[0]} (${via.severity})`);
+      }
     }
   }
   console.log([...keys].sort().join("\n"));

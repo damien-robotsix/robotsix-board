@@ -32,6 +32,14 @@ export default [
     },
   },
   {
+    files: [".github/scripts/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "script",
+      globals: { ...globals.node },
+    },
+  },
+  {
     files: ["tests/**/*.test.js", "tests/**/board_shared.js", "tests/**/setup.js", "vitest.config.mjs"],
     plugins: { vitest },
     languageOptions: {
