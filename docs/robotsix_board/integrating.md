@@ -90,9 +90,11 @@ Called for each card after timestamps are rendered. Return raw HTML to be append
 ```python
 from robotsix_board import BoardAdapter, BoardAdapterExtensions, esc
 
+
 class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
     def columns(self) -> list[tuple[str, str]]: ...
     def card_id(self, card) -> str: ...
+
     # ... other required methods ...
 
     def card_extra_html(self, card: object) -> str:
@@ -116,6 +118,7 @@ class MyAdapter(BoardAdapter, BoardAdapterExtensions):
 ```python
 from robotsix_board import esc
 
+
 def card_extra_html(self, card: object) -> str:
     user_comment = card.get("comment", "")
     # MUST escape user input
@@ -127,8 +130,10 @@ def card_extra_html(self, card: object) -> str:
 from typing import Union
 from robotsix_board import BoardAdapter, BoardAdapterExtensions
 
+
 # Preferred: explicit inheritance (IDE knows all methods)
 class MyAdapter(BoardAdapter, BoardAdapterExtensions): ...
+
 
 # Alternative: type alias for duck-typed adapters
 MyAdapterType = Union[BoardAdapter, BoardAdapterExtensions]
