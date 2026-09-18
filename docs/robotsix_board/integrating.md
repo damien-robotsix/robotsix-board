@@ -78,6 +78,62 @@ The library does not force you to subclass `BoardAdapter` — any object with
 these five methods satisfies the runtime-checkable protocol.  For the full
 contract including optional hooks, see the [API Reference](api.md).
 
+### 3.1 Optional Customization Hooks
+
+Beyond the five required methods, you may optionally implement these hooks to inject custom HTML into cards and columns:
+
+**`card_extra_html(card: object) -> str`**
+
+Called for each card after timestamps are rendered. Return raw HTML to be appended inside the `.board-card` div.
+
+**Example:** render a delete button on each card:
+```python
+from robotsix_board import BoardAdapter, BoardAdapterExtensions
+
+class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
+    def columns(self) -> list[tuple[str, str]]: ...
+    def card_id(self, card) -> str: ...
+    # ... other required methods ...
+
+    def card_extra_html(self, card: object) -> str:
+        card_id = esc(self.card_id(card))
+        return f'<button class="delete" data-card-id="{card_id}">Delete</button>'
+```
+
+**`column_extra_html(status_key: str) -> str`**
+
+Called once per column after all cards are rendered. Return raw HTML to be appended inside the `.board-column` div.
+
+**Example:** render a count badge in each column header:
+```python
+class MyAdapter(BoardAdapter, BoardAdapterExtensions):
+    # ...
+    def column_extra_html(self, status_key: str) -> str:
+        return f'<span class="col-marker">{status_key}</span>'
+```
+
+**Important:** Both hooks return *trusted HTML*. You are responsible for escaping any user-controlled data:
+```python
+from robotsix_board import esc
+
+def card_extra_html(self, card: object) -> str:
+    user_comment = card.get("comment", "")
+    # MUST escape user input
+    return f'<div class="comment">{esc(user_comment)}</div>'
+```
+
+**Type hints:** Inherit from both `BoardAdapter` and `BoardAdapterExtensions` for full IDE support:
+```python
+from typing import Union
+from robotsix_board import BoardAdapter, BoardAdapterExtensions
+
+# Preferred: explicit inheritance (IDE knows all methods)
+class MyAdapter(BoardAdapter, BoardAdapterExtensions): ...
+
+# Alternative: type alias for duck-typed adapters
+MyAdapterType = Union[BoardAdapter, BoardAdapterExtensions]
+```
+
 ---
 
 ## 4. Mount the board (JSON hydration)

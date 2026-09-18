@@ -44,6 +44,7 @@ __version__ = "0.5.4"
 __all__ = [
     "AppShellConfig",
     "BoardAdapter",
+    "BoardAdapterExtensions",
     "RenderMode",
     "__version__",
     "esc",
@@ -119,4 +120,27 @@ class BoardAdapter(Protocol):
 
     def card_timestamps(self, card: object) -> dict[str, str]:
         """Return the timestamp fields (e.g. created/updated) for ``card``."""
+        raise NotImplementedError  # pragma: no cover
+
+
+@runtime_checkable
+class BoardAdapterExtensions(Protocol):
+    """Optional customization hooks for BoardAdapter.
+
+    Consumers may implement these methods for additional customization.
+    See integrating.md § 3.1 for usage examples and escaping notes.
+    """
+
+    def card_extra_html(self, card: object) -> str:
+        """Return trusted raw HTML appended inside .board-card (after timestamps).
+
+        The consumer is responsible for escaping any user-controlled data.
+        """
+        raise NotImplementedError  # pragma: no cover
+
+    def column_extra_html(self, status_key: str) -> str:
+        """Return trusted raw HTML appended inside .board-column (after cards).
+
+        The consumer is responsible for escaping any user-controlled data.
+        """
         raise NotImplementedError  # pragma: no cover
