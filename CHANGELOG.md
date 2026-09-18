@@ -40,6 +40,14 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.4](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.3...v0.5.4) (2026-09-18)
+
+
+### Bug Fixes
+
+* CI failure: CI on main (20260918T032853Z-ci-failure-ci-on-main-df24) ([#394](https://github.com/damien-robotsix/robotsix-board/issues/394)) ([03713f2](https://github.com/damien-robotsix/robotsix-board/commit/03713f298fb644aec5288553f4990f067aed0cf2))
+* Harden npm-audit CI gate to not block lockfile-untouched docs diffs on pre-existing shared-tree CVEs (20260918T042507Z-harden-npm-audit-ci-gate-to-not-block-lo-a4a8) ([#396](https://github.com/damien-robotsix/robotsix-board/issues/396)) ([1662cc1](https://github.com/damien-robotsix/robotsix-board/commit/1662cc1c708f3c962f7b7d133f0554a9f22c624a))
+
 ## [0.5.3](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.2...v0.5.3) (2026-09-08)
 
 
