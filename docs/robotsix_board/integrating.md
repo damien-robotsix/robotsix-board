@@ -82,7 +82,7 @@ contract including optional hooks, see the [API Reference](api.md).
 
 Beyond the five required methods, you may optionally implement these hooks to inject custom HTML into cards and columns:
 
-**`card_extra_html(card: object) -> str`**
+#### `card_extra_html(card: object) -> str`
 
 Called for each card after timestamps are rendered. Return raw HTML to be appended inside the `.board-card` div.
 
@@ -102,7 +102,7 @@ class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
         return f'<button class="delete" data-card-id="{card_id}">Delete</button>'
 ```
 
-**`column_extra_html(status_key: str) -> str`**
+#### `column_extra_html(status_key: str) -> str`
 
 Called once per column after all cards are rendered. Return raw HTML to be appended inside the `.board-column` div.
 
