@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-ci.yml@5cd8c1facb02299da618979e7a55f1953f9c075a  # v0.0.1
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-ci.yml@188518bece972d7d5f1c4e2a0f2226d2526dc0fa  # v0.0.1
     with:
       python-version: "3.14"
       cov-package: "robotsix_board"
@@ -26,7 +26,7 @@ jobs:
       security-events: write  # required for CodeQL SARIF uploads
 
   security:
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-security.yml@5cd8c1facb02299da618979e7a55f1953f9c075a  # v0.0.1
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-security.yml@188518bece972d7d5f1c4e2a0f2226d2526dc0fa  # v0.0.1
     with:
       python-version: "3.14"
       install-extras: "dev"
