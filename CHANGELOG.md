@@ -40,6 +40,13 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.5](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.4...v0.5.5) (2026-10-06)
+
+
+### Bug Fixes
+
+* **ci:** bump the shared CodeQL workflow pin to a coherent codeql-action revision ([#412](https://github.com/damien-robotsix/robotsix-board/issues/412)) ([80ab5a1](https://github.com/damien-robotsix/robotsix-board/commit/80ab5a1a1b78851e7a2dec9756e53d91eda4ae35))
+
 ## [0.5.4](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.3...v0.5.4) (2026-09-18)
 
 
