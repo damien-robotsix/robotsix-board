@@ -11,6 +11,23 @@ Commit subjects and PR titles must follow
 `CHANGELOG.md` automatically from these prefixes — do **not** add manual
 entries or changelog fragments.
 
+## Development setup
+
+This is a dual-language project (Python + JavaScript). A root `Makefile`
+wraps the common development commands — run `make help` to list every
+target. After cloning, install both Python (uv) and Node (npm) dependencies:
+
+```bash
+make install
+```
+
+Typical workflow examples:
+
+- Run `make test-python` after backend (Python) changes.
+- Run `make test-js` after frontend (JavaScript/CSS) changes.
+- Run `make test-all` before committing to exercise both suites.
+- Run `make lint` and `make format` to lint/format both languages.
+
 ## Pre-commit hooks
 
 This repository uses [pre-commit](https://pre-commit.com) to enforce
