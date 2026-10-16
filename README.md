@@ -38,26 +38,39 @@ This lets it be consumed by both robotsix-mill (FastAPI + static files) and robo
 
 ## Development
 
-Clone the repository, then install development dependencies:
+This is a dual-language project (Python + JavaScript). A root `Makefile`
+provides a discoverable interface to the common development commands. List
+every target with:
 
 ```bash
-uv sync --extra dev
+make help
 ```
 
-Run tests:
+Clone the repository, then install both Python (uv) and Node (npm)
+development dependencies:
 
 ```bash
-uv run pytest
+make install
 ```
 
-Lint and format with ruff:
+Run the test suites:
 
 ```bash
-uv run ruff check .
-uv run ruff format .
+make test-python   # pytest with coverage
+make test-js       # vitest + Playwright e2e
+make test-all      # both of the above
 ```
 
-Or run all pre-commit hooks at once:
+Lint and format both languages:
+
+```bash
+make lint          # ruff, mypy, bandit, eslint, stylelint
+make format        # ruff format + eslint --fix
+```
+
+Each target wraps the underlying tools directly, so you can still call them
+by hand (e.g. `uv run pytest`, `uv run ruff check .`, `npm run test:js`).
+To run all pre-commit hooks at once:
 
 ```bash
 uv run pre-commit run --all-files
