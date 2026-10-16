@@ -6,7 +6,7 @@ import html
 import json
 import re
 from collections.abc import Callable
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 import pytest
 
@@ -734,3 +734,51 @@ class TestRenderAppshell:
         result = render_appshell(cfg)
         assert '<header id="app-shell">' in result
         assert "mountAppShell(" in result
+
+    # Explicit snake_case -> camelCase mapping of every AppShellConfig key
+    # to the option key emitted by _build_appshell_config.  The tests below
+    # enforce that this table, the AppShellConfig TypedDict, and
+    # _build_appshell_config all stay in sync — so adding a field to
+    # AppShellConfig without wiring it through _build_appshell_config (which,
+    # given total=False, produces no mypy error and no other test failure)
+    # fails loudly here instead of being silently dropped before it reaches
+    # the AppShell.
+    APPSHELL_KEY_MAP: ClassVar[dict[str, str]] = {
+        "brand": "brand",
+        "nav_items": "navItems",
+        "settings_href": "settingsHref",
+        "right_slot": "rightSlot",
+    }
+
+    def test_key_map_matches_typeddict_annotations(self) -> None:
+        """The snake->camel map covers exactly AppShellConfig's keys.
+
+        Adding (or removing) a key on AppShellConfig without updating
+        APPSHELL_KEY_MAP trips this assertion.
+        """
+        assert set(self.APPSHELL_KEY_MAP) == set(AppShellConfig.__annotations__)
+
+    def test_every_declared_key_reaches_rendered_output(self) -> None:
+        """Every AppShellConfig key maps to a camelCase key in the output.
+
+        Feeds a sentinel value for each annotated key through
+        render_appshell() and asserts the corresponding camelCase key is
+        present — catching a field declared on AppShellConfig but never
+        handled by _build_appshell_config.
+        """
+        for snake, annotation in AppShellConfig.__annotations__.items():
+            camel = self.APPSHELL_KEY_MAP[snake]
+            # Build a type-appropriate sentinel: a list for list-typed keys,
+            # a unique string otherwise.
+            sentinel: object
+            if "list" in str(annotation).lower():
+                sentinel = [{"label": "sentinel", "href": "/sentinel"}]
+            else:
+                sentinel = f"sentinel-{snake}"
+            cfg = cast(AppShellConfig, {snake: sentinel})
+            result = render_appshell(cfg)
+            assert f'"{camel}"' in result, (
+                f"AppShellConfig key {snake!r} is declared but its mapped "
+                f"option key {camel!r} never appears in the rendered output "
+                f"— _build_appshell_config is likely missing a branch for it."
+            )
