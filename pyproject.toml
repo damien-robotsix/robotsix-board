@@ -11,7 +11,7 @@ requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
 dependencies = [
-    "robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d916d1c14198dd00bb136605224177289c73352c",
+    "robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@8fed749b0913c3dcb2200ada5cf6cf14f9f9f6ea",
     "hypothesis",
 ]
 classifiers = [
