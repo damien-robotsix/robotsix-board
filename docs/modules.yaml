@@ -23,6 +23,7 @@ modules:
       - vitest.config.mjs
       - playwright.config.mjs
       - mkdocs.yml
+      - Makefile
       - .editorconfig
       - .gitignore
       - .npmrc
