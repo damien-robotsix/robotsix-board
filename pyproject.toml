@@ -58,6 +58,9 @@ allow-direct-references = true
 [tool.uv]
 index-strategy = "first-index"
 exclude-newer = "3 days"
+# certifi 2026.10.19 fixes GHSA-6q48-6c7w-9gw2 / PYSEC-2026-4320 but is still
+# inside the exclude-newer window; exempt it so the security fix can be locked.
+exclude-newer-package = { certifi = false }
 
 [tool.uv.audit]
 malware-check = true
