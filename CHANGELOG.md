@@ -40,6 +40,13 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.6](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.5...v0.5.6) (2026-10-21)
+
+
+### Bug Fixes
+
+* ci_fix: out-of-scope CI failure — ci / Tests, uv audit, security / Security (20261021T184338Z-ci-fix-out-of-scope-ci-failure-ci-tests-47c0) ([#427](https://github.com/damien-robotsix/robotsix-board/issues/427)) ([d94876c](https://github.com/damien-robotsix/robotsix-board/commit/d94876c12811cb94ce1372d280987ffde1d4cf52))
+
 ## [0.5.5](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.4...v0.5.5) (2026-10-13)
 
 
