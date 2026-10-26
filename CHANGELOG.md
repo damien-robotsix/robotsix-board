@@ -40,6 +40,14 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.7](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.6...v0.5.7) (2026-10-26)
+
+
+### Bug Fixes
+
+* CI failure: Docs on main (20261026T133046Z-ci-failure-docs-on-main-e004) ([#434](https://github.com/damien-robotsix/robotsix-board/issues/434)) ([0dc8219](https://github.com/damien-robotsix/robotsix-board/commit/0dc821908981c39692230b812aab3128267503eb))
+* Pin robotsix-modules via [tool.uv.sources] in a dev group instead of a PEP 508 direct URL in project.dependencies (20261026T123208Z-pin-robotsix-modules-via-tool-uv-sources-ca48) ([#432](https://github.com/damien-robotsix/robotsix-board/issues/432)) ([bfdc1f8](https://github.com/damien-robotsix/robotsix-board/commit/bfdc1f82e305f58c4881668c7825290210f6f3aa))
+
 ## [0.5.6](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.5...v0.5.6) (2026-10-21)
 
 
