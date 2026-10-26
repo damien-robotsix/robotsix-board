@@ -34,9 +34,8 @@ jobs:
         run: |
           PKG="robotsix-modules"
           URL="https://github.com/damien-robotsix/robotsix-modules.git"
-          LINE=$(grep "$PKG @ git+$URL@" pyproject.toml)
-          CUR="${LINE##*@}"
-          CUR="${CUR:0:40}"
+          LINE=$(grep "^$PKG = { git = \"$URL\", rev = \"" pyproject.toml)
+          CUR=$(printf '%s\n' "$LINE" | sed -E 's/.*rev = "([0-9a-f]{40})".*/\1/')
           echo "current=$CUR" >> "$GITHUB_OUTPUT"
           LATEST=$(gh api repos/damien-robotsix/robotsix-modules/git/ref/heads/main --jq '.object.sha')
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
