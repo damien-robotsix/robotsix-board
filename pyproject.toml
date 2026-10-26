@@ -11,7 +11,6 @@ requires-python = ">=3.14"
 license = "MIT"
 authors = [{ name = "Damien Robotsix" }]
 dependencies = [
-    "robotsix-modules @ git+https://github.com/damien-robotsix/robotsix-modules.git@d916d1c14198dd00bb136605224177289c73352c",
     "hypothesis",
 ]
 classifiers = [
@@ -50,6 +49,16 @@ docs = [
     "mkdocstrings[python]",
     "pymdown-extensions>=11.0.0",
 ]
+
+[dependency-groups]
+# CI-only tooling: kept out of [project.dependencies] so consumers of
+# robotsix-board never resolve it. `uv sync` installs the dev group by default.
+dev = [
+    "robotsix-modules",
+]
+
+[tool.uv.sources]
+robotsix-modules = { git = "https://github.com/damien-robotsix/robotsix-modules.git", rev = "1c7d01f4ed264524857838fad78b5a3d05d3d774" }  # pragma: allowlist secret
 
 
 [tool.hatch.metadata]
