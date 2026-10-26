@@ -46,7 +46,8 @@ dev = [
 docs = [
     "mkdocs",
     "mkdocs-material",
-    "mkdocstrings[python]",
+    # >=1.0.8: older releases break with pymdown-extensions 12.3 (Highlight.__init__ requires md).
+    "mkdocstrings[python]>=1.0.8",
     "pymdown-extensions>=11.0.0",
 ]
 
