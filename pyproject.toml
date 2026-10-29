@@ -59,7 +59,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-robotsix-modules = { git = "https://github.com/damien-robotsix/robotsix-modules.git", rev = "61c265def4896cc3d322192f5291bff50f079088" }  # pragma: allowlist secret
+robotsix-modules = { git = "https://github.com/damien-robotsix/robotsix-modules.git", rev = "7579f6b26a36a55c20d5a6d4b0f0134750c3452d" }  # pragma: allowlist secret
 
 
 [tool.hatch.metadata]
