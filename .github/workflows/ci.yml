@@ -184,5 +184,9 @@ jobs:
           enable-cache: true
       - name: Build wheel
         run: uv build
-      - name: Smoke test — import from built wheel
-        run: uv run --with dist/*.whl --no-project -- python -c "import robotsix_board; print(robotsix_board.__version__)"
+      - name: Smoke test — import from built wheel and check static assets
+        run: >-
+          uv run --with dist/*.whl --no-project -- python -c
+          "import robotsix_board as b; s = b.static_dir();
+          assert (s / 'board.js').is_file() and (s / 'board.css').is_file(), f'static assets missing from wheel - {s}';
+          print(b.__version__)"
