@@ -1111,12 +1111,12 @@ requires-dist = [
 provides-extras = ["dev", "docs"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "robotsix-modules", git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=61c265def4896cc3d322192f5291bff50f079088" }]
+dev = [{ name = "robotsix-modules", git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=709d21dbcebc9ddec663f7d04a3d0829a43ef2bb" }]
 
 [[package]]
 name = "robotsix-modules"
-version = "0.5.3"
-source = { git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=61c265def4896cc3d322192f5291bff50f079088#61c265def4896cc3d322192f5291bff50f079088" }
+version = "0.5.4"
+source = { git = "https://github.com/damien-robotsix/robotsix-modules.git?rev=709d21dbcebc9ddec663f7d04a3d0829a43ef2bb#709d21dbcebc9ddec663f7d04a3d0829a43ef2bb" }
 dependencies = [
     { name = "jsonschema" },
     { name = "pyyaml" },
