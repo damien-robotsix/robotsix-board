@@ -14,19 +14,23 @@ concurrency:
 
 jobs:
   ci:
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-ci.yml@188518bece972d7d5f1c4e2a0f2226d2526dc0fa  # v0.0.1
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-ci.yml@86a722f2938c1dda343bbf8d3c5989613cbf1794  # v1.5.0
     with:
       python-version: "3.14"
       cov-package: "robotsix_board"
       coverage-threshold: "80"
       run-bandit: true
       install-extras: "dev"
+      check-lock: true
+      audit-sarif: true
+      run-vulture: true
+      vulture-args: "src/ vulture_whitelist.py"
     permissions:
       contents: read
       security-events: write  # required for CodeQL SARIF uploads
 
   security:
-    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-security.yml@188518bece972d7d5f1c4e2a0f2226d2526dc0fa  # v0.0.1
+    uses: damien-robotsix/robotsix-github-workflows/.github/workflows/python-security.yml@86a722f2938c1dda343bbf8d3c5989613cbf1794  # v1.5.0
     with:
       python-version: "3.14"
       install-extras: "dev"
@@ -34,20 +38,6 @@ jobs:
     permissions:
       contents: read
       actions: write  # required for GHAS code scanning integration
-
-  uv-audit:
-    name: uv audit
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
-        with:
-          enable-cache: true
-      - run: uv audit --frozen
 
   python-lint:
     name: Python lint
@@ -58,9 +48,7 @@ jobs:
       matrix:
         tool:
           - detect-secrets
-          - vulture
           - mypy-tests
-          - deptry
           - modules
     permissions:
       contents: read
@@ -76,9 +64,7 @@ jobs:
       - run: |
           case "$TOOL" in
             detect-secrets) uv run detect-secrets scan --baseline .secrets.baseline ;;
-            vulture) uv run vulture src/ vulture_whitelist.py ;;
             mypy-tests) uv run mypy src tests ;;
-            deptry) uv run deptry . ;;
             modules) uv run robotsix-modules validate docs/modules.yaml ;;
           esac
         env:
