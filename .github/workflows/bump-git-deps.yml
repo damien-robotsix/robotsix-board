@@ -15,6 +15,7 @@ jobs:
   bump-robotsix-modules:
     name: Bump robotsix-modules
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write  # Needed to push the bump branch
       pull-requests: write  # Needed to create the PR
@@ -67,6 +68,7 @@ jobs:
   bump-robotsix-ui-base:
     name: Bump robotsix-ui-base CSS
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write  # Needed to push the bump branch
       pull-requests: write  # Needed to create the PR
