@@ -31,6 +31,7 @@ modules:
       - .pre-commit-config.yaml
       - .stylelintrc.json
       - .secrets.baseline
+      - .secrets-patterns-excluded
       - .markdownlint-cli2.jsonc
       - eslint.config.mjs
       - vulture_whitelist.py
