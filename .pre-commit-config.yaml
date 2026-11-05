@@ -87,7 +87,7 @@ repos:
         args: [--baseline, .secrets.baseline]
         exclude: '^\.secrets\.baseline$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.38.2
+    rev: 0.39.0
     hooks:
       - id: check-github-workflows
   - repo: https://github.com/rhysd/actionlint
@@ -95,6 +95,6 @@ repos:
     hooks:
       - id: actionlint-docker
   - repo: https://github.com/damien-robotsix/robotsix-standards
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: check-secret-str
