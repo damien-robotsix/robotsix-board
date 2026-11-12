@@ -88,7 +88,8 @@ fail_under = 80
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "S", "SIM", "PT", "N", "ERA", "PTH", "C4", "RUF", "PERF"]
+select = ["E", "F", "I", "UP", "B", "S", "SIM", "PT", "N", "ERA", "PTH", "C4", "RUF", "PERF", "W", "LOG", "G", "PGH"]
+ignore = ["PT006"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
