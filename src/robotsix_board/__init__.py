@@ -16,7 +16,8 @@ The public surface:
   auto-mail consumers).
 * :class:`BoardAdapter` — the adapter contract a consumer implements.
 * :class:`RenderMode` — the render-mode selector.
-* :func:`render_board`, :func:`render_config_script`, :func:`render_appshell`,
+* :func:`render_board`, :func:`build_board_skeleton`,
+  :func:`render_config_script`, :func:`render_appshell`,
   :func:`esc` — the server-side rendering helpers.
 
 See ``README.md`` for the full design contract.
@@ -31,6 +32,7 @@ from typing import Protocol, runtime_checkable
 
 from ._render import (
     AppShellConfig,
+    build_board_skeleton,
     esc,
     render_appshell,
     render_board,
@@ -47,6 +49,7 @@ __all__ = [
     "BoardAdapterExtensions",
     "RenderMode",
     "__version__",
+    "build_board_skeleton",
     "esc",
     "render_appshell",
     "render_board",

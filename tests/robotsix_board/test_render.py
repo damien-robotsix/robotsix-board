@@ -72,6 +72,7 @@ from robotsix_board import BoardAdapter
 from robotsix_board._render import (
     AppShellConfig,
     _render_card,
+    build_board_skeleton,
     esc,
     render_appshell,
     render_board,
@@ -156,6 +157,87 @@ class TestEsc:
         # parser replaces lone surrogates with U+FFFD, which breaks the
         # round-trip invariant.
         assert html.unescape(result) == s
+
+
+class TestBuildBoardSkeleton:
+    """Tests for the columns-only skeleton helper (JSON_HYDRATION boards)."""
+
+    def test_skeleton_has_board_container_and_one_column_per_status(self) -> None:
+        html = build_board_skeleton(_adapter().columns())
+        assert 'id="board"' in html
+        assert 'class="board"' in html
+        assert html.count('class="board-column"') == 3
+        for _, label in _adapter().columns():
+            assert label in html
+
+    def test_skeleton_columns_match_find_column_by_status_contract(self) -> None:
+        """Every emitted column is addressable exactly as board.js's
+        findColumnByStatus expects: a ``.board-column[data-status=<key>]``
+        element containing a ``.board-column-cards`` container."""
+        adapter = _adapter()
+        html = build_board_skeleton(adapter.columns())
+        keys = [key for key, _ in adapter.columns()]
+
+        assert html.count('data-status="') == len(keys)
+        for i, key in enumerate(keys):
+            block_start = html.index(f'data-status="{key}"')
+            block_end = (
+                html.index('data-status="', block_start + 1)
+                if i + 1 < len(keys)
+                else len(html)
+            )
+            block = html[block_start:block_end]
+            assert block.startswith(
+                f'data-status="{key}" aria-labelledby="col-heading-{key}"'
+            )
+            assert 'class="board-column-header"' in block
+            # applyCardDiff / appendCardToColumn append into this container.
+            assert 'class="board-column-cards"' in block
+
+    def test_skeleton_renders_zero_counts_and_no_cards(self) -> None:
+        html = build_board_skeleton(_adapter().columns())
+        assert html.count('<span class="board-column-count">0</span>') == 3
+        assert "board-card" not in html
+        assert "data-card-id" not in html
+        assert "board-badge" not in html
+
+    def test_skeleton_escapes_status_key_and_label(self) -> None:
+        html = build_board_skeleton([("<b>&", '<script>alert("x")</script>')])
+        # No raw HTML specials may survive in attribute or text slots…
+        assert "<b>" not in html
+        assert "<script>" not in html
+        assert 'alert("x")' not in html
+        # …and the esc()-escaped forms are present.
+        assert 'data-status="&lt;b&gt;&amp;"' in html
+        assert "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;" in html
+
+    def test_skeleton_empty_columns(self) -> None:
+        assert build_board_skeleton([]) == '<div id="board" class="board">\n</div>'
+
+    def test_skeleton_status_keys_match_config_script_columns(self) -> None:
+        """The skeleton's data-status keys match the columns the config
+        script serializes — one source of truth for the column contract."""
+        adapter = _adapter()
+        config = _extract_script_json(render_config_script(adapter))
+        skel = build_board_skeleton(adapter.columns())
+        cfg_keys = [pair[0] for pair in config["columns"]]
+        assert skel.count('data-status="') == len(cfg_keys)
+        for key in cfg_keys:
+            assert f'data-status="{key}"' in skel
+
+    def test_skeleton_column_chrome_matches_render_board(self) -> None:
+        """The skeleton shares render_board()'s column DOM (heading id,
+        aria-labelledby, role="list") so JSON_HYDRATION and
+        SERVER_FRAGMENTS boards expose the same DOM contract."""
+        adapter = _adapter()
+        skeleton = build_board_skeleton(adapter.columns())
+        full = render_board(adapter, {})
+        for key in (k for k, _ in adapter.columns()):
+            heading_id = f"col-heading-{key}"
+            assert f'aria-labelledby="{heading_id}"' in skeleton
+            assert f'id="{heading_id}"' in skeleton
+            assert f'aria-labelledby="{heading_id}"' in full
+            assert 'role="list"' in skeleton
 
 
 class TestRenderCard:
