@@ -3,6 +3,8 @@
 Exports:
     esc                  — HTML-escape a string.
     render_board         — Produce full #board HTML for SERVER_FRAGMENTS mode.
+    build_board_skeleton — Produce the empty #board column skeleton for JSON_HYDRATION
+                           mode (cards are hydrated client-side by board.js).
     render_config_script — Emit a <script id="board-config"> tag for JSON_HYDRATION.
     AppShellConfig       — TypedDict for AppShell configuration.
     render_appshell      — Render the shared AppShell container + mount script.
@@ -23,6 +25,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "AppShellConfig",
+    "build_board_skeleton",
     "esc",
     "render_appshell",
     "render_board",
@@ -172,6 +175,47 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
         "</div>"
     )
 
+    return "\n".join(parts)
+
+
+def build_board_skeleton(columns: Sequence[tuple[str, str]]) -> str:
+    """Render the empty ``#board`` column skeleton expected by ``board.js``.
+
+    In JSON_HYDRATION mode ``board.js`` only diffs cards into
+    *pre-existing* ``.board-column > .board-column-cards`` containers
+    (see ``applyCardDiff``/``findColumnByStatus``); it never creates the
+    columns itself.  Consumers in JSON_HYDRATION mode (e.g. FastAPI apps)
+    emit this skeleton at initial page render and let the board's refresh
+    loop fill the cards in from ``refresh_url``.
+
+    *columns* is the ordered ``(status_key, label)`` list from
+    :meth:`~BoardAdapter.columns` — the column set serialized by
+    :func:`render_config_script` and matched by ``board.js``'s
+    ``findColumnByStatus`` against each column's ``data-status``.
+
+    The column chrome (heading id / ``aria-labelledby``, ``role="list"``
+    card container) mirrors :func:`render_board`, so both transports share
+    one DOM contract; every count badge reads ``0`` and no card markup is
+    emitted.
+    """
+    parts: list[str] = ['<div id="board" class="board">']
+
+    for status_key, label in columns:
+        col_heading_id = f"col-heading-{esc(status_key)}"
+        parts.append(
+            f'<div class="board-column" data-status="{esc(status_key)}"'
+            f' aria-labelledby="{col_heading_id}">'
+        )
+        parts.append('<div class="board-column-header">')
+        parts.append(
+            f'<h2 class="board-column-label" id="{col_heading_id}">{esc(label)}</h2>'
+        )
+        parts.append('<span class="board-column-count">0</span>')
+        parts.append("</div>")  # .board-column-header
+        parts.append('<div class="board-column-cards" role="list"></div>')
+        parts.append("</div>")  # .board-column
+
+    parts.append("</div>")  # #board
     return "\n".join(parts)
 
 
