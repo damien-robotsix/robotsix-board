@@ -176,24 +176,34 @@ committed directly in `src/robotsix_board/static/`.  This avoids requiring
 Node.js / npm for Python-only consumers of robotsix-board.
 
 **Source:** [robotsix-ui](https://github.com/damien-robotsix/robotsix-ui)
-(`src/styles/{tokens,base,components}.css` concatenated).
+(release asset `style.css` — the compiled tokens + reset + component +
+utility styles).
 
-**To update the vendored copy** to a newer robotsix-ui revision:
+**To update the vendored copy** to a newer robotsix-ui revision, fetch the
+release assets with the robotsix-ui `fetch_assets` CLI (stdlib-only Python,
+no npm — the same pipeline robotsix-central-deploy consumes) and adopt them
+under the board filenames:
 
 ```bash
-# Fetch the three source CSS files at the desired commit SHA:
-SHA=<full-40-char-commit-sha>
-curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/tokens.css" > /tmp/t.css
-curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/base.css" > /tmp/b.css
-curl -sL "https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/$SHA/src/styles/components.css" > /tmp/c.css
+# Install the fetcher from the robotsix-ui git pin into a throwaway venv:
+python3 -m venv /tmp/rsui-venv
+/tmp/rsui-venv/bin/pip install \
+  "robotsix-ui @ git+https://github.com/damien-robotsix/robotsix-ui.git@<40-char-SHA>"
 
-# Concatenate, update the pinned-SHA comment, and replace:
-cat /tmp/t.css /tmp/b.css /tmp/c.css > src/robotsix_board/static/robotsix-ui-base.css
-# (update the header comment with the new SHA)
+# Fetch style.css + vanilla.js for the desired version tag:
+/tmp/rsui-venv/bin/python -m robotsix_ui fetch --version v0.1.48 --dest /tmp/rsui-assets
+
+# Adopt them: style.css becomes robotsix-ui-base.css (keep the header
+# comment, updating the pinned SHA/tag) and vanilla.js keeps its name:
+cp /tmp/rsui-assets/vanilla.js src/robotsix_board/static/vanilla.js
+cat /tmp/rsui-assets/style.css >> src/robotsix_board/static/robotsix-ui-base.css
 ```
 
-The vendored file carries a header comment with the pinned commit SHA so
-the exact revision is always traceable.
+The weekly [`bump-git-deps`](.github/workflows/bump-git-deps.yml) workflow
+runs exactly this fetch (via `python -m robotsix_ui fetch`) and opens a
+re-vendor PR when a newer `v0.1.x` tag is released.  The vendored file
+carries a header comment with the pinned commit SHA + tag so the exact
+revision is always traceable.
 
 ## Build-out phasing
 

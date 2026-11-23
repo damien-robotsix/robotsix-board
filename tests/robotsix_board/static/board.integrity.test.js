@@ -181,4 +181,14 @@ describe("vendored robotsix-ui-base.css integrity", () => {
     const rsuProps = [...src.matchAll(/--rsu-[\w-]+/g)];
     expect(rsuProps.length).toBeGreaterThan(0);
   });
+
+  it("provenance header pins a robotsix-ui commit SHA and version tag", () => {
+    // bump-git-deps.yml parses this exact line-5 shape ("Pinned at: <sha>
+    // (<tag>)") to detect stale pins, so the header must stay machine-parseable.
+    const src = readFileSync(baseCssPath, "utf-8");
+    const pinLine = src.split("\n")[4] ?? "";
+    expect(pinLine).toMatch(
+      /^ \* Pinned at: [0-9a-f]{40} \(v\d+\.\d+\.\d+\)$/,
+    );
+  });
 });
