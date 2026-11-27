@@ -201,6 +201,38 @@ class TestBuildBoardSkeleton:
         assert "data-card-id" not in html
         assert "board-badge" not in html
 
+    def test_skeleton_parity_column_extra_html_both_transports(self) -> None:
+        """Parity: render_board() and build_board_skeleton(adapter=…) both
+        carry column_extra_html hook output verbatim, after the column's
+        .board-column-cards container."""
+
+        class ColumnHookAdapter(MockAdapter):
+            def column_extra_html(self, status_key: str) -> str:
+                return f'<div class="col-extra" data-col="{esc(status_key)}">x</div>'
+
+        adapter = ColumnHookAdapter()
+        skeleton = build_board_skeleton(adapter.columns(), adapter=adapter)
+        full = render_board(adapter, sample_cards())
+
+        for status_key in ("todo", "in_progress", "done"):
+            sentinel = f'<div class="col-extra" data-col="{status_key}">x</div>'
+            assert sentinel in skeleton
+            assert sentinel in full
+            # Verbatim hook output sits after the column's cards container
+            # and inside .board-column in both transports.
+            assert skeleton.index(sentinel) > skeleton.index(
+                'class="board-column-cards"'
+            )
+            assert full.index(sentinel) > full.index('class="board-column-cards"')
+
+    def test_skeleton_without_adapter_emits_no_column_extra_html(self) -> None:
+        """No adapter (or an adapter without the hook) emits no extra column
+        HTML — the pre-existing JSON_HYDRATION behaviour is preserved."""
+        assert "col-extra" not in build_board_skeleton(_adapter().columns())
+        assert "col-extra" not in build_board_skeleton(
+            _adapter().columns(), adapter=_adapter()
+        )
+
     def test_skeleton_escapes_status_key_and_label(self) -> None:
         html = build_board_skeleton([("<b>&", '<script>alert("x")</script>')])
         # No raw HTML specials may survive in attribute or text slots…

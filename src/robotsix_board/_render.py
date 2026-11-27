@@ -178,7 +178,10 @@ def render_board(adapter: BoardAdapter, cards: Mapping[str, Sequence[object]]) -
     return "\n".join(parts)
 
 
-def build_board_skeleton(columns: Sequence[tuple[str, str]]) -> str:
+def build_board_skeleton(
+    columns: Sequence[tuple[str, str]],
+    adapter: BoardAdapter | None = None,
+) -> str:
     """Render the empty ``#board`` column skeleton expected by ``board.js``.
 
     In JSON_HYDRATION mode ``board.js`` only diffs cards into
@@ -197,6 +200,16 @@ def build_board_skeleton(columns: Sequence[tuple[str, str]]) -> str:
     card container) mirrors :func:`render_board`, so both transports share
     one DOM contract; every count badge reads ``0`` and no card markup is
     emitted.
+
+    *adapter* is OPTIONAL: when supplied, the duck-typed
+    ``column_extra_html(status_key)`` hook — the same hook
+    :func:`render_board` honors — is invoked per column and its trusted
+    raw HTML is appended VERBATIM inside the column's ``.board-column``
+    after the (empty) cards container, exactly as in SERVER_FRAGMENTS
+    mode, so hook output is not silently lost across transports.  When
+    *adapter* is ``None`` (or does not implement the hook), no
+    column-extra HTML is emitted.  Hook failures are logged and omitted,
+    matching :func:`render_board`.
     """
     parts: list[str] = ['<div id="board" class="board">']
 
@@ -213,6 +226,26 @@ def build_board_skeleton(columns: Sequence[tuple[str, str]]) -> str:
         parts.append('<span class="board-column-count">0</span>')
         parts.append("</div>")  # .board-column-header
         parts.append('<div class="board-column-cards" role="list"></div>')
+
+        # ── optional duck-typed hook: column_extra_html(status_key) ──
+        # Mirrors render_board() whenever an adapter is supplied, so both
+        # transports carry hook output (DOM parity).
+        col_extra = ""
+        if adapter is not None:
+            col_hook = getattr(adapter, "column_extra_html", None)
+            if callable(col_hook):
+                try:
+                    col_extra = col_hook(status_key)
+                except Exception:
+                    _logger.warning(
+                        "column_extra_html hook failed for status_key %r: omitting",
+                        status_key,
+                        exc_info=True,
+                    )
+                    col_extra = ""
+        if col_extra:
+            parts.append(col_extra)
+
         parts.append("</div>")  # .board-column
 
     parts.append("</div>")  # #board
