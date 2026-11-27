@@ -107,6 +107,11 @@ class MyAdapter(BoardAdapter, BoardAdapterExtensions):  # Implement both
 
 Called once per column after all cards are rendered. Return raw HTML to be appended inside the `.board-column` div.
 
+It is honored in **both** transports: `render_board()` (SERVER_FRAGMENTS) and
+`build_board_skeleton(columns, adapter=…)` (JSON_HYDRATION) — pass the adapter
+to the skeleton so per-column hook output (e.g. action buttons) is carried in
+both.
+
 **Example:** render a count badge in each column header:
 
 ```python

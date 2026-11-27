@@ -127,7 +127,10 @@ method to the Protocol would break `isinstance()` for every existing
 structural implementer. Instead, `render_board()` looks them up via
 `getattr(adapter, ..., None)`, skipping them when absent.
 
-Both hooks are only called in `SERVER_FRAGMENTS` mode.
+`card_extra_html` is only called in `SERVER_FRAGMENTS` mode. `column_extra_html`
+is honored in **both** transports: `render_board()` (SERVER_FRAGMENTS) and
+`build_board_skeleton(columns, adapter=…)` (JSON_HYDRATION) — pass the adapter
+to the skeleton so per-column hook output is not silently lost.
 
 #### `card_extra_html(card)`
 
@@ -136,7 +139,9 @@ def card_extra_html(self, card: object) -> str:
 ```
 
 Return a raw HTML string to inject **inside `.board-card`**, immediately
-after the timestamps block. Defaults to `""` when not implemented.
+after the timestamps block. Defaults to `""` when not implemented. Only
+called in `SERVER_FRAGMENTS` mode (the JSON_HYDRATION skeleton never renders
+cards).
 
 #### `column_extra_html(status_key)`
 
@@ -145,7 +150,10 @@ def column_extra_html(self, status_key: str) -> str:
 ```
 
 Return a raw HTML string to inject **inside `.board-column`**, after the
-`.board-column-cards` list. Defaults to `""` when not implemented.
+`.board-column-cards` list. Defaults to `""` when not implemented. Honored by
+both `render_board(adapter, cards)` and `build_board_skeleton(columns,
+adapter=…)` — pass the adapter to the skeleton so per-column hook output
+(column chrome such as action buttons) is carried in both transports.
 
 **Trust boundary:** Hook output is emitted **verbatim**, bypassing `esc()`.
 The consumer owns escaping of any dynamic text it embeds — use `esc()` for

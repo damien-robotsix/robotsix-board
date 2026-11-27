@@ -102,11 +102,14 @@ A consumer drives the board by supplying an adapter (see
   - `badges` — zero or more short badge labels.
   - `timestamps` — named timestamp fields (e.g. created / updated).
 - **Structural HTML hooks (optional)** — two optional adapter methods inject
-  trusted raw HTML into the server-rendered markup (`SERVER_FRAGMENTS` only):
+  trusted raw HTML into the rendered markup:
   - `card_extra_html(card) -> str` — output is injected inside `.board-card`,
-    immediately after the timestamps block.
+    immediately after the timestamps block. Server-rendered fragments only.
   - `column_extra_html(status_key) -> str` — output is injected inside
-    `.board-column`, after the `.board-column-cards` list.
+    `.board-column`, after the `.board-column-cards` list. Honored by both
+    `render_board()` (SERVER_FRAGMENTS) and `build_board_skeleton(columns,
+    adapter=…)` (JSON_HYDRATION) — pass the adapter to the skeleton so
+    per-column hook output is not silently dropped across transports.
 
   **Trust boundary:** hook output is emitted VERBATIM, bypassing `esc()`. The
   consumer owns escaping of any dynamic text it embeds. Both default to `""`,
