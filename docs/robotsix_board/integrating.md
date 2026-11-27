@@ -157,7 +157,11 @@ reference.
 ### 4b. Emit the config script in your page template
 
 ```python
-from robotsix_board import render_appshell, render_config_script
+from robotsix_board import (
+    build_board_skeleton,
+    render_appshell,
+    render_config_script,
+)
 
 
 @app.get("/board")
@@ -185,12 +189,20 @@ def board_page():
 </head>
 <body>
   {appshell}
-  <div id="board" class="board"></div>
+  {build_board_skeleton(adapter.columns())}
   {config_tag}
   <script src="/board/static/board.js"></script>
 </body>
 </html>""")
 ```
+
+> **Why the skeleton?** `board.js` never creates columns — `applyCardDiff`
+> only diffs cards into pre-existing `.board-column[data-status]` containers
+> (matched via `findColumnByStatus`), so a JSON_HYDRATION page whose template
+> emits only a bare `<div id="board">` renders zero cards even when the
+> refresh data is correct. `build_board_skeleton(adapter.columns())` emits
+> that column DOM in the template so consumers don't hand-roll board chrome;
+> the refresh loop then fills the cards in from `refresh_url`.
 
 ### 4c. Provide a refresh endpoint
 

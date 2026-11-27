@@ -126,6 +126,12 @@ The board supports two transports, selected via `robotsix_board.RenderMode`:
   client. This is the FastAPI consumer path (e.g. robotsix-mill, which mounts
   the packaged `static/` directory and serves `board.js`).
 
+In `JSON_HYDRATION` mode the server also emits the board column skeleton via
+`robotsix_board.build_board_skeleton(adapter.columns())` — `board.js` only
+diffs cards into pre-existing `.board-column[data-status]` containers and
+never creates the columns, so a JSON_HYDRATION page without the skeleton
+renders zero cards.
+
 Both transports render the **same markup contract** so the styling and
 behavior are shared regardless of transport.
 

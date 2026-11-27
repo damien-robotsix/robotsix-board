@@ -176,18 +176,21 @@ of transport.
 
 ## Rendering API
 
-The library provides two rendering functions via `robotsix_board._render`
+The library provides three rendering functions via `robotsix_board._render`
 (reexported from the top-level package). Import them directly:
 
 ```python
-from robotsix_board import render_board, render_config_script
+from robotsix_board import render_board, build_board_skeleton, render_config_script
 ```
 
 `render_board()` produces the complete board HTML for `SERVER_FRAGMENTS`
-mode, and `render_config_script()` emits a `<script>` configuration tag for
-`JSON_HYDRATION` mode. Both accept a [`BoardAdapter`][robotsix_board.BoardAdapter].
-Full signatures, parameter descriptions, and return-value details are
-auto-generated from source in the [API Reference](api.md).
+mode, `build_board_skeleton()` emits the empty `#board` column skeleton for
+`JSON_HYDRATION` mode (the cards are hydrated client-side by `board.js`),
+and `render_config_script()` emits a `<script>` configuration tag for
+`JSON_HYDRATION` mode. `render_board()` and `render_config_script()` accept
+a [`BoardAdapter`][robotsix_board.BoardAdapter]; `build_board_skeleton()`
+takes `adapter.columns()`. Full signatures, parameter descriptions, and
+return-value details are auto-generated from source in the [API Reference](api.md).
 
 ---
 
@@ -302,6 +305,17 @@ A `.visually-hidden` / `.sr-only` utility class is available in
 Both `SERVER_FRAGMENTS` and `JSON_HYDRATION` transports produce the same
 DOM shape. The following describes the structure produced by
 `render_board()`; `board.js` hydrates an equivalent shape from JSON.
+
+### JSON_HYDRATION skeleton
+
+In `JSON_HYDRATION` mode the column DOM is produced **server-side** by
+[`build_board_skeleton()`][robotsix_board.build_board_skeleton] (called with
+`adapter.columns()`), not by `board.js`: `board.js` only diffs cards into
+pre-existing `.board-column[data-status]` containers (`applyCardDiff` /
+`findColumnByStatus` in `board.js`) and never creates the columns, so a
+template that emits only a bare `<div id="board">` renders zero cards. The
+skeleton emits the column chrome described below, so both transports share
+the same DOM contract.
 
 ### Board container
 
