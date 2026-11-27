@@ -40,6 +40,18 @@ Everything below predates the release-please migration and was
 maintained by hand or by towncrier. It is kept verbatim; new entries
 are added above by release-please.
 
+## [0.5.8](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.7...v0.5.8) (2026-11-27)
+
+
+### Bug Fixes
+
+* build_board_skeleton silently drops the column_extra_html adapter hook that render_board honors (20261127T013803Z-fix-build-board-skeleton-silently-drops-3fef) ([#468](https://github.com/damien-robotsix/robotsix-board/issues/468)) ([ff1282e](https://github.com/damien-robotsix/robotsix-board/commit/ff1282ea6c6a90bcc93afe650c465babebb7d6e2))
+
+
+### Documentation
+
+* document build_board_skeleton in the prose docs and fix the JSON_HYDRATION sample that emits an unhydratable empty #board (20261127T013803Z-docs-document-build-board-skeleton-in-th-ec35) ([#467](https://github.com/damien-robotsix/robotsix-board/issues/467)) ([34739b9](https://github.com/damien-robotsix/robotsix-board/commit/34739b9881b5dd84ccfd479a23033a66604d2408))
+
 ## [0.5.7](https://github.com/damien-robotsix/robotsix-board/compare/v0.5.6...v0.5.7) (2026-10-26)
 
 
