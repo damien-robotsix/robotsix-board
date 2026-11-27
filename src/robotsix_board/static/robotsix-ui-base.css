@@ -4,13 +4,17 @@
  * Source: https://github.com/damien-robotsix/robotsix-ui
  * Pinned at: b2bdbf5082c208162f31480442487dab3772c518 (v0.1.48)
  *
- * This file concatenates tokens.css + base.css + components.css +
- * utilities.css from robotsix-ui's src/styles/.  It is committed so that
- * Python-only consumers of robotsix-board do not need Node.js / npm to get the
- * shared base.
+ * This file is the robotsix-ui release style.css asset — the compiled
+ * combination of tokens.css + base.css + components.css + utilities.css —
+ * fetched via the robotsix-ui fetch_assets pipeline (python -m robotsix_ui
+ * fetch --version <tag> --dest <dir>).  It is committed so that Python-only
+ * consumers of robotsix-board do not need Node.js / npm to get the shared
+ * base.
  *
- * To update: pull the latest CSS from robotsix-ui's src/styles/ at
- * the desired commit SHA and replace this file.
+ * To update: run the robotsix-ui fetch_assets CLI for the pinned v0.1.x tag
+ * and replace this file with the fetched style.css, keeping this header;
+ * vanilla.js is fetched by the same call.  See README "Consuming
+ * robotsix-ui styles"; the weekly bump-git-deps workflow automates this.
  */
 
 /*

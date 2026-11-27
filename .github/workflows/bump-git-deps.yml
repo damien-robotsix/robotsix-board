@@ -112,57 +112,48 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
 
-          # Fetch upstream CSS files at the new SHA
-          BASE_URL="https://raw.githubusercontent.com/damien-robotsix/robotsix-ui/${LATEST}/src/styles"
-          TOKENS=$(curl -sSf "$BASE_URL/tokens.css")
-          BASE=$(curl -sSf "$BASE_URL/base.css")
-          COMPONENTS=$(curl -sSf "$BASE_URL/components.css")
-          UTILITIES=$(curl -sSf "$BASE_URL/utilities.css")
+          # Fetch both release assets (style.css + vanilla.js) for the version
+          # tag in ONE call via the robotsix-ui fetch_assets CLI — the
+          # designated asset pipeline (robotsix-central-deploy consumes the
+          # same release assets).  The CLI is stdlib-only Python, no npm.
+          python3 -m venv /tmp/robotsix-ui-venv
+          /tmp/robotsix-ui-venv/bin/pip install --quiet \
+            "robotsix-ui @ git+https://github.com/damien-robotsix/robotsix-ui.git@${LATEST}"
+          UI_ASSETS="$(mktemp -d)"
+          /tmp/robotsix-ui-venv/bin/python -m robotsix_ui fetch \
+            --version "$VERSION" --dest "$UI_ASSETS"
 
-          # Write updated vendored CSS file
-          {
-            printf '/*\n'
-            printf ' * robotsix-ui shared base stylesheet — vendored into robotsix-board.\n'
-            printf ' *\n'
-            printf ' * Source: https://github.com/damien-robotsix/robotsix-ui\n'
-            printf ' * Pinned at: %s (%s)\n' "$LATEST" "$VERSION"
-            printf ' *\n'
-            printf ' * This file concatenates tokens.css + base.css + components.css +\n'
-            printf " * utilities.css from robotsix-ui's src/styles/.  It is committed so that\n"
-            printf ' * Python-only consumers of robotsix-board do not need Node.js / npm to get the\n'
-            printf ' * shared base.\n'
-            printf ' *\n'
-            printf " * To update: pull the latest CSS from robotsix-ui's src/styles/ at\n"
-            printf ' * the desired commit SHA and replace this file.\n'
-            printf ' */\n'
-            printf '\n'
-            printf '%s\n' "$TOKENS"
-            printf '\n'
-            printf '%s\n' "$BASE"
-            printf '\n'
-            printf '%s\n' "$COMPONENTS"
-            printf '\n'
-            printf '%s\n' "$UTILITIES"
-          } > "$CSS_FILE"
+          # Write the updated stylesheet: the release style.css asset with the
+          # provenance header.  Keep the "Pinned at:" line shape — the
+          # 'Check robotsix-ui pin' step above parses it from line 5.
+          cat > "$CSS_FILE" <<EOF
+          /*
+           * robotsix-ui shared base stylesheet — vendored into robotsix-board.
+           *
+           * Source: https://github.com/damien-robotsix/robotsix-ui
+           * Pinned at: $LATEST ($VERSION)
+           *
+           * This file is the robotsix-ui release style.css asset — the compiled
+           * combination of tokens.css + base.css + components.css + utilities.css —
+           * fetched via the robotsix-ui fetch_assets pipeline (python -m robotsix_ui
+           * fetch --version <tag> --dest <dir>).  It is committed so that Python-only
+           * consumers of robotsix-board do not need Node.js / npm to get the shared
+           * base.
+           *
+           * To update: run the robotsix-ui fetch_assets CLI for the pinned v0.1.x tag
+           * and replace this file with the fetched style.css, keeping this header;
+           * vanilla.js is fetched by the same call.  See README "Consuming
+           * robotsix-ui styles"; the weekly bump-git-deps workflow automates this.
+           */
+          EOF
+          cat "$UI_ASSETS/style.css" >> "$CSS_FILE"
 
-          # Fetch and write the framework-free vanilla.js from the GitHub release.
-          # The asset may be absent from older releases; treat a missing
-          # vanilla.js as non-fatal so CSS updates can still land.
-          VANILLA_OK=false
-          if curl -sSfL \
-            "https://github.com/damien-robotsix/robotsix-ui/releases/download/${VERSION}/vanilla.js" \
-            -o "$VANILLA_FILE"; then
-            VANILLA_OK=true
-          fi
+          # vanilla.js is fetched by the same fetch_assets call above.
+          cp "$UI_ASSETS/vanilla.js" "$VANILLA_FILE"
 
           git add "$CSS_FILE"
-          FILES_CHANGED="robotsix-ui-base.css"
-          if [ "$VANILLA_OK" = true ]; then
-            git add "$VANILLA_FILE"
-            FILES_CHANGED="${FILES_CHANGED} and vanilla.js"
-          else
-            echo "::warning::vanilla.js release asset not found for ${VERSION}; skipping vanilla.js update"
-          fi
+          FILES_CHANGED="robotsix-ui-base.css and vanilla.js"
+          git add "$VANILLA_FILE"
           git commit -m "chore: re-vendor robotsix-ui @ ${VERSION}"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$BRANCH"
           gh pr create \
